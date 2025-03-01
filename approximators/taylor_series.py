@@ -1,3 +1,6 @@
+#Author : T.Jeffrin Santon
+#Date : 01/03/2025
+
 #To Find Factorial
 def factorial(x):
     fact = 1
