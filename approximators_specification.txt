@@ -1,0 +1,9 @@
+"approximators" are functions which take in an array of numbers and output "for now"
+a string, which describes a continuous f(x) to approximate the input as closely as possible.
+
+the input array will be assumed to be the y-values for a set of points.
+the x-values for this set of points will be assumed to be {0, 1, 2, 3, ...}
+therefore the approximators only take in same-x-interval points.
+
+the output will always be a continuous function. the representation may vary
+but is currently standardized to be a string.
