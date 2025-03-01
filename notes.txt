@@ -1,0 +1,37 @@
+note 1:
+the general workflow of the program goes as follows:
+
+- take input as:
+	- free-hand-drawn graph (dense set of points) (must be many-one, i.e. pass vertical line test)
+	- set of individual points (to be interpolated)
+	- string equation definition
+
+- convert to number array: (converters)
+	if input is not already an array of numbers, converters will change the input to a number array
+	just as a mock example, line_parser(instr) would convert something like "y=m*x+b" to a number array
+
+	converters take various forms of input and output an array of points, which describe both x and y values.
+
+- change array to even-spaced x intervals: (interpolators)
+	if input is not already evenly x-spaced, interpolation shall be performed to create a number array with
+	evenly-spaced x.
+
+	interpolators take input as points and output two numbers, an array of numbers.
+	the first number represents the starting x
+	the second number represents the step in x
+	the output array represents the y-values
+	the stop value for x may be calculated by: x_start + x_step*(len(array)-1)
+
+- generate approximation curve: (approximators)
+	"approximators" are functions which take in an array of numbers and output a continuous f(x)
+	which approximates the input as closely as possible
+
+	approximators take in the same input as the output of converters (see previous section)
+	and output a continuous many-one function.
+
+	
+
+	the representation of the output is currently standardized to be a string, but may change later
+
+note 2:
+mclaurin series should be implemented on the front-end but not on the back-end, as taylor series is already appropriate.
