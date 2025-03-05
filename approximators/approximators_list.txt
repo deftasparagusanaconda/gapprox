@@ -21,12 +21,12 @@ out[5] = approx_linear_1(in);
 
 
 
-
-
+interpolation for all function 
+J+
 -----------------------------------------------------------------------------------
 linear approximation:
 	J+ linear approximation (tangent)
-	J- mean absolute deviation
+	J+ mean absolute deviation
 	J+ least squares (RMS)
 	J- least cubes
 	J- iterative algorithms: (to minimize y_error, x_error, perpendicular_error, directional_error, or area_error)
@@ -51,10 +51,10 @@ frequency transformation approximation:
 	C- DST (I, II, III, IV)
 
 taylor approximation:
-	J- taylor series (with discrete)
+	J+ taylor series (with discrete)
 
 mclaurin approximation:
-	J- mclaurin series (with discrete)
+	J+ mclaurin series (with discrete)
 
 bezier approximation:
 	?- bezier curves
