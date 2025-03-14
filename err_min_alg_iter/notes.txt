@@ -1,0 +1,239 @@
+an error minimization algorithm first requires an error function.
+then it stores the error in a variable
+it then changes a variable in the output generator
+it calculates the new error and compares it to the previous error
+if it was less, take the new one. (optionally record how much the error changed for further processing)
+
+the error minimization algorithm should have multiple components:
+error function
+	determine how the error between actual and approx is calculated
+stepper function
+	determine which variables are changed and by how much
+C-style function declaration:
+variable[] iter_err_min(variable[], error(), stepper())
+float error(float actual[], float approx[])
+	actual[] and approx[] must have same length otherwise throw error
+variable[] stepper(float error, float)
+
+somewhere (i dont know where) there should be a error_history[] where the error of the previous ones are stored. that way the stepper will predict things better. also maybe keep track of coefficients_history[].
+
+
+
+
+
+
+excerpt from chatgpt:
+
+there are many ways to measure the error between two discrete arrays of floats, depending on what you want to emphasize (outliers, small differences, direction of error, etc.). here are some key ones:
+1. absolute & squared error-based metrics
+mean absolute error (MAE)
+MAE=1N∑i=1N∣ai−bi∣
+MAE=N1​i=1∑N​∣ai​−bi​∣
+
+    treats all deviations equally
+    less sensitive to outliers than squared error metrics
+
+mean squared error (MSE)
+MSE=1N∑i=1N(ai−bi)2
+MSE=N1​i=1∑N​(ai​−bi​)2
+
+    penalizes large errors more due to squaring
+
+root mean squared error (RMSE)
+RMSE=1N∑i=1N(ai−bi)2
+RMSE=N1​i=1∑N​(ai​−bi​)2
+​
+
+    interpretable in the same units as the data
+    more sensitive to large errors than MAE
+
+mean absolute percentage error (MAPE)
+MAPE=100%N∑i=1N∣ai−biai∣
+MAPE=N100%​i=1∑N​
+​ai​ai​−bi​​
+​
+
+    measures error relative to the magnitude of the values
+    problematic when aiai​ is near zero
+
+symmetric mean absolute percentage error (SMAPE)
+SMAPE=100%N∑i=1N∣ai−bi∣(∣ai∣+∣bi∣)/2
+SMAPE=N100%​i=1∑N​(∣ai​∣+∣bi​∣)/2∣ai​−bi​∣​
+
+    avoids division by zero issue in MAPE
+
+2. norm-based errors
+
+(norms are general ways to measure distances in vector spaces)
+L1 norm (Manhattan distance)
+∥a−b∥1=∑i=1N∣ai−bi∣
+∥a−b∥1​=i=1∑N​∣ai​−bi​∣
+
+    sum of absolute differences
+    minimizes overestimation & underestimation equally
+
+L2 norm (Euclidean distance)
+∥a−b∥2=∑i=1N(ai−bi)2
+∥a−b∥2​=i=1∑N​(ai​−bi​)2
+​
+
+    geometric distance between the two arrays
+
+Lp norm (generalized distance metric)
+∥a−b∥p=(∑i=1N∣ai−bi∣p)1p
+∥a−b∥p​=(i=1∑N​∣ai​−bi​∣p)p1​
+
+    when p→∞p→∞, it approaches the max absolute error
+
+maximum absolute error (Chebyshev distance, L∞ norm)
+∥a−b∥∞=max⁡i∣ai−bi∣
+∥a−b∥∞​=imax​∣ai​−bi​∣
+
+    focuses entirely on the worst-case deviation
+
+3. statistical & correlation-based errors
+Pearson correlation coefficient (PCC)
+ρ=∑(ai−aˉ)(bi−bˉ)∑(ai−aˉ)2∑(bi−bˉ)2
+ρ=∑(ai​−aˉ)2
+​∑(bi​−bˉ)2
+​∑(ai​−aˉ)(bi​−bˉ)​
+
+    measures how well the arrays move together
+    doesn't care about magnitude, only shape
+
+Spearman rank correlation
+
+    measures similarity in ranking order, not values
+
+cosine similarity
+cos⁡(θ)=a⋅b∥a∥∥b∥
+cos(θ)=∥a∥∥b∥a⋅b​
+
+    measures angle between vectors instead of magnitude differences
+
+4. other specialized errors
+Hellinger distance
+H=12∑(ai−bi)2
+H=2
+​1​∑(ai​
+​−bi​
+​)2
+​
+
+    useful for probability distributions
+
+Kullback-Leibler divergence (KL divergence)
+DKL(a∥b)=∑ailog⁡aibi
+DKL​(a∥b)=∑ai​logbi​ai​​
+
+    measures how much one probability distribution differs from another
+
+Earth mover's distance (Wasserstein distance)
+
+    how much "work" is needed to transform one distribution into another
+
+
+
+
+another excerpt:
+
+
+
+1. gradient-based methods
+
+these use derivatives to guide optimization.
+gradient descent (GD)
+wt+1=wt−η∇f(wt)
+wt+1​=wt​−η∇f(wt​)
+
+    moves in the direction of the negative gradient to minimize a function
+    learning rate ηη controls step size
+    variants:
+        batch GD: full dataset used for each update
+        stochastic GD (SGD): updates using one sample at a time
+        mini-batch GD: updates using small batches of samples
+
+momentum-based gradient descent
+vt+1=βvt−η∇f(wt)
+vt+1​=βvt​−η∇f(wt​)
+wt+1=wt+vt+1
+wt+1​=wt​+vt+1​
+
+    accelerates convergence by using past updates
+    reduces oscillations in noisy gradients
+
+adam (adaptive moment estimation)
+mt=β1mt−1+(1−β1)∇f(wt)
+mt​=β1​mt−1​+(1−β1​)∇f(wt​)
+vt=β2vt−1+(1−β2)(∇f(wt))2
+vt​=β2​vt−1​+(1−β2​)(∇f(wt​))2
+mt^=mt1−β1t,vt^=vt1−β2t
+mt​^​=1−β1t​mt​​,vt​^​=1−β2t​vt​​
+wt+1=wt−ηmt^vt^+ϵ
+wt+1​=wt​−ηvt​^​
+​+ϵmt​^​​
+
+    combines momentum with adaptive learning rates
+    efficient for high-dimensional problems
+
+newton’s method
+wt+1=wt−H−1∇f(wt)
+wt+1​=wt​−H−1∇f(wt​)
+
+    uses second derivatives (Hessian HH) for faster convergence
+    expensive for large problems
+
+2. evolutionary & heuristic methods
+
+these don’t rely on gradients, making them useful for non-smooth functions.
+genetic algorithms (GA)
+
+    create a population of solutions
+    evaluate their performance
+    select the best ones
+    apply crossover and mutation
+    repeat until convergence
+
+simulated annealing (SA)
+
+    start with an initial solution
+    randomly modify it
+    accept worse solutions with probability
+    P=e−ΔET
+    P=e−TΔE​ where TT decreases over time
+    explore globally before refining locally
+
+particle swarm optimization (PSO)
+
+    maintains a set of solutions (particles) that move in search space
+    each particle updates based on:
+        its best known position
+        the best position found by any particle
+
+3. convex optimization techniques
+
+these are more structured and used when a function has a known convex shape.
+coordinate descent
+
+    optimizes one variable at a time while keeping others fixed
+    useful for sparse problems (like LASSO regression)
+
+expectation-maximization (EM) algorithm
+
+    used when data has hidden variables
+    iterates between:
+        E-step: estimate missing variables
+        M-step: optimize parameters based on the estimated values
+
+4. specialized least-squares solvers
+
+if the error is a sum of squared differences, these work well.
+gauss-newton method
+
+    like newton’s method but avoids computing full second derivatives
+
+levenberg-marquardt algorithm
+
+    interpolates between GD and newton’s method
+    good for nonlinear least squares problems
+

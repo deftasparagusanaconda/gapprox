@@ -1,0 +1,11 @@
+iter_err_min_alg() runs one iteration of an iterative error minimization algorithm
+external code must iterate it manually
+
+
+
+iter_err_min_alg takes many things:
+- arr_actual	the final thing were trying to approximate closest to
+- func_approx	
+- func_error	
+- func_stepper	
+- 
