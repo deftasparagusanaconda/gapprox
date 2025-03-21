@@ -1,0 +1,42 @@
+data types:
+values[]                array of values
+points[]                array of points as (x, y)
+params[]                array of parameters (parameters like a & b in y=ax+b)
+terms[]                 array of symbolic terms 
+matrix[]                2D array of values for each term (matrix[term][x-value])
+string                  string representation of an expression
+symbolic                symbolic representation of an expression
+matrix_symbolic[]       2D array of symbolic matrix[]
+values_symbolic[]       array of symbolic values[]
+
+functions:
+
+values[]/points[]/string input()
+{	// not yet implemented
+	// will work with GUI
+}
+values[] interpolate(points[])
+{	// change points[] to values[]
+	// e.g. interpolator_linear() uses linear interpolation
+}
+values[] decode(string)
+{	// decode string input and determine expression type and coefficients
+	// e.g. using sympy to detect line equation
+}
+params[] approximate(values[])
+{	// generate the parameters for an expression to approximate something
+	// e.g. DFT to find coefficients/parameters for fourier series
+}
+values[] expression(params[])
+{	// generate a continuous function in the form of a math expression
+	// e.g. expression_line([a, b]) returns the line y = a*x + b
+}
+void output(values[]/points[]/string)
+{	// not yet implemented
+	// will work with GUI
+}
+
+functions are basically ways to change one data type to another
+
+functions must support these data types as defaults but can support more
+ e.g. approximator_line_regression() can support both values[] and points[] input
