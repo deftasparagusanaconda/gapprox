@@ -1,5 +1,5 @@
 data types:
-values[]                array of values
+values[]                array of values (may also be complex)
 points[]                array of points as (x, y)
 params[]                array of parameters (parameters like a & b in y=ax+b)
 terms[]                 array of symbolic terms 

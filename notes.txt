@@ -1,4 +1,4 @@
-note 1:
+note 1: (slightly outdated)
 the general workflow of the program goes as follows:
 
 - take input as:
@@ -35,3 +35,10 @@ the general workflow of the program goes as follows:
 
 note 2:
 mclaurin series should be implemented on the front-end but not on the back-end, as taylor series is already appropriate.
+
+note 3:
+err_min_alg_iter can have different end conditions. how to implement this?
+is it best to have err_min_alg_iter act as a wrapper? should main do its job instead?
+
+note 4:
+

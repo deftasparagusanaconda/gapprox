@@ -1,4 +1,4 @@
-import scipy.fft, sympy
+# dft, dct, dst maintained by deftasparagusanaconda
 
 #Author : T.Jeffrin Santon
 #Date : 27/02/2025
@@ -90,169 +90,40 @@ def taylor_series(points , point_of_approx ,no_of_terms):
         approx_function += "+"
     return approx_function
 
-def fft(inarr):
-	output = "f(x) = \n"
-
-	n = len(inarr)	# no. of points
-
-	coefficients = scipy.fft.fft(inarr, norm="forward")
+def dft(values: list[complex]) -> list[complex]:
+	"""
+	discrete fourier transform
+	"""
+	import scipy.fft
+	return scipy.fft.fft(values, norm="forward")
 	
-	realarr = numpy.real(coefficients)
-	imagarr = -numpy.imag(coefficients)	# -ve because from both eulers formula and fft output, i**2 = -1
+def dct(values, dct_type = 2):
+	"""
+	discrete cosine transform
+	dct_type: 1, 2, 3, 4
+	"""
+	import scipy.fft
 
-	for i in range(n):
-		output += str(realarr[i])
-		output += "*cos(2*pi*" + str(i) + '/' + str(n) + "*x) + "
-		output += '\t'
-		output += str(imagarr[i])
-		output += "*sin(2*pi*" + str(i) + '/' + str(n) + "*x) + "
-		output += '\n'
-
-	# should return a string
-	return output
-	
-
-#    dct_type: 1, 2, 3, 4 
-#  input_type: "values", "params"
-# output_type: "values", "params", "terms", "string", "matrix", "matrix_symbolic", "values_symbolic"
-def dct(inarr, dct_type = 2, input_type = "values", output_type = ["values"]):
 	if dct_type in [5,6,7,8]:
-		raise ValueError("dct_type " + str(dct_type) + " is not yet implemented")
+		raise ValueError(f"dct_type {dct_type} is not yet implemented")
 	elif dct_type not in [1,2,3,4]:
 		raise ValueError("dct() got invalid dct_type")
 	
-	params = []
-	if "params" == input_type:
-		params = inarr
-	elif "values" == input_type:
-		params = scipy.fft.dct(inarr, type=dct_type, norm="forward")
-	else:
-		raise ValueError("dct() got invalid input_type")
+	return scipy.fft.dct(values, type=dct_type, norm="forward")
 
-	output = []
+def dst(values, dst_type = 2):
+	"""
+	discrete sine transform
+	dst_type: 1, 2, 3, 4
+	"""
+	import scipy.fft
 
-	if "params" in output_type:
-		output.append(params)
-
-	N = len(inarr)
-	x = sympy.symbols("x")
-	terms = []
-
-	if 1 == dct_type:
-		terms = [2 * params[ i] * sympy.cos(sympy.pi*x/(N-1)*i) for i in range(N)]
-		terms[0]  /= 2
-		terms[-1] /= 2
-	
-	elif 2 == dct_type:
-		terms = [2 * params[ i] * sympy.cos(sympy.pi*(2*x+1)/(2*N)*i) for i in range(N)]
-		terms[0]  /= 2
-	
-	elif 3 == dct_type:
-		terms = [2 * params[i] * sympy.cos(sympy.pi*x*(2*i+1)/(2*N)) for i in range(N)]
-	
-	elif 4 == dct_type:
-		terms = [2 * params[i] * sympy.cos(sympy.pi*(2*x+1)*(2*i+1)/(4*N)) for i in range(N)]
-	
-	else:
-		raise RuntimeError("dct() reached unexpected execution path")
-	
-	if "terms" in output_type:
-		output.append(terms)
-	
-	if "string" in output_type:
-		output.append(	"f(x) =\n  " + "\n+ ".join(str(term) for term in terms)	)
-	
-	# matrix[term][value] = term.subs(x,value)
-	matrix_symbolic = [[term.subs(x,i) for i in range(N)] for term in terms]
-	
-	if "matrix_symbolic" in output_type:
-		output.append(matrix_symbolic)
-	
-	if "matrix" in output_type:
-		output.append(tuple(tuple(val.evalf() for val in term) for term in matrix_symbolic))
-	
-	values_symbolic = []
-	for i in range(N):
-		val = 0
-		for term in matrix_symbolic:
-			val += term[i]
-		values_symbolic.append(val)
-	
-	if "values_symbolic" in output_type:
-		output.append(values_symbolic)
-	
-	if "values" in output_type:
-		output.append(tuple(val.evalf() for val in values_symbolic))
-	
-	return output
-
-#    dst_type: 1, 2, 3, 4
-#  input_type: "values", "params"
-# output_type: "values", "params", "terms", "string", "matrix", "matrix_symbolic", "values_symbolic"
-def dst(inarr, dst_type = 2, input_type = "values", output_type = ["values"]):
 	if dst_type in [5,6,7,8]:
-		raise ValueError("dst_type " + str(dst_type) + " is not yet implemented")
+		raise ValueError(f"dst_type {dst_type} is not yet implemented")
 	elif dst_type not in [1,2,3,4]:
-		raise ValueError("dst() got invaolid dst_type")
-
-	params = []
-	if "params" == input_type:
-		params = inarr
-	elif "values" == input_type:
-		params = scipy.fft.dst(inarr, type=dst_type, norm="forward")
-	else:
-		raise ValueError("dst() got invalid input_type")
+		raise ValueError("dst() got invalid dst_type")
 	
-	output = []
+	return scipy.fft.dst(values, type=dst_type, norm="forward")
 
-	if "params" in output_type:
-		output.append(params)
-	
-	N = len(inarr)
-	x = sympy.symbols("x")
-	terms = []
 
-	if 1 == dst_type:
-		terms = (	2 * params[i] * sin(pi*(x+1)*(i+1)/(N+1)) for i in range(N))
-
-	elif 2 == dst_type:
-		terms = [	2 * params[i] * sin(pi*(i+1)*(2*x+1)/(2*N)) for i in range(N)]
-		terms[-1] /= 2
-	elif 3 == dst_type:
-		terms = (	2 * params[i]) * sin(pi*(x+1)*(2*i+1)/(2*N)) for i in range(N))
-
-	elif 4 == dst_type:
-		terms = (	2 * params[i] * sin(pi*(2*x+1)*(2*i+1)/(4*N)) for  in range(N))
-
-	else:
-		raise RuntimeError("dst() reached unexpected execution path")
-
-	if "terms" in output_type:
-		output.append(terms)
-
-	if "string" in output_type:
-		output.append(	"f(x) = \n" + "\n+ ".join(str(term) for term in terms)	)
-
-	# matrix[term][value] = term.subs(x,value)
-	matrix_symbolic = [[term.subs(x,i) for i in range(N)] for term in terms]
-
-	if "matrix_symbolic" in output_type:
-		output.append(matrix_symbolic)
-	
-	if "matrix" in output_type:
-		output.append(tuple(tuple(val.evalf() for val in term) for term in matrix_symbolic))
-
-	values_symoblic = []
-	for i in range(N):
-		val = 0
-		for term in matrix_symbolic:
-			val += term[i]
-		values_symbolic.append(val)
-	
-	if "values_symbolic" in output_type:
-		output.append(values_symbolic)
-	
-	if "values" in output_type:
-		output.append(tuple(val.evalf() for val in values_symbolic))
-
-	return output
+# to-do: implement output_type=values_symbolic for dft(), dct(), dst()
