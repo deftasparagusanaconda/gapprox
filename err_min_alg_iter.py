@@ -22,10 +22,10 @@ def err_min_alg_iter(actual_values, history, func_approx, func_error, func_stepp
 
 	return (forecast_error, forecast_params)
 	
-my_actual_values	= [1,2,3,5]
-my_history		= [(1, (2,3,4,5))]
-my_func_approximate	= approximate.dct
-my_func_error	 	= error.power_mean
-my_func_step		= step.greedy_GD
+#my_actual_values	= [1,2,3,5]
+#my_history		= [(1, (2,3,4,5))]
+#my_func_approximate	= approximate.dct
+#my_func_error	 	= error.power_mean
+#my_func_step		= step.greedy_GD
 
-print(err_min_alg_iter(my_actual_values,my_history, my_func_approx, my_func_error, my_func_stepper))
+#print(err_min_alg_iter(my_actual_values,my_history, my_func_approx, my_func_error, my_func_stepper))
