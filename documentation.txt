@@ -40,3 +40,10 @@ functions are basically ways to change one data type to another
 
 functions must support these data types as defaults but can support more
  e.g. approximator_line_regression() can support both values[] and points[] input
+
+package dependencies:
+scipy.fft
+numpy
+sympy
+functools
+textual

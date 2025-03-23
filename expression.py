@@ -340,7 +340,20 @@ def idst(params, idst_type = 2, output_type="values"):
 	else:
 		return output
 
-#print(fourier_series([5,4,3,2], output_type="matrix_symbolic"))
-#print(sine_series([2,3,4,5]))
+def eq_graph(params, output_type="values"):
+	output = []
+	
+	
+	
+	
+	
+	if "values" in output_type:
+		output.append()
+	
+	if 1 == len(output):
+		return output[0]
+	else:
+		return output
 
 # to-do: implement output_types for idft 
+# to-do: implement parametric-eq-like graph
