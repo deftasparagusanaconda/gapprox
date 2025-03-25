@@ -41,4 +41,4 @@ err_min_alg_iter can have different end conditions. how to implement this?
 is it best to have err_min_alg_iter act as a wrapper? should main do its job instead?
 
 note 4:
-
+add something to detect outliers in data

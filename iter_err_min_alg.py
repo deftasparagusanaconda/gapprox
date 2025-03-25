@@ -6,10 +6,10 @@
 # it WILL NOT support multiple iterations. external code must do that manually
 
 # returns tuple of (error, params[])
-import approximate, error, step
+import approximate, error, stepper
 #import sympy
 
-def err_min_alg_iter(actual_values, history, func_approx, func_error, func_stepper):
+def iter_err_min_alg(actual_values, history, func_approx, func_error, func_stepper):
 	
 	if len(history) == 0:
 		(forecast_params, forecast_values) = func_approx(actual_values, output_type=["params", "values"])
