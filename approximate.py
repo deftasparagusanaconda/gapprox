@@ -94,7 +94,9 @@ def dft(values: list[complex]) -> list[complex]:
 	"""
 	discrete fourier transform
 	"""
+
 	import scipy.fft
+	
 	return scipy.fft.fft(values, norm="forward")
 	
 def dct(values, dct_type = 2):
@@ -102,8 +104,9 @@ def dct(values, dct_type = 2):
 	discrete cosine transform
 	dct_type: 1, 2, 3, 4
 	"""
-	import scipy.fft
 
+	import scipy.fft
+	
 	if dct_type in [5,6,7,8]:
 		raise ValueError(f"dct_type {dct_type} is not yet implemented")
 	elif dct_type not in [1,2,3,4]:
@@ -116,6 +119,7 @@ def dst(values, dst_type = 2):
 	discrete sine transform
 	dst_type: 1, 2, 3, 4
 	"""
+
 	import scipy.fft
 
 	if dst_type in [5,6,7,8]:

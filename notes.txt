@@ -40,5 +40,8 @@ note 3:
 err_min_alg_iter can have different end conditions. how to implement this?
 is it best to have err_min_alg_iter act as a wrapper? should main do its job instead?
 
-note 4:
+note 4: (done)
 add something to detect outliers in data
+
+note 5:
+i need to learn multithreading before i implement the error minimization algorithm wrapper

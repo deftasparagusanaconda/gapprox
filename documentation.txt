@@ -1,6 +1,7 @@
 data types:
 values[]                array of values (may also be complex)
 points[]                array of points as (x, y)
+indices[]		array of indices
 params[]                array of parameters (parameters like a & b in y=ax+b)
 terms[]                 array of symbolic terms 
 matrix[]                2D array of values for each term (matrix[term][x-value])
@@ -35,6 +36,10 @@ void output(values[]/points[]/string)
 {	// not yet implemented
 	// will work with GUI
 }
+indexes[] outliers(values[])
+{	// find outliers of a dataset
+	// return their indices
+}
 
 functions are basically ways to change one data type to another
 
@@ -43,7 +48,11 @@ functions must support these data types as defaults but can support more
 
 package dependencies:
 scipy.fft
+scipy.stats
 numpy
 sympy
 functools
 textual
+
+additionally, the program keeps track of two arrays for error minimization:
+error_history[] and params_history[]
