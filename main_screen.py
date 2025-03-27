@@ -21,14 +21,14 @@ def get_input_graph_type(input_graph_type, InputGraphTypes):
 		for i in range(10-len(InputGraphTypes)):
 			print()
 		
-		print("[q] - exit")
+		print("[q] - back")
 		print()
 		output = input("choice: ")
 		
 		if '0' == output:
 			return None
 		
-		if 'q' == output:
+		if 'q' == output or 'back' == output:
 			return input_graph_type
 		
 		if eval(output) not in InputGraphTypes:
@@ -39,11 +39,8 @@ def get_input_graph_type(input_graph_type, InputGraphTypes):
 
 	return output
 
-def get_input_graph(input_graph, input_graph_type, InputGraphTypes):
-	console_clear()
-
-	print("input graph =", str(input_graph)[:66])
-	print()
+def _get_input_graph_change(input_graph, input_graph_type, InputGraphTypes):
+	output = input_graph
 
 	if input_graph_type is None:
 		print("set input graph type first")
@@ -54,20 +51,43 @@ def get_input_graph(input_graph, input_graph_type, InputGraphTypes):
 		return None
 
 	elif int(input_graph_type) == InputGraphTypes.VALUES.value:
-		output = input("input values (separated by ','): ")
+		console_clear_line()		
+		output = input("input values: ")
 		output = tuple(float(value) for value in output.split(','))	
 
 	elif int(input_graph_type) == InputGraphTypes.POINTS.value:
+		console_clear_line()		
 		output = input("input points: ")
-		output = tuple(tuple(float(value) for coord in point) for point in output.split(')'))
+		output = output.replace(' ', '').split("),(")
+		output = tuple(tuple(eval(thing.strip('()'))) for thing in output)
 
 	elif int(input_graph_type) == InputGraphTypes.STRING.value:
+		console_clear_line()		
 		output = input("input string: ")
 
 	else:
-		output = None
-
+		input("error!")
+	
 	return output
+
+def get_input_graph(input_graph, input_graph_type, InputGraphTypes):
+	while True:
+		console_clear()
+		
+#		print("input graph =", str(input_graph)[:66])
+		print("input graph =", input_graph)
+		print()
+		print("[Enter] - change")
+		print("[q]     - back")
+		print()
+		
+		match input("choice: "):
+			case '':	# same as just pressing [Enter]
+				input_graph = _get_input_graph_change(input_graph, input_graph_type, InputGraphTypes)
+			case 'q':
+				return input_graph
+
+	return input_graph
 
 def get_func_interp(func_interp):
 	return input("interpolation method: ")
@@ -121,3 +141,14 @@ def get_output_graph_type(output_graph_type, OutputGraphTypes):
 			break
 
 	return output
+
+"""
+from enum import Enum
+class InputGraphTypes(Enum):
+        VALUES = 1
+        POINTS = 2
+        STRING = 3
+
+var = get_input_graph(None, 3, InputGraphTypes)
+print(var)
+"""

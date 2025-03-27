@@ -103,41 +103,38 @@ elif args.no_tui is True and args.no_gui is True:
 
 # menu -------------------------------------------------------------------------
 
-print("defining menu")
-
-def menu():
-        console_clear()
-        print("graph approximator")
-        print()
-        if input_graph_type is not None:
-                print("[1] - input graph type\t\t\t\t=", InputGraphTypes(int(input_graph_type)).name.lower())
-        else:
-                print("[1] - input graph type\t\t\t\t=", input_graph_type)
-        print("[2] - input graph\t\t\t\t=", str(input_graph)[:30])
-        print("[3] - interpolation method\t\t\t=", func_interp)
-        print("[4] - approximation method\t\t\t=", func_approx)
-        print("[5] - expression function\t\t\t=", func_expr)
-        print("[6] - iterative error minimization algorithm\t=", func_iter_err_min_alg)
-        print("[7] - error function\t\t\t\t=", func_error)
-        print("[8] - stepper function\t\t\t\t=", func_stepper)
-        if output_graph_type is not None:
-                print("[9] - output graph type\t\t\t\t=", OutputGraphTypes(int(output_graph_type)).name.lower())
-        else:
-                print("[9] - output graph type\t\t\t\t=", output_graph_type)
-        print()
-        print("[Enter] - start")
-        print("[q]     - exit")
-        print("\nchoice: ", end='')
-
-        return input()
 
 print("starting menu...")
 print()
 
 while True:
-	match menu():
-		case '0':
-			input("hmm? you put in '0'")
+	console_clear()
+
+	print("graph approximator")
+	print()
+	if input_graph_type is not None:
+		print("[1] - input graph type\t\t\t\t=", InputGraphTypes(int(input_graph_type)).name.lower())
+	else:
+		print("[1] - input graph type\t\t\t\t=", input_graph_type)
+	print("[2] - input graph\t\t\t\t=", str(input_graph)[:30])
+	print("[3] - interpolation method\t\t\t=", func_interp)
+	print("[4] - approximation method\t\t\t=", func_approx)
+	print("[5] - expression function\t\t\t=", func_expr)
+	print("[6] - iterative error minimization algorithm\t=", func_iter_err_min_alg)
+	print("[7] - error function\t\t\t\t=", func_error)
+	print("[8] - stepper function\t\t\t\t=", func_stepper)
+
+	if output_graph_type is not None:
+		print("[9] - output graph type\t\t\t\t=", OutputGraphTypes(int(output_graph_type)).name.lower())
+	else:
+                print("[9] - output graph type\t\t\t\t=", output_graph_type)
+
+	print()
+	print("[Enter] - start")
+	print("[q]     - exit")
+	print()
+
+	match input("choice: "):
 		case '1':
 			input_graph_type = main_screen.get_input_graph_type(input_graph_type, InputGraphTypes)
 		case '2':
@@ -157,22 +154,16 @@ while True:
 		case '9':
 			output_graph_type = main_screen.get_output_graph_type(output_graph_type, OutputGraphTypes)
 		case '\n':	# equivalent to just pressing [Enter]
-			print("enter!")
-#		break
-
+			input("hmm? you pressed enter!")
 		case 'q':
 			break
 		case 'exit':
 			break
+		case _:
+			input("\nhmm... i dont think thats a valid choice...")
 
 print()
 print("exiting program...")
-
-
-
-
-
-
 
 #if args.no_tui is False:
 #	import textual.app

@@ -1,4 +1,3 @@
-import scipy.stats
 
 """
 # see https://en.wikipedia.org/wiki/Generalized_mean
@@ -27,9 +26,11 @@ def weighted_power_mean(num_arr, weight_arr, power = 1):
 # after making all this, i saw that scipy already had an implementation of weighted power mean. oh well :/
 """
 def power_mean(num_arr, power = 1):
+	import scipy.stats
 	return _scipy.stats.pmean(num_arr, power)
 
 def weighted_power_mean(num_arr, weight_arr, power = 1):
+	import scipy.stats
 	if len(num_arr) != len(weight_arr):
                 print("ERROR:\tweighted_power_mean(num_arr, weight_arr, power) got different lengths!")
                 print("\tlen(num_arr)    =", len(num_arr))
@@ -39,6 +40,7 @@ def weighted_power_mean(num_arr, weight_arr, power = 1):
 	return _scipy.stats.pmean(num_arr, power, weights=weight_arr)
 
 def error_power_mean(arr_a, arr_b, power = 1):
+	import scipy.stats
 	if len(arr_a) != len(arr_b):
 		print("ERROR:\terror_power_mean(arr_a, arr_b, power) got different lengths!")
 		print("\tlen(arr_a) =", len(arr_a))
@@ -52,12 +54,14 @@ def error_power_mean(arr_a, arr_b, power = 1):
 
 # https://en.wikipedia.org/wiki/Generalized_mean
 def weighted_power_mean(arr_a, arr_b, weight_arr, power = 1):
+	import scipy.stats
 	if len(arr_a) != len(arr_b) or len(arr_a) != len(weight_arr):
 		raise ValueError("error_weighted_power_mean() got different lengths")
 
 	return scipy.stats.pmean((abs(a-b) for a, b in zip(arr_a, arr_b)), power, weights=weight_arr)
 
 def power_mean(arr_a, arr_b, power = 1):
+	import scipy.stats
 	if len(arr_a) != len(arr_b):
 		raise ValueError("error_power_mean() got different lengths")
 
