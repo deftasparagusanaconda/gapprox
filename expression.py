@@ -227,9 +227,6 @@ def sine_series(params, output_type="values"):
 	else:
 		return output
 
-import functools as _functools
-idft = _functools.partial(fourier_series, L=None)
-
 def idct(params, idct_type=2, output_type="values"):
 	"""
 	inverse discrete cosine transform

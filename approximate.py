@@ -91,19 +91,15 @@ def taylor_series(points , point_of_approx ,no_of_terms):
     return approx_function
 
 def dft(values: list[complex]) -> list[complex]:
-	"""
-	discrete fourier transform
-	"""
+	"""discrete fourier transform"""
 
 	import scipy.fft
 	
 	return scipy.fft.fft(values, norm="forward")
 	
 def dct(values, dct_type = 2):
-	"""
-	discrete cosine transform
-	dct_type: 1, 2, 3, 4
-	"""
+	"""discrete cosine transform
+	dct_type: 1, 2, 3, 4"""
 
 	import scipy.fft
 	
@@ -115,10 +111,8 @@ def dct(values, dct_type = 2):
 	return scipy.fft.dct(values, type=dct_type, norm="forward")
 
 def dst(values, dst_type = 2):
-	"""
-	discrete sine transform
-	dst_type: 1, 2, 3, 4
-	"""
+	"""discrete sine transform
+	dst_type: 1, 2, 3, 4"""
 
 	import scipy.fft
 

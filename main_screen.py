@@ -5,70 +5,57 @@ def console_clear_line():
         print("\033[1A\033[K\r", end='')
 
 def get_input_graph_type(input_graph_type, InputGraphTypes):
-	console_clear()
-
 	while True:
-		if input_graph_type is not None:
-			print("input graph type =", InputGraphTypes(int(input_graph_type)).name.lower())
-		else:
-			print("input graph type =", input_graph_type)
-
+		console_clear()
+		print("input graph type =", input_graph_type)
 		print()
 		print("[0] - None")
-		for inputgraphtype in InputGraphTypes:
-			print(f"[{inputgraphtype.value}] - {inputgraphtype.name.lower()}")
+		for index, inputgraphtype in enumerate(InputGraphTypes):
+			print(f"[{index+1}] - {inputgraphtype}")
 
 		for i in range(10-len(InputGraphTypes)):
 			print()
 		
 		print("[q] - back")
 		print()
-		output = input("choice: ")
-		
-		if '0' == output:
-			return None
-		
-		if 'q' == output or 'back' == output:
-			return input_graph_type
-		
-		if eval(output) not in InputGraphTypes:
-			console_clear()
-			continue
-		else:
-			break
-
+		match input("choice: "):
+			case '0':
+				input_graph_type = None
+			case 'q' | 'back':
+				return input_graph_type
+			case choice:
+				if choice.isdigit():
+					if 1<=int(choice)<=len(InputGraphTypes):
+						input_graph_type = InputGraphTypes[int(choice)-1]
+	
 	return output
 
 def _get_input_graph_change(input_graph, input_graph_type, InputGraphTypes):
-	output = input_graph
-
-	if input_graph_type is None:
-		print("set input graph type first")
-		print()
-		print("[Enter]")
-		print()
-		input("choice: ")
-		return None
-
-	elif int(input_graph_type) == InputGraphTypes.VALUES.value:
-		console_clear_line()		
-		output = input("input values: ")
-		output = tuple(float(value) for value in output.split(','))	
-
-	elif int(input_graph_type) == InputGraphTypes.POINTS.value:
-		console_clear_line()		
-		output = input("input points: ")
-		output = output.replace(' ', '').split("),(")
-		output = tuple(tuple(eval(thing.strip('()'))) for thing in output)
-
-	elif int(input_graph_type) == InputGraphTypes.STRING.value:
-		console_clear_line()		
-		output = input("input string: ")
-
-	else:
-		input("error!")
+	match input_graph_type:
+		case None:
+			console_clear()
+			print("set input graph type first")
+			print()
+			print("[Enter] - back")
+			print("[q]     - back")
+			print()
+			input("choice: ")
+		case "values":
+			console_clear_line()
+			input_graph = input("input values: ")
+			input_graph = tuple(float(value) for value in input_graph.split(','))
+		case "points":
+			console_clear_line()
+			input_graph = input("input points: ")
+			input_graph = input_graph.replace(' ', '').split("),(")
+			input_graph = tuple(tuple(eval(thing.strip('()'))) for thing in input_graph)
+		case "string":
+			console_clear_line()
+			input_graph = input("input string: ")
+		case thing:
+			input(f"critical error! input_graph_type isnt supposed to have {thing}")
 	
-	return output
+	return input_graph
 
 def get_input_graph(input_graph, input_graph_type, InputGraphTypes):
 	while True:
@@ -84,71 +71,191 @@ def get_input_graph(input_graph, input_graph_type, InputGraphTypes):
 		match input("choice: "):
 			case '':	# same as just pressing [Enter]
 				input_graph = _get_input_graph_change(input_graph, input_graph_type, InputGraphTypes)
-			case 'q':
+			case 'q' | "back":
 				return input_graph
 
 	return input_graph
 
-def get_func_interp(func_interp):
-	return input("interpolation method: ")
+# if im not going to be able to sleep anyway, why try?
+# it doesnt make a difference anyway
+# fml
 
-def get_func_approx(func_approx):
-	return input("approximation method: ")
-
-def get_func_expr(func_expr):
-	return input("expression function: ")
-
-def get_func_iter_err_min_alg(func_iter_err_min_alg):
-	return input("iterative error minimization algorithm: ")
-
-def get_func_error(func_error):
-	return input("error function: ")
-
-def get_func_stepper(func_stepper):
-	return input("stepper function: ")
-
-def get_output_graph_type(output_graph_type, OutputGraphTypes):
-	console_clear()
-
+def get_function_interpolate(function_interpolate, Interpolators):
 	while True:
-		if output_graph_type is not None:
-			print("output graph type =", OutputGraphTypes(int(output_graph_type)).name.lower())
-		else:
-			print("output graph type =", output_graph_type)
+		console_clear()
 
+		if function_interpolate is None:
+			print("interpolate method:", function_interpolate)
+		else:
+			if function_interpolate.__doc__ == None:
+				print(f"interpolate method: {function_interpolate.__name__}")
+			else:
+				print(f"interpolate method: {function_interpolate.__name__}\n{function_interpolate.__doc__.strip(' \n')}")
 		print()
 		print("[0] - None")
-		for outputgraphtype in OutputGraphTypes:
-			print(f"[{outputgraphtype.value}] - {outputgraphtype.name.lower()}")
+		for index, thing in enumerate(Interpolators):
+			print(f"[{index+1}] - {thing.__name__}")
+		print()
+		print("[q] - back")
+		print()
+		match input("choice: "):
+			case '0':
+				function_interpolate = None
+			case 'q' | "back":
+				break
+			case choice:
+				if choice.isdigit():
+					if 1<=int(choice)<=len(Interpolators):
+						function_interpolate = Interpolators[int(choice)-1]
+	
+	return function_interpolate
+
+def get_function_approximate(function_approximate, Approximators):
+	while True:
+		console_clear()
+
+		if function_approximate is None:
+			print("approximation method:", function_approximate)
+		else:
+			if function_approximate.__doc__ == None:
+				print(f"approximation method: {function_approximate.__name__}")
+			else:
+				print(f"approximation method: {function_approximate.__name__}\n{function_approximate.__doc__.strip(' \n')}")
+		print()
+		print("[0] - None")
+		for index, thing in enumerate(Approximators):
+			print(f"[{index+1}] - {thing.__name__}")
+		print()
+		print("[q] - back")
+		print()
+		match input("choice: "):
+			case '0':
+				function_approximate = None
+			case 'q' | "back":
+				break
+			case choice:
+				if choice.isdigit():
+					if 1<=int(choice)<=len(Approximators):
+						function_approximate = Approximators[int(choice)-1]
+	
+	return function_approximate
+
+def get_function_expression(function_expression, Expressions):
+	while True:
+		console_clear()
+
+		if function_expression is None:
+			print("expression method:", function_expression)
+		else:
+			if function_expression.__doc__ == None:
+				print(f"expression method: {function_expression.__name__}")
+			else:
+				print(f"expression method: {function_expression.__name__}\n{function_expression.__doc__.strip(' \n')}")
+		print()
+		print("[0] - None")
+		for index, thing in enumerate(Expressions):
+			print(f"[{index+1}] - {thing.__name__}")
+		print()
+		print("[q] - back")
+		print()
+		match input("choice: "):
+			case '0':
+				function_expression = None
+			case 'q' | "back":
+				break
+			case choice:
+				if choice.isdigit():
+					if 1<=int(choice)<=len(Expressions):
+						function_expression = Expressions[int(choice)-1]
+	
+	return function_expression
+	
+def get_function_iter_err_min_alg(function_iter_err_min_alg):
+	return input("iterative error minimization algorithm: ")
+
+def get_function_error(function_error, Errors):
+	while True:
+		console_clear()
+
+		if function_error is None:
+			print("error function:", function_error)
+		else:
+			if function_error.__doc__ == None:
+				print(f"error function: {function_error.__name__}")
+			else:
+				print(f"error function: {function_error.__name__}\n{function_error.__doc__.strip(' \n')}")
+		print()
+		print("[0] - None")
+		for index, thing in enumerate(Errors):
+			print(f"[{index+1}] - {thing.__name__}")
+		print()
+		print("[q] - back")
+		print()
+		match input("choice: "):
+			case '0':
+				function_error = None
+			case 'q' | "back":
+				break
+			case choice:
+				if choice.isdigit():
+					if 1<=int(choice)<=len(Errors):
+						function_error = Errors[int(choice)-1]
+	
+	return function_error
+	
+def get_function_stepper(function_stepper, Steppers):
+	while True:
+		console_clear()
+
+		if function_stepper is None:
+			print("stepper function:", function_stepper)
+		else:
+			if function_stepper.__doc__ == None:
+				print(f"stepper function: {function_stepper.__name__}")
+			else:
+				print(f"stepper function: {function_stepper.__name__}\n{function_stepper.__doc__.strip(' \n')}")
+		print()
+		print("[0] - None")
+		for index, thing in enumerate(Steppers):
+			print(f"[{index+1}] - {thing.__name__}")
+		print()
+		print("[q] - back")
+		print()
+		match input("choice: "):
+			case '0':
+				function_stepper = None
+			case 'q' | "back":
+				break
+			case choice:
+				if choice.isdigit():
+					if 1<=int(choice)<=len(Steppers):
+						function_stepper = Steppers[int(choice)-1]
+	
+	return function_stepper
+
+def get_output_graph_type(output_graph_type, OutputGraphTypes):
+	while True:
+		console_clear()
+
+		print("output graph type =", output_graph_type)
+		print()
+		print("[0] - None")
+		for index, outputgraphtype in enumerate(OutputGraphTypes):
+			print(f"[{index+1}] - {outputgraphtype}")
 
 		for i in range(10-len(OutputGraphTypes)):
 			print()
 		
 		print("[q] - exit")
 		print()
-		output = input("choice: ")
-		
-		if '0' == output:
-			return None
-		
-		if 'q' == output:
-			return output_graph_type
-		
-		if eval(output) not in OutputGraphTypes:
-			console_clear()
-			continue
-		else:
-			break
+		match input("choice: "):
+			case '0':
+				output_graph_type = None
+			case 'q' | "back":
+				break
+			case choice:
+				if choice.isdigit():
+					if 1<=int(choice)<=len(OutputGraphTypes):
+						output_graph_type = OutputGraphTypes[int(choice)-1]
 
-	return output
-
-"""
-from enum import Enum
-class InputGraphTypes(Enum):
-        VALUES = 1
-        POINTS = 2
-        STRING = 3
-
-var = get_input_graph(None, 3, InputGraphTypes)
-print(var)
-"""
+	return output_graph_type

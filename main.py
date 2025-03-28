@@ -14,20 +14,13 @@ print("clearing console")
 def console_clear():
 	print("\033[2J\033[H", end='')
 
-#def console_clear_line():
-#	print("\033[1A\033[K\r", end='')
-
-console_clear()
+def console_clear_line():
+	print("\033[1A\033[K\r", end='')
 
 # import -----------------------------------------------------------------------
 
-print()
 print("importing argparse")
 import argparse
-print("importing numpy")
-import numpy
-#print(", getch", end='')
-#from getch import getch, getche
 print("importing decode")
 import decode
 print("importing interpolate")
@@ -47,20 +40,17 @@ import outlier
 print("importing main_screen")
 import main_screen
 
-# enums ------------------------------------------------------------------------
+# dicts ------------------------------------------------------------------------
 
-print("defining enums")
-from enum import Enum
+print("defining dicts")
 
-class InputGraphTypes(Enum):
-	VALUES = 1
-	POINTS = 2
-	STRING = 3
-
-class OutputGraphTypes(Enum):
-	VALUES = 1
-	POINTS = 2
-	STRING = 3
+InputGraphTypes = ("values", "points", "string")
+OutputGraphTypes = ("values", "points", "string")
+Interpolators = tuple(value for value in interpolate.__dict__.values() if callable(value))
+Approximators = tuple(value for value in approximate.__dict__.values() if callable(value))
+Expressions = tuple(value for value in expression.__dict__.values() if callable(value))
+Errors = tuple(value for value in error.__dict__.values() if callable(value))
+Steppers = tuple(value for value in stepper.__dict__.values() if callable(value))
 
 # variables --------------------------------------------------------------------
 
@@ -68,17 +58,17 @@ print("initializing variables")
 
 input_graph_type = None
 input_graph = None
-func_interp = None
-func_approx = None
-func_expr = None
-func_iter_err_min_alg = None
-func_stepper = None
-func_error = None
+function_interpolate = None
+function_approximate = None
+function_expression = None
+function_iter_err_min_alg = None
+function_stepper = None
+function_error = None
 output_graph_type = None
 
-choice = None
-
 # argparse ---------------------------------------------------------------------
+
+print("checking arguments")
 
 parser = argparse.ArgumentParser(description="graph approximator")
 parser.add_argument("--no-tui", action="store_true", help="disable terminal user interface")
@@ -103,7 +93,6 @@ elif args.no_tui is True and args.no_gui is True:
 
 # menu -------------------------------------------------------------------------
 
-
 print("starting menu...")
 print()
 
@@ -112,55 +101,70 @@ while True:
 
 	print("graph approximator")
 	print()
-	if input_graph_type is not None:
-		print("[1] - input graph type\t\t\t\t=", InputGraphTypes(int(input_graph_type)).name.lower())
+	print("[0] - input graph type\t\t\t\t=", input_graph_type)
+	print("[1] - input graph\t\t\t\t=", str(input_graph)[:30])
+	if function_interpolate is None:
+		print("[2] - interpolation method\t\t\t=", function_interpolate)
 	else:
-		print("[1] - input graph type\t\t\t\t=", input_graph_type)
-	print("[2] - input graph\t\t\t\t=", str(input_graph)[:30])
-	print("[3] - interpolation method\t\t\t=", func_interp)
-	print("[4] - approximation method\t\t\t=", func_approx)
-	print("[5] - expression function\t\t\t=", func_expr)
-	print("[6] - iterative error minimization algorithm\t=", func_iter_err_min_alg)
-	print("[7] - error function\t\t\t\t=", func_error)
-	print("[8] - stepper function\t\t\t\t=", func_stepper)
-
-	if output_graph_type is not None:
-		print("[9] - output graph type\t\t\t\t=", OutputGraphTypes(int(output_graph_type)).name.lower())
+		print("[2] - interpolation method\t\t\t=", function_interpolate.__name__)
+	
+	if function_approximate is None:
+		print("[3] - approximation method\t\t\t=", function_approximate)
 	else:
-                print("[9] - output graph type\t\t\t\t=", output_graph_type)
+		print("[3] - approximation method\t\t\t=", function_approximate.__name__)
+	
+	if function_expression is None:
+		print("[4] - expression function\t\t\t=", function_expression)
+	else:
+		print("[4] - expression function\t\t\t=", function_expression.__name__)
+	
+	print("[5] - iterative error minimization algorithm\t=", function_iter_err_min_alg)
 
+	if function_error is None:
+		print("[6] - error function\t\t\t\t=", function_error)
+	else:
+		print("[6] - error function\t\t\t\t=", function_error.__name__)
+	
+	if function_stepper is None:
+		print("[7] - stepper function\t\t\t\t=", function_stepper)
+	else:
+		print("[7] - stepper function\t\t\t\t=", function_stepper.__name__)
+	
+	print("[8] - output graph type\t\t\t\t=", output_graph_type)
 	print()
 	print("[Enter] - start")
 	print("[q]     - exit")
 	print()
 
 	match input("choice: "):
-		case '1':
+		case '0':
 			input_graph_type = main_screen.get_input_graph_type(input_graph_type, InputGraphTypes)
-		case '2':
+		case '1':
 			input_graph = main_screen.get_input_graph(input_graph, input_graph_type, InputGraphTypes)
+		case '2':
+			function_interpolate = main_screen.get_function_interpolate(function_interpolate, Interpolators)
 		case '3':
-			func_interp = main_screen.get_func_interp(func_interp)
+			function_approximate = main_screen.get_function_approximate(function_approximate, Approximators)
 		case '4':
-			func_approx = main_screen.get_func_approx(func_approx)
+			function_expression = main_screen.get_function_expression(function_expression, Expressions)
 		case '5':
-			func_expr = main_screen.get_func_expr(func_expr)
+			function_iter_err_min_alg = main_screen.get_function_iter_err_min_alg(function_iter_err_min_alg)
 		case '6':
-			func_iter_err_min_alg = main_screen.get_func_iter_err_min_alg(func_iter_err_min_alg)
+			function_error = main_screen.get_function_error(function_error, Errors)
 		case '7':
-			func_error = main_screen.get_func_error(func_error)
+			function_stepper = main_screen.get_function_stepper(function_stepper, Steppers)
 		case '8':
-			func_stepper = main_screen.get_func_stepper(func_stepper)
-		case '9':
 			output_graph_type = main_screen.get_output_graph_type(output_graph_type, OutputGraphTypes)
-		case '\n':	# equivalent to just pressing [Enter]
+		case '':	# equivalent to just pressing [Enter]
 			input("hmm? you pressed enter!")
 		case 'q':
 			break
 		case 'exit':
 			break
-		case _:
-			input("\nhmm... i dont think thats a valid choice...")
+		case choice:	# default case
+			console_clear_line()
+			console_clear_line()
+			input(f"\nhmmm... i dont think {choice} is valid...")
 
 print()
 print("exiting program...")
