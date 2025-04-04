@@ -2,7 +2,14 @@ def console_clear():
         print("\033[2J\033[H", end='')
 
 def console_clear_line():
-        print("\033[1A\033[K\r", end='')
+	print("\033[1A\033[K\r", end='')
+
+def get_advanced_options(AdvancedOptionsContainer):
+	locals().update(vars(AdvancedOptionsContainer))
+	
+	
+
+	return AdvancedOptionsContainer
 
 def get_input_graph_type(input_graph_type, InputGraphTypes):
 	while True:
@@ -30,7 +37,7 @@ def get_input_graph_type(input_graph_type, InputGraphTypes):
 	
 	return output
 
-def _get_input_graph_change(input_graph, input_graph_type, InputGraphTypes):
+def _change_input_graph(input_graph, input_graph_type, InputGraphTypes):
 	match input_graph_type:
 		case None:
 			console_clear()
@@ -70,7 +77,7 @@ def get_input_graph(input_graph, input_graph_type, InputGraphTypes):
 		
 		match input("choice: "):
 			case '':	# same as just pressing [Enter]
-				input_graph = _get_input_graph_change(input_graph, input_graph_type, InputGraphTypes)
+				input_graph = _change_input_graph(input_graph, input_graph_type, InputGraphTypes)
 			case 'q' | "back":
 				return input_graph
 
@@ -236,13 +243,13 @@ def get_function_stepper(function_stepper, Steppers):
 def get_output_graph_type(output_graph_type, OutputGraphTypes):
 	while True:
 		console_clear()
-
+		
 		print("output graph type =", output_graph_type)
 		print()
 		print("[0] - None")
 		for index, outputgraphtype in enumerate(OutputGraphTypes):
 			print(f"[{index+1}] - {outputgraphtype}")
-
+		
 		for i in range(10-len(OutputGraphTypes)):
 			print()
 		
@@ -257,5 +264,39 @@ def get_output_graph_type(output_graph_type, OutputGraphTypes):
 				if choice.isdigit():
 					if 1<=int(choice)<=len(OutputGraphTypes):
 						output_graph_type = OutputGraphTypes[int(choice)-1]
-
+	
 	return output_graph_type
+
+def get_output_graph(OptionsContainer, AdvancedOptionsContainer):
+	locals().update(vars(OptionsContainer))
+	locals().update(vars(AdvancedOptionsContainer))
+	print("output graph:", output_graph)
+	
+	if input_graph_type is None:
+		console_clear_line()
+		console_clear_line()
+		input("set input graph type first!")
+	elif input_graph is None:
+		console_clear_line()
+		console_clear_line()
+		input("set input graph first!")
+	elif output_graph_type is None:
+		console_clear_line()
+		console_clear_line()
+		input("set outut graph type first!")
+	
+	if function_approximate is None:
+		params = input_graph
+	else:
+		params = function_approximate(input_graph)
+		
+	if function_expression is None:
+		output_graph = params
+	else:
+		output_graph = function_expression(params)
+	
+	#return options_container, advanced_options_container
+	
+	return output_graph
+	
+# how to extract variables from main? this is hard 

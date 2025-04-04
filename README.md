@@ -1,4 +1,5 @@
 # graph-approximator
 approximate a graph
 
-soon to be made into a webpage
+still a work in progress
+to be available as a python package, an instancized class, a standalone program , and a webpage

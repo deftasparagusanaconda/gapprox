@@ -54,18 +54,18 @@ def error_power_mean(arr_a, arr_b, power = 1):
 
 # https://en.wikipedia.org/wiki/Generalized_mean
 def weighted_power_mean(arr_a, arr_b, weight_arr, power = 1):
-	import scipy.stats
+	from scipy.stats import pmean
 	if len(arr_a) != len(arr_b) or len(arr_a) != len(weight_arr):
 		raise ValueError("error_weighted_power_mean() got different lengths")
 
-	return scipy.stats.pmean((abs(a-b) for a, b in zip(arr_a, arr_b)), power, weights=weight_arr)
+	return pmean((abs(a-b) for a, b in zip(arr_a, arr_b)), power, weights=weight_arr)
 
 def power_mean(arr_a, arr_b, power = 1):
 	import scipy.stats
 	if len(arr_a) != len(arr_b):
 		raise ValueError("error_power_mean() got different lengths")
 
-	return scipy.stats.pmean([abs(a-b) for a, b in zip(arr_a, arr_b)], power)
+	return pmean([abs(a-b) for a, b in zip(arr_a, arr_b)], power)
 
 # https://en.wikipedia.org/wiki/Mean_absolute_percentage_error
 def MAPE(arr_actual, arr_forecast):

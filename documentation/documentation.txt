@@ -1,4 +1,7 @@
 data types:
+file_csv		csv file
+file_txt		txt file
+file_wav		wav file
 values[]                array of values (may also be complex)
 points[]                array of points as (x, y)
 indices[]		array of indices
@@ -56,3 +59,14 @@ textual
 
 additionally, the program keeps track of two arrays for error minimization:
 error_history[] and params_history[]
+
+
+
+
+
+
+
+
+
+
+

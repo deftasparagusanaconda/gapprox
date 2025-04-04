@@ -45,3 +45,8 @@ add something to detect outliers in data
 
 note 5:
 i need to learn multithreading before i implement the error minimization algorithm wrapper
+
+note 6:
+then that means i will have to do params = ga.parameterizer(input_graph) sometime so that means
+if i name it parameterizer it will be very very clear what it does. well.. that *is* what it does so...
+ill leave it like that! parameterizer.py

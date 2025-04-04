@@ -1,0 +1,49 @@
+graphapproximator has several interfaces:
+
+python class -------------------------------------------------------------------
+
+from graphapproximator import GraphApproximator
+ga_obj = GraphApproximator()
+ga_obj.set_()
+.
+.
+.
+
+python package -----------------------------------------------------------------
+
+import graphapproximator as ga
+mypoints = [(1,2), (2,4)]
+myinterp = ga.interpolate(mypoints)
+# or myinterp = ga.interpolate.cubic(mypoints)
+# interpolate is a callable class that uses linear interpolation by default
+print(myinterp)
+
+standalone program -------------------------------------------------------------
+
+python3 main.py
+	(starts GUI)
+
+python3 main.py --headless
+	(starts CLI)
+
+CLI:
+exposes all of the ga_obj's data members in a main menu. users set variables one by one and then run... etc etc yknow how to do it. this is a vague idea
+
+GUI:
+a GUI. its a GUI what need i say?
+
+notes:
+the CLI and the GUI will not run at the same time. one interface at a time. multiple interfaces at once introduces unnecessary complexity with async operations
+
+website ------------------------------------------------------------------------
+
+one instance of the website handles a single instance of GraphApproximator
+computations run locally by default but can be offloaded to a server if asked
+
+(i am not sure how to handle dependencies. will users download whole python libraries just to use this? or will they download them according to the approximation methods that they need? dependencies will be an issue with this project)
+
+final notes --------------------------------------------------------------------
+
+certain invalid/erroneous settings like setting input_graph_type to points and using dft with no interpolation (since fourier transform assumes equally spaced inputs) should show the user warnings, but the program should still let them to do so, if they wish
+
+
