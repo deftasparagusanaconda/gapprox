@@ -90,14 +90,14 @@ def taylor_series(points , point_of_approx ,no_of_terms):
         approx_function += "+"
     return approx_function
 
-def discrete_fourier_transform(values: list[complex]) -> list[complex]:
+def dft(values: list[complex]) -> list[complex]:
 	"""discrete fourier transform"""
 
 	from scipy.fft import fft
 	
 	return fft(values, norm="forward")
 	
-def discrete_cosine_transform(values, dct_type = 2):
+def dct(values, dct_type = 2):
 	"""discrete cosine transform
 	dct_type: 1, 2, 3, 4"""
 
@@ -108,20 +108,19 @@ def discrete_cosine_transform(values, dct_type = 2):
 	elif dct_type not in [1,2,3,4]:
 		raise ValueError("dct() got invalid dct_type")
 	
+
 	return dct(values, type=dct_type, norm="forward")
 
-def discrete_sine_transform(values, dst_type = 2):
+def dst(values, dst_type = 2):
 	"""discrete sine transform
 	dst_type: 1, 2, 3, 4"""
-
 	from scipy.fft import dst
 
 	if dst_type in [5,6,7,8]:
 		raise ValueError(f"dst_type {dst_type} is not yet implemented")
 	elif dst_type not in [1,2,3,4]:
 		raise ValueError("dst() got invalid dst_type")
-	
+
 	return dst(values, type=dst_type, norm="forward")
-
-
+	
 # to-do: implement output_type=values_symbolic for dft(), dct(), dst()

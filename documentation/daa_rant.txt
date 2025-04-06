@@ -1,0 +1,8 @@
+the underlying codebase may change but the api must always remain the same
+
+the API must operate easily like:
+
+import graphapproximator as ga
+
+myinput = [2,3,5,4]
+ga(myinput)

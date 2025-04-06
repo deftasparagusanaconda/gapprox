@@ -1,9 +1,11 @@
+# all this converts the import from a module to an interactive class instance
+
 from .core.engine import Engine
 
-# create the default instance
+# spawn the default instance
 _instance = Engine()
 
-# make the package itself behave like an instance
+# make the package itself behave like an instance of Engine
 def __getattr__(name):
     return getattr(_instance, name)
 
@@ -16,5 +18,3 @@ def __dir__():
 # replace the module import with the instance
 from sys import modules
 modules[__name__] = _instance
-
-# all this converts the import from a module to an interactive class instance

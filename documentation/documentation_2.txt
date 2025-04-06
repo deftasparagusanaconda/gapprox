@@ -1,22 +1,11 @@
 graphapproximator has several interfaces:
 
-python class -------------------------------------------------------------------
-
-from graphapproximator import GraphApproximator
-ga_obj = GraphApproximator()
-ga_obj.set_()
-.
-.
-.
-
 python package -----------------------------------------------------------------
 
 import graphapproximator as ga
 mypoints = [(1,2), (2,4)]
-myinterp = ga.interpolate(mypoints)
-# or myinterp = ga.interpolate.cubic(mypoints)
-# interpolate is a callable class that uses linear interpolation by default
-print(myinterp)
+result = ga(mypoints)
+print(result)
 
 standalone program -------------------------------------------------------------
 
@@ -42,8 +31,11 @@ computations run locally by default but can be offloaded to a server if asked
 
 (i am not sure how to handle dependencies. will users download whole python libraries just to use this? or will they download them according to the approximation methods that they need? dependencies will be an issue with this project)
 
+
 final notes --------------------------------------------------------------------
 
-certain invalid/erroneous settings like setting input_graph_type to points and using dft with no interpolation (since fourier transform assumes equally spaced inputs) should show the user warnings, but the program should still let them to do so, if they wish
+- certain invalid/erroneous settings like setting input_graph_type to points and using dft with no interpolation (since fourier transform assumes equally spaced inputs) should show the user warnings, but the program should still let them to do so, if they wish
 
+- the iter_err_min_alg is actually a paramizer. its just not quite possible to encapsulate it into a single function (or is it? not sure yet).
 
+- an approximator consists of a paramizer and an expression. paramizers are always linked to a certain expression except for the iter_err_min_alg

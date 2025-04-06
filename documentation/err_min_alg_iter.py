@@ -1,3 +1,5 @@
+# err_min_alg_iter belongs as a parameterizer, but its unique from the rest in that its iterative
+
 # error_history is a list of errors
 # params_history is a list of tuples. the tuples are parameters of expression()
 

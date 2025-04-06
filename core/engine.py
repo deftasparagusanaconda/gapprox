@@ -1,45 +1,84 @@
 from dataclasses import dataclass
-from . import interpolator, parameterizer, expression, error, stepper
+from . import interpolators, parameterizers, expressions, error_metrics, steppers
+from . import anomaly_metrics, parser
+from . import utils
 
 @dataclass
-class Engine: 
-	input_types = ("values", "points", "string")
+class Engine(): 
+	parameterizers = parameterizers
+	expressions = expressions
 	output_types = ("values", "points", "string")
-	interpolators = interpolator
-	parameterizers = parameterizer
-	expressions = expression
-	errors = error
-	steppers = stepper
 	
 	input = None
-	input_type = None
 	output = None
-	output_type = None
-	interpolator = None
-	parameterizer = None
-	expression = None
-	stepper = None
-	error = None
-	
-	@dataclass
-	class _AdvancedOptions:
-	        keep_regressive_errors = False
-	        # will be expanded later
-	advanced_options = _AdvancedOptions()
 
+	parameterizer = parameterizers.linear_least_squares
+	expression = expressions.line
+	output_type = string
+	
+	def parameterize(self, input, *args, **kwargs):
+		return self.parameterizer(input, *args, **kwargs)
+	
+	def express(self, input, *args, **kwargs):
+		return self.expression(input, *args, **kwargs)
+	
+	# ga.approximate() updates ga.output
+	# ga.approximate([1,2,3]) does not update ga.output
+	def approximate(self, input=None):
+		if input is None:
+			if self.input is None:
+				raise ValueError("no input provided")
+			input = self.input
+			is_volatile = True
+		else:
+			is_volatile = False
+
+		if self.parameterizer is None:
+			params = input 
+		else:
+			params = self.parameterizer(input)
+
+		if self.expression is None:
+			output = params
+		else:
+			output = self.expression(params)
+			
+		if is_volatile:
+			self.output = output
+			
+		return output
+	
+	def line(self, input):
+		"""least squares line approximation (https://en.wikipedia.org/wiki/Linear_least_squares)"""
+		return expressions.line(parameterizers.linear_least_squares(input),output_type=self.output_type)
+	linear = line
+	
+	#def parabola(self, input=None):
+	#	"""parabola approximation"""
+	#quad = quadratic = parabola
+	
+	def show(self):
+		from matplotlib.pyplot import plot, show
+		try:
+			plot(self.input)
+		except:
+			pass
+		try:
+			plot(self.output)
+		except:
+			pass
+		show()
+	
+	__call__ = approximate	# result = ga([1,2,3]) runs approximation
+		
 	def __repr__(self):
-		return f"<module 'graphapproximator' (Engine instance) at {hex(id(self))}>"
+		return f"<module & class instance 'graphapproximator' at {hex(id(self))}>"
+		
+	def new(self, **kwargs):	# foo = ga.new() creates new instance
+		"""returns a new instance of graphapproximator"""
+		return type(self)(**kwargs)
 	
 	def copy(self):
-		"""create a copy of the current graphapproximator"""
+		"""returns a copy of the current graphapproximator"""
 		from copy import deepcopy
 		return deepcopy(self)
-
-	def approximate(self, input=None):	# wrapper function for combining the components. just a demo, kinda
-		if input == None:
-			input = self.input
-		params = self.parameterizer(input)
-		self.output = self.expression(params)	# store result
-		return self.output			# and also return result
-
-	__call__ = approximate	# allows approx = ga([1,2,3]) to do an immediate approximation
