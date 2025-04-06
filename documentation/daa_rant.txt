@@ -1,3 +1,5 @@
+graphapproximator is a modular, expressive library for approximating curves using parameterizers, mathematical expressions, etc	
+
 the underlying codebase may change but the api must always remain the same
 
 the API must operate easily like:
@@ -6,3 +8,10 @@ import graphapproximator as ga
 
 myinput = [2,3,5,4]
 ga(myinput)
+# returns a linear least squares approximation
+
+ga.input = [9,2,3]
+ga.parameterizer = ga.parameterizers.discrete_fourier_transform
+ga.expression = ga.expressions.fourier_series
+ga()
+ga.show()

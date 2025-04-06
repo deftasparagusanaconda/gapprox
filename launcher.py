@@ -1,10 +1,11 @@
-import core as ga
-# this is actually a class instance, not a module
+# start the GUI (or CLI)
 
 import argparse
 parser = argparse.ArgumentParser(description="graph approximator")
 parser.add_argument("--headless", action="store_true", help="disable graphical user interface")
 args = parser.parse_args()
+
+import graphapproximator as ga
 
 if args.headless:
 	from cli.cli import cli

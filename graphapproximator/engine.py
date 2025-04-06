@@ -1,6 +1,8 @@
+# export line and parabola approximators into an external LUT
+
 from dataclasses import dataclass
-from . import interpolators, parameterizers, expressions, error_metrics, steppers
-from . import anomaly_metrics, parser
+from .components import interpolators, parameterizers, expressions, error_metrics, steppers
+from .components import anomaly_metrics, parser
 from . import utils
 
 @dataclass
@@ -22,6 +24,9 @@ class Engine():
 	def express(self, input, *args, **kwargs):
 		return self.expression(input, *args, **kwargs)
 	
+	#def auto():
+		# mini-AI to choose which approximation is best
+
 	# ga.approximate() updates ga.output
 	# ga.approximate([1,2,3]) does not update ga.output
 	def approximate(self, input=None):

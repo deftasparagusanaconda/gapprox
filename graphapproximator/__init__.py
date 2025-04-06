@@ -1,6 +1,6 @@
 # all this converts the import from a module to an interactive class instance
 
-from .core.engine import Engine
+from .engine import Engine
 
 # spawn the default instance
 _instance = Engine()

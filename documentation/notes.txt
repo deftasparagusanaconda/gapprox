@@ -50,3 +50,10 @@ note 6:
 then that means i will have to do params = ga.parameterizer(input_graph) sometime so that means
 if i name it parameterizer it will be very very clear what it does. well.. that *is* what it does so...
 ill leave it like that! parameterizer.py
+
+note 7:
+add moving average thing.. somewhere.. somehow... idk
+
+note 8:
+# to-do: implement output_type=values_symbolic for dft(), dct(), dst()
+

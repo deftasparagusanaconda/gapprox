@@ -1,0 +1,5 @@
+graphapproximator is made to streamline the process of finding a simple approximation for a graph. i have wanted to find out the best parabola approximation for sin(x) in [0,pi/2] and it took me a long time to do. i want to make it easier so that scientists, high school students, and mathematicians have an easy tool to do this. it also serves as a learning tool for people to learn how many many mathematical concepts work and how they work around each other.
+
+graphapproximator is different from matplotlib, numpy, desmos, etc in that it is a suite of tools, not the whole approximation pipeline. these libraries allow you to approximate something using a fixed algorithm and for well formatted inputonly, and also giving only one kind of output. graphapproximator lets you choose your input type, output type, what approximation you want, what components of the approximator you want, let it choose what approximation method is best, make it brute fit a polynomial on a graph, etc.
+
+this project is made for mathematicians, scientists, statisticians, programmers, college students, high school students, university students, and for my own self
