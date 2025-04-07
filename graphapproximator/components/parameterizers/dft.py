@@ -1,6 +1,5 @@
-from scipy.fft import fft
-
 def dft(values: list[complex]) -> list[complex]:
-        """discrete fourier transform"""
+	"""discrete fourier transform"""
 
-        return fft(values, norm="forward")
+	from scipy.fft import fft
+	return fft(values, norm="forward")

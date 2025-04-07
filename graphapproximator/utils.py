@@ -29,10 +29,8 @@ def linear_approx(function , point_of_approx , delta):
 #Date: 28/02/2025
 def linear_d_approx(data_points , point_of_approx , position):
     #Slope calculation
-    slope = (data_points[position + 1][1] - data_points[position - 1][1])/(data
-_points[position + 1][0] - data_points[position - 1][0])
+    slope = (data_points[position + 1][1] - data_points[position - 1][1])/(data_points[position + 1][0] - data_points[position - 1][0])
     print(slope) #debugging
-    output = "y - " + str(point_of_approx[1]) + " = "  + str(slope) + "(x - " +
- str(point_of_approx[0])+ ")"
+    output = "y - " + str(point_of_approx[1]) + " = "  + str(slope) + "(x - " + str(point_of_approx[0])+ ")"
     return output
 

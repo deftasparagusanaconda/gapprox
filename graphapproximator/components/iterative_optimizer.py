@@ -1,3 +1,56 @@
+from . import predictors
+
+class IterativeMinimizer:
+	def __init__(self, predictor=None, discard_regressive_errors=True):
+		self.predictor = predictor
+		self.error_history = []
+		self.parameter_history = []
+		self.discard_regressive_errors = discard_regressive_errors
+
+	def _objective(ga):
+		ga.output = ga.expression(ga.parameters)
+		return ga.error_metric(ga.input, ga.output)
+	
+	def iterate(self, ga):
+		if len(self.error_history) != len(self.parameter_history):
+			raise ValueError("error_history and parameter_history are different lengths")
+
+		if not self.error_history:
+			ga.parameters = ga.input
+			error = self._objective(ga)
+			self.parameter_history.append(ga.parameters)
+			self.error_history.append(error)
+			return ga.output
+
+		new_params = self.predictor(self.parameter_history, self.error_history)
+		ga.parameters = new_params
+		error = self._objective(ga)
+
+		if self.discard_regressive_errors and error > self.error_history[-1]:
+			return None
+		
+		self.parameter_history.append(new_params)
+		self.error_history.append(error)
+		return ga.output
+
+	#def predict(self, input, *args, **kwargs):	# standalone for the API
+	#	return self.predictor(input, *args, **kwargs)
+	
+	
+	
+
+
+
+
+
+
+
+
+
+
+
+# legacy -----------------------------------------------------------------------
+
 # err_min_alg_iter belongs as a parameterizer, but its unique from the rest in that its iterative
 
 # error_history is a list of errors
@@ -113,3 +166,10 @@ specifications for a wrapper for iter_err_min_alg()
 - support multiple end conditions
 - keep arguments to a minimum
 """
+
+
+
+
+
+# iterativeminimizer is a parameterizer, but does not require ga.input
+# if ga.input *is* set, and there are no initial guesses it will use that as the initial guess

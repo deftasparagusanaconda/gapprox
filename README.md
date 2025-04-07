@@ -4,9 +4,13 @@ approximate a graph
 (still a work in progress. 50% done until MVP)
 (to be available as a python package, standalone program, and a webpage)
 
+
+
+--------------------------------------------------------------------------------
 ## Installation 
 (not yet implemented)
 
+example:
 ```python
 import graphapproximator as ga
 
@@ -14,7 +18,7 @@ import graphapproximator as ga
 myvalues = [(0, 1), (1, 2), (2, 0)]
 ga.approximate(myvalues)
 ga.show()
-
+```
 
 
 
@@ -27,8 +31,11 @@ also add:
 put all
 
 python package:
+```python
 import graphapproximator as ga
+```
 
-###standalone program:
+standalone program:
+```python
 python3 main.py
-
+```

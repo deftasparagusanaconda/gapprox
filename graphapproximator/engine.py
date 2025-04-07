@@ -1,7 +1,7 @@
 # export line and parabola approximators into an external LUT
 
 from dataclasses import dataclass
-from .components import interpolators, parameterizers, expressions, error_metrics, steppers
+from .components import interpolators, parameterizers, expressions, error_metrics, predictors
 from .components import anomaly_metrics, parser
 from . import utils
 
@@ -13,10 +13,12 @@ class Engine():
 	
 	input = None
 	output = None
+	parameters = None
 
-	parameterizer = parameterizers.linear_least_squares
+	parameterizer = parameterizers.line.least_squares
 	expression = expressions.line
-	output_type = string
+	output_type = "string"
+	# change to "output_type = str" soon
 	
 	def parameterize(self, input, *args, **kwargs):
 		return self.parameterizer(input, *args, **kwargs)
