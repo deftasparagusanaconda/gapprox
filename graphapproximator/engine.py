@@ -15,8 +15,8 @@ class Engine():
 	output = None
 	parameters = None
 
-	parameterizer = parameterizers.line.least_squares
-	expression = expressions.line
+	parameterizer = staticmethod(parameterizers.line.least_squares)
+	expression = staticmethod(expressions.polynomial.polynomial)
 	output_type = "string"
 	# change to "output_type = str" soon
 	
@@ -41,7 +41,7 @@ class Engine():
 			is_volatile = False
 
 		if self.parameterizer is None:
-			params = input 
+			params = input
 		else:
 			params = self.parameterizer(input)
 
@@ -57,7 +57,7 @@ class Engine():
 	
 	def line(self, input):
 		"""least squares line approximation (https://en.wikipedia.org/wiki/Linear_least_squares)"""
-		return expressions.line(parameterizers.linear_least_squares(input),output_type=self.output_type)
+		return expressions.polynomial.polynomial(parameterizers.line.least_squares(input), number_of_points=len(input), output_type=self.output_type)
 	linear = line
 	
 	#def parabola(self, input=None):

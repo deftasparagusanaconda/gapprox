@@ -33,7 +33,7 @@ polynomial(coefficients, x_start=None, x_stop=None, x_step=None, number_of_point
 				values.append(sum(coefficient * x**index for index,coefficient in enumerate(coefficients)))
 
 		else:
-			raise ValueError("incorrect arguments. see print(polynomial.__doc__)")
+			raise ValueError(f"incorrect arguments: polynomial({coefficients}, x_start={x_start}, x_stop={x_stop}, x_step={x_step}, number_of_points={number_of_points}, include_endpoint={include_endpoint}, output_type={output_type}\n see print(polynomial.__doc__)")
 
 		output["values"] = values
 
