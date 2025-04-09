@@ -15,9 +15,12 @@ class Engine():
 	output = None
 	parameters = None
 
-	parameterizer = staticmethod(parameterizers.line.least_squares)
-	expression = staticmethod(expressions.polynomial.polynomial)
-	output_type = "string"
+#	parameterizer = staticmethod(parameterizers.line.least_squares)
+#	expression = staticmethod(expressions.polynomial.polynomial)
+#	output_type = "string"
+	parameterizer = None
+	expression = None
+	output_type = None
 	# change to "output_type = str" soon
 	
 	def parameterize(self, input, *args, **kwargs):
