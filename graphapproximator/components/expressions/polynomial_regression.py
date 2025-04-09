@@ -1,6 +1,5 @@
 import numpy as np
 
-
 def polynomial_regression(data_points , degree:int = 4):
     rhs_list = []
     lhs_list = []
@@ -24,5 +23,6 @@ def polynomial_regression(data_points , degree:int = 4):
             break
         res += str(coefficients[i]) + "x^" + str(i) + "+ "
     return res
-points = [[12, 34], [7, 19], [25, 5], [3, 14], [18, 29], [11, 8], [30, 21], [4, 27], [22, 17], [15, 2]]
-print(polynomial_regression(points ,8))
+
+#points = [[12, 34], [7, 19], [25, 5], [3, 14], [18, 29], [11, 8], [30, 21], [4, 27], [22, 17], [15, 2]]
+#print(polynomial_regression(points ,8))

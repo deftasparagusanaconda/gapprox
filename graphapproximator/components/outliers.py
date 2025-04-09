@@ -1,8 +1,8 @@
 def percentile(values, threshold=50):
-	from numpy import percentile as numpy.percentile
+	from numpy import percentile as np_percentile
 
 	output = []
-	threshold_percentile = numpy.percentile(values, threshold)
+	threshold_percentile = np_percentile(values, threshold)
 
 	for index, value in enumerate(values):
 		if value >= threshold_percentile:
