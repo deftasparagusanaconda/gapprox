@@ -23,12 +23,6 @@ class Engine():
 	output_type = None
 	# change to "output_type = str" soon
 	
-	def parameterize(self, input, *args, **kwargs):
-		return self.parameterizer(input, *args, **kwargs)
-	
-	def express(self, input, *args, **kwargs):
-		return self.expression(input, *args, **kwargs)
-	
 	#def auto():
 		# mini-AI to choose which approximation is best
 
