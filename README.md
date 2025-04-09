@@ -18,6 +18,8 @@ print(ga.line(mypoints))
 ```
 
 ### pipeline
-![standalone application launcher](https://github.com/deftasparagusanaconda/graphapproximator/blob/main/documentation/diagrams/standalone application launcher.drawio.webp)
-![engine](https://github.com/deftasparagusanaconda/graphapproximator/blob/main/documentation/diagrams/engine.drawio.webp)
-![iterative optimizer](https://github.com/deftasparagusanaconda/graphapproximator/blob/main/documentation/diagrams/iterative optimizer.drawio.svg)
+![standalone application launcher.webp](<https://github.com/deftasparagusanaconda/graphapproximator/blob/main/documentation/diagrams/standalone application launcher.webp> "standalone application launcher.webp")
+
+![engine.webp](<https://github.com/deftasparagusanaconda/graphapproximator/blob/main/documentation/diagrams/engine.webp> "engine.webp")
+
+![iterative optimizer.webp](<https://github.com/deftasparagusanaconda/graphapproximator/blob/main/documentation/diagrams/iterative optimizer.webp> "iterative optimizer.webp")
