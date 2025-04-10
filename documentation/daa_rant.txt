@@ -1,17 +1,35 @@
-graphapproximator is a modular, expressive library for approximating curves using parameterizers, mathematical expressions, etc	
+add iterative_minimizer at the end of the program
+it is a separate module because its main purpose is to optimize the coefficients of the approximation even better than the generator
+it is also a class, because unlike engine.py which has detachable components, iterative optimizer must always have expresson, error, and predictor. so it must hold these by itself. it cannot be managed by engine.
+finally, it is a specialized generator, because at the end of the day, it cannot exist without an expression.
+even though it does contain the expression and the predictor (which is a kind of generator), it is not an approximation because just by itself it doesnt create an end expression (or, well, not supposed to... the loop is confusing)
 
-the underlying codebase may change but the api must always remain the same
+ga will have the following defaults:
+interpolator: by default have intentionally None
+expression: (comes from approximator)
+error: idk yet
+predictor: idk yet
 
-the API must operate easily like:
+and approximator will always be undefined. philosophically, the project name is graph approximator. so the user should at least choose their approximator.
 
-import graphapproximator as ga
+users are still allowed to choose any component they like, but the default will silently be chosen like this.
 
-myinput = [2,3,5,4]
-ga(myinput)
-# returns a linear least squares approximation
+alllll data will be handled as points. since technically even the interpolator returns a set of points. its returning a 1D array but its assumed that the values are the y-coordinate and the index is the x-coordinate
 
-ga.input = [9,2,3]
-ga.parameterizer = ga.parameterizers.discrete_fourier_transform
-ga.expression = ga.expressions.fourier_series
-ga()
-ga.show()
+any array that is not points will be assumed to be an array of points with the value as the y-coordinate and index as the x-coordinate
+
+--------------------------------------------------------------------------------
+yes! i just had a brainstorm idea pop in!
+
+multiprocessing will run multiple competing threads right? and there should be an option to "compete per iteration" or "compete per thread" and for per iteration, it would be multiple instances computing at the same time and then waiting for the others to finish. ahh.. the pool will handle this. but this only applies for predictors with RNGs.
+
+and for per thread, it would be instances running their on their own until a stop condition is met on any or each (not sure) one of them. 
+
+and the genius part! the part that came to my head just now! at the end of per thread competition, the ones that did better will have their answer weighted positively and the worse ones weighted negatively. that way you dont just take the best one, you extrapolate what would be even better than their individual efforts. this may or may not work and will be added as an experimental feature called "podium extrapolation" or something? i-i dunno..
+--------------------------------------------------------------------------------
+the optimizer will run parallel computations. it will also be a class, you were right! but a singleton instance will be handled by the engine. it will have a function inside it that runs one loop of the iteration. the class will also handle the repetition of this single iteration function. lastly, there will be an option for the first iteration to be started by the generator or not. if not, then the predictor simply replaces the generator and it works on itself over and over. otherwise the generator woulde be used for the first iteration
+
+whaddya think? :3
+
+because i feel like often the generator will make a much more informed decision for the first iteration than the iterative optimizer
+--------------------------------------------------------------------------------

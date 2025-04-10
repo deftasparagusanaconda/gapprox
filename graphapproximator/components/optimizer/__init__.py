@@ -1,12 +1,12 @@
-# when you do "import graphapproximator", it imports this directory as a module
-# this __init__.py file will convert that from a module to an instance of Engine
-# graphapproximator then becomes an instance/module hybrid
-# the instance exposes the modules using dot notation (e.g. ga.interpolators)
+# when you do "import optimizer", it imports this directory as a module
+# this __init__.py file will convert that from a module to an instance of Optimizer
+# optimizer then becomes an instance/module hybrid
+# the instance exposes the modules using dot notation (e.g. optimizer.predictor)
 
-from .engine import Engine
+from .optimizer import Optimizer
 
 # spawn the default instance
-_instance = Engine()
+_instance = Optimizer()
 
 # make the package itself behave like an instance of Engine
 # i got this code from AI, please dont berate me

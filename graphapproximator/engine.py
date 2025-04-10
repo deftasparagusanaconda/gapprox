@@ -1,94 +1,102 @@
-# export line and parabola approximators into an external LUT
+# the heart of the project
+# the engine only makes sense as an instance
+# the instance manages your current configuration of generator, expression, interpolator, ...
+# the instance also exposes a list of available modules (generators, expressions, interpolators, ...)
 
-from dataclasses import dataclass
 from .components import interpolators, generators, expressions, outliers, parser
-from . import utils
+from .components import optimizer
+from .import utils
 
-@dataclass
 class Engine():
+	# expose modules through the class instance 
 	parser = parser.parser
 	interpolators = interpolators
 	generators = generators
+	optimizers = optimizers
 	expressions = expressions
 	outliers = outliers
 	output_types = ("values", "points", "string")
-	
-	input = None
-	output = None
-	parameters = None
-	interpolator = None
-	generator = None
-	expression = None
-	input_type = None
-	output_type = None
-	outliers = None
+
+	# store configuration
+	# instance variables
+	def __init__(self):
+		self.input = None
+		self.output = None
+		self.interpolator = None
+		self.generator = None
+		self.optimizer = None
+		self.expression = None
+		self.input_type = None
+		self.output_type = None
+		self.outliers = None
 	
 	#def auto():
-		# mini-AI to choose which approximation is best
-
-	# ga.approximate() updates ga.output
-	# ga.approximate([1,2,3]) does not update ga.output
+	#	"""mini-AI to choose which approximation is best"""
+	
 	def approximate(self, input=None):
-		if input is None:
-			if self.input is None:
-				raise ValueError("no input provided")
-			input = self.input
-			is_volatile = True
-		else:
-			is_volatile = False
-	
-		if self.generator is None:
-			params = input
-		else:
-			params = self.generator(input)
-	
-		if self.expression is None:
-			output = params
-		else:
-			output = self.expression(params)
-			
-		if is_volatile:
-			self.output = output
-			
-		return output
+		"""calculate an approximation using the configuration given (in other words, start the data pipeline)"""
 
+		# get data
+		if input is None:
+			if self.input:
+				input = self.input
+			else:
+				raise ValueError("no input provided!\nuse `ga.input = someinput` or ga(someinput)")
+
+		if self.parser:
+			input = self.parser(input)
+		if self.interpolator:
+			input = self.interpolator(input)
+		if self.generator:
+			input = self.generator(input)
+		if self.optimizer:
+			input = self.optimizer(ga,input)
+		if self.expression:
+			input = self.expression(input)
+
+		self.output = input
+		return input
+	__call__ = approximate	# ga() and ga.approximate() now do the same thing
+
+	# provided for API convenience
 	@staticmethod
 	def line(input, output_type="string"):
-		"""least squares line approximation (https://en.wikipedia.org/wiki/Linear_least_squares)"""
+		"""least squares line approximation (https://en.wikipedia.org/wiki/Linear_least_squares)
+provided for convenience"""
 		return expressions.polynomial.polynomial(generators.line.least_squares(input), number_of_points=len(input), output_type=output_type)
 	linear = line
 	
+	# provided for API convenience
 	#@staticmethod
 	#def parabola(self, input=None):
-	#	"""parabola approximation"""
+	#	"""least squares parabola approximation"""
 	#quad = quadratic = parabola
+	# to be continued later :P
 	
+	# should this be static? or take array1 & array2?
 	def show(self):
-		from matplotlib.pyplot import plot, show
+		"""plot ga.input and ga.output using matplotlib"""
+		from matplotlib.pyplot import plt_plot, plt_show
 		try:
-			plot(self.input)
+			plt_plot(self.input)
 		except:
 			pass
 		try:
-			plot(self.output)
+			plt_plot(self.output)
 		except:
 			pass
-		show()
+		plt_show()
 	plot = show
-	
-	__call__ = approximate	# ga([1,2,3]) runs approximation
 		
+	# basically what you see when you do `print(ga)` in the python interpreter
 	def __repr__(self):
-		return f"<module & class instance 'graphapproximator' at {hex(id(self))}>"
+		return f"<Engine instance & module 'graphapproximator' at {hex(id(self))}>"
 		
-#	def new(self, **kwargs):	# foo = ga.new() creates new instance
-#		"""returns a new instance of graphapproximator"""
-#		return type(self)(**kwargs)
 	def new(self):			# foo = ga.new() creates new instance
-		"""return a new instance of the graphapproximator engine"""
-		return type(self)
+		"""return a new instance of Engine"""
+		return type(self)()
 	
-	def copy(self):
-		"""returns a copy of the current graphapproximator engine"""
+	def copy(self):			# foo = ga.copy() creates a copy
+		"""returns a copy of the current Engine instance"""
 		from copy import deepcopy
 		return deepcopy(self)

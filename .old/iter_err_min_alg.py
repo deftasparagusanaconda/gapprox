@@ -1,56 +1,3 @@
-from . import predictors
-
-class IterativeMinimizer:
-	def __init__(self, predictor=None, discard_regressive_errors=True):
-		self.predictor = predictor
-		self.error_history = []
-		self.parameter_history = []
-		self.discard_regressive_errors = discard_regressive_errors
-
-	def _objective(ga):
-		ga.output = ga.expression(ga.parameters)
-		return ga.error_metric(ga.input, ga.output)
-	
-	def iterate(self, ga):
-		if len(self.error_history) != len(self.parameter_history):
-			raise ValueError("error_history and parameter_history are different lengths")
-
-		if not self.error_history:
-			ga.parameters = ga.input
-			error = self._objective(ga)
-			self.parameter_history.append(ga.parameters)
-			self.error_history.append(error)
-			return ga.output
-
-		new_params = self.predictor(self.parameter_history, self.error_history)
-		ga.parameters = new_params
-		error = self._objective(ga)
-
-		if self.discard_regressive_errors and error > self.error_history[-1]:
-			return None
-		
-		self.parameter_history.append(new_params)
-		self.error_history.append(error)
-		return ga.output
-
-	#def predict(self, input, *args, **kwargs):	# standalone for the API
-	#	return self.predictor(input, *args, **kwargs)
-	
-	
-	
-
-
-
-
-
-
-
-
-
-
-
-# legacy -----------------------------------------------------------------------
-
 # err_min_alg_iter belongs as a parameterizer, but its unique from the rest in that its iterative
 
 # error_history is a list of errors
@@ -137,27 +84,6 @@ my_func_error	 	= error.power_mean
 my_func_stepper		= stepper.greedy_GD
 
 print(err_min_alg(my_actual_values,my_error_history, my_params_history, my_func_approx, my_func_expression, my_func_error, my_func_stepper))
-"""
-
-
-
-
-"""
-implement the following iterator wrappers:
-iter_limit		- up to no. of iterations
-time_limit		- up to time limit
-interruption		- until user manually gives stop signal
-threshold		- until error < threshold
-reduction_value		- until error is reduced by value amount
-reduction_ratio 	- until error is reduced to error/ratio
-
-stagnation conditions (if error does not deviate much after some iterations):
-change_threshold	- if error
-concordancy		- if the last {concordancy} values all match
-inertia(a,b)		- if the last a values didnt achieve more than 
-
-the algorithm can actually take any of these at the same time
-it would just end at the condition it reaches first
 """
 
 """

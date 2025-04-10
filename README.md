@@ -1,7 +1,8 @@
-🔍&nbsp;[examples][examples] | 📖&nbsp;&nbsp;[documentation][documentation] | 📜&nbsp;&nbsp;[license][license] |💡&nbsp;[suggest ideas!][contact]
+[🔍 examples][examples] | [📖 documentation][documentation] | [📜 license][license] | [💡suggest ideas!][contact]
 
 # graphapproximator
-a collection of tools and an application to help you find the approximate shape of any 2D graph
+a collection of tools and an application to help you find the approximate shape of any 2D graph  
+instead of "given an equation, find the graph", you’re flipping it: "given the graph, find the equation"
 
 ---
 ## 🔧 how to use
@@ -19,21 +20,26 @@ or run it as a python package ^-^
 import graphapproximator as ga
 
 mypoints = [ (1,1), (2,3), (4,3), (-2,-1), (-4,-5), (5,7) ]
-print(ga.line(mypoints))
-# f(x) = 0.2 + 1.1333333333333333*x
+approx = ga.line(mypoints)
+
+print(approx)
+
+# f(x) = 0.2 + 1.1333333333*x
 ```
 ---
 ## ⚙️ how it works
 
+importing graphapproximator immediately spawns an *Engine* because 99% of the time, thats what youre here for!
+
 ![engine.webp](<https://github.com/deftasparagusanaconda/graphapproximator/blob/main/documentation/diagrams/engine.webp> "engine.webp")
 
-each interface (API/CLI/GUI/webUI) talks to a single *"Engine"* instance  
+each interface (API/CLI/GUI/webUI) talks to a single *Engine* instance  
 this object manages your current configuration of generator, expression, interpolator, ...  
-the _Engine_ also exposes a list of available modules (generators, expressions, interpolators, ...)  
+the *Engine* also exposes a list of available modules (generators, expressions, interpolators, ...)  
 
 input: provided by API/CLI/GUI/webUI  
 parser: decodes string input into symbolic math input  
-interpolator: converts discrete points into a smooth function, then samples it  
+interpolator: turns scattered points into a smooth function, then samples it  
 generator: generates parameters for an expression  
 expression: turns parameters into a math expression  
 output: passed to API/CLI/GUI/webUI  

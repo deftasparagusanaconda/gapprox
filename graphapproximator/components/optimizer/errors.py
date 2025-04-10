@@ -1,3 +1,5 @@
+# error functions take two arrays and return the error (how different they are) as single number
+# these are different ways to measure how different they are
 
 """
 # see https://en.wikipedia.org/wiki/Generalized_mean
@@ -68,7 +70,7 @@ def power_mean(arr_a, arr_b, power = 1):
 	return pmean([abs(a-b) for a, b in zip(arr_a, arr_b)], power)
 
 # https://en.wikipedia.org/wiki/Mean_absolute_percentage_error
-def MAPE(arr_actual, arr_forecast):
+def mape(arr_actual, arr_forecast):
 	if len(arr_actual) != len(arr_forecast):
 		raise ValueError("error_MAPE() got different lengths")
 
@@ -77,7 +79,7 @@ def MAPE(arr_actual, arr_forecast):
 		sum += abs((arr_actual[i]-arr_forecast[i])/arr_actual[i])
 	return sum/len(arr_actual)
 
-def SMAPE(arr_actual, arr_forecast):
+def smape(arr_actual, arr_forecast):
 	if len(arr_actual) != len(arr_forecast):
 		raise ValueError("error_SMAPE() got different lengths")
 
