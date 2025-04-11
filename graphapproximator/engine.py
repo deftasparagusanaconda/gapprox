@@ -1,93 +1,121 @@
 # the heart of the project
-# the engine only makes sense as an instance
+# when you do `import graphapproximator as ga`, ga is automatically converted to an instance of Engine
 # the instance manages your current configuration of generator, expression, interpolator, ...
 # the instance also exposes a list of available modules (generators, expressions, interpolators, ...)
 
-from .components import interpolators, generators, expressions, outliers, parser
-from .components import optimizer
-from .import utils
+from .components import interpolators, generators, optimizers, expressions, outliers, parsers
 
 class Engine():
 	# expose modules through the class instance 
-	parser = parser.parser
+	parsers = parsers
 	interpolators = interpolators
 	generators = generators
 	optimizers = optimizers
 	expressions = expressions
 	outliers = outliers
-	output_types = ("values", "points", "string")
+	output_types = ["values", "points", "string"]
 
 	# store configuration
-	# instance variables
 	def __init__(self):
 		self.input = None
-		self.output = None
+		self.input_type = None
+		self.parser = None
 		self.interpolator = None
 		self.generator = None
-		self.optimizer = None
+		self.optimizer = optimizers._Optimizer()	# start instance/module hybrid
 		self.expression = None
-		self.input_type = None
+		self.output = None
 		self.output_type = None
 		self.outliers = None
 	
 	#def auto():
 	#	"""mini-AI to choose which approximation is best"""
 	
+	# THE PIPELINE!!!! -----------------------------------------------------
 	def approximate(self, input=None):
+		# input=None is kept for convenience-sake because
+		# ga.approximate(something) is easier than
+		# ga.input = something; ga.approximate()
 		"""calculate an approximation using the configuration given (in other words, start the data pipeline)"""
+		if input:
+			self.input = input
+		temp = input
+		if self.parser:		# string to any
+			temp = self.parser(temp)
+		if self.interpolator:	# points to points
+			temp = self.interpolator(temp)
+		if self.generator:	# points to params
+			temp = self.generator(temp)
+		if self.optimizer:	# params to params
+			temp = self.optimizer(self, temp, input_actual, self.expression)
+		if self.expression:	# params to any
+			temp = self.expression(temp)
+		self.output = temp
+		return temp
+	# the end ~w~ ----------------------------------------------------------
 
-		# get data
-		if input is None:
-			if self.input:
-				input = self.input
-			else:
-				raise ValueError("no input provided!\nuse `ga.input = someinput` or ga(someinput)")
-
-		if self.parser:
-			input = self.parser(input)
-		if self.interpolator:
-			input = self.interpolator(input)
-		if self.generator:
-			input = self.generator(input)
-		if self.optimizer:
-			input = self.optimizer(ga,input)
-		if self.expression:
-			input = self.expression(input)
-
-		self.output = input
-		return input
 	__call__ = approximate	# ga() and ga.approximate() now do the same thing
+	
+	# fancy schmancy black magic i got from AI that allows you to do:
+	# ga.optimizer = ga.optimizers.single_thread while also doing:
+	# ga.optimizer.someconfig = newsomething or:
+	# ga.optimizer = None
+	# all while still keeping the instance and config and histories intact
+	# only ga.optimizer.threading changes
+	@property
+	def optimizer(self):
+		return self._optimizer
+	@optimizer.setter
+	def optimizer(self, value):
+		if callable(value):		
+			self._optimizer.strategy = value
+		elif value is None:
+			self._optimizer.strategy = None
+		else:
+			raise ValueError("assign a callable strategy or None only")
 
-	# provided for API convenience
+	# provided for convenience, so you can do ga.line(something)
 	@staticmethod
 	def line(input, output_type="string"):
 		"""least squares line approximation (https://en.wikipedia.org/wiki/Linear_least_squares)
 provided for convenience"""
 		return expressions.polynomial.polynomial(generators.line.least_squares(input), number_of_points=len(input), output_type=output_type)
-	linear = line
-	
-	# provided for API convenience
-	#@staticmethod
-	#def parabola(self, input=None):
-	#	"""least squares parabola approximation"""
-	#quad = quadratic = parabola
-	# to be continued later :P
 	
 	# should this be static? or take array1 & array2?
-	def show(self):
-		"""plot ga.input and ga.output using matplotlib"""
-		from matplotlib.pyplot import plt_plot, plt_show
+	def plot(self):
+		"""plot input and output using matplotlib"""
+		from matplotlib.pyplot import plot as plt_plot
 		try:
 			plt_plot(self.input)
 		except:
+			# add debugging prints here
 			pass
+		from matplotlib.pyplot import show as plt_show
 		try:
 			plt_plot(self.output)
 		except:
+			# add debugging prints here
 			pass
-		plt_show()
-	plot = show
-		
+		plt_show()	
+                
+	def show(self):
+		"""print current configuration"""
+		print("input =", self.input)
+		print("input_type =", self.input_type)
+		print("interpolator =", self.interpolator)
+		print("generator =", self.generator)
+		print("optimizer = ", self.optimizer)
+		print("expression =", self.expression)
+		print("output =", self.output)
+		print("output_type =", self.output_type)
+	
+	def show_full(self):
+		"""print current configuration + ALL sub-configurations"""
+		self.show()
+		print()
+		print("optimizer:")
+		self.optimizer.show_full()
+
 	# basically what you see when you do `print(ga)` in the python interpreter
 	def __repr__(self):
 		return f"<Engine instance & module 'graphapproximator' at {hex(id(self))}>"
@@ -100,3 +128,5 @@ provided for convenience"""
 		"""returns a copy of the current Engine instance"""
 		from copy import deepcopy
 		return deepcopy(self)
+
+# ideally, Engine should not have any static methods

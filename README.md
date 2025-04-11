@@ -1,8 +1,8 @@
 [🔍 examples][examples] | [📖 documentation][documentation] | [📜 license][license] | [💡suggest ideas!][contact]
 
 # graphapproximator
-a collection of tools and an application to help you find the approximate shape of any 2D graph  
-instead of "given an equation, find the graph", you’re flipping it: "given the graph, find the equation"
+a python toolkit to help you find the approximate equation of any 2D graph  
+instead of "given an equation, find the graph", you’re flipping it: "given a graph, find the equation"
 
 ---
 ## 🔧 how to use
@@ -29,8 +29,7 @@ print(approx)
 ---
 ## ⚙️ how it works
 
-importing graphapproximator immediately spawns an *Engine* because 99% of the time, thats what youre here for!
-
+importing graphapproximator automatically spawns an Engine instance, ready to use out of the box
 ![engine.webp](<https://github.com/deftasparagusanaconda/graphapproximator/blob/main/documentation/diagrams/engine.webp> "engine.webp")
 
 each interface (API/CLI/GUI/webUI) talks to a single *Engine* instance  
@@ -41,6 +40,7 @@ input: provided by API/CLI/GUI/webUI
 parser: decodes string input into symbolic math input  
 interpolator: turns scattered points into a smooth function, then samples it  
 generator: generates parameters for an expression  
+optimizer: iteratively improves parameters  
 expression: turns parameters into a math expression  
 output: passed to API/CLI/GUI/webUI  
 
@@ -54,24 +54,23 @@ it is an instance of *"IterativeOptimizer"*
 this object manages your current configuration of expression, error, predictor, ...  
 
 input: provided by API/CLI/GUI  
+predictor: find the next best set of parameters to minimize error  
 expression: turns parameters into a math expression  
 error: calculates the discordance between original input and approximation  
-predictor: find the next best set of parameters to minimize error  
 output: passed to API/CLI/GUI  
 
 the iterative optimizer runs until it reaches an end condition, such as time_limit, iter_limit, ...  
 it is also capable of multithreading/parallel processing  
 
-tl;dr wishy washy; class instances for stateful tools, modules for everything else THE END.
-
 ---
 ## ⏳ coming soon ~
 - file IO support
-- iterative optimizer (error minimization algorithm)
 - PyPI support
 - CLI
-- GUI
 - webUI
+- GUI
+- automatic expression selector
+- symbolic regression (adaptive expression)
 - hypersonic blasters
 
 ---
