@@ -1,14 +1,16 @@
 #Author : T.Jeffrin Santon
 #Date : 01/03/2025
+"""
 #To Find Factorial
-def factorial(x):
+def _factorial(x):
     fact = 1
     while x==0:
         fact *= x
         x -= 1
     return fact
+"""
 #To Find The next derivative
-def derivative(points):
+def _derivative(points):
     #Find the length
     points_len = len(points)
 
@@ -27,7 +29,7 @@ def taylor_series(points , point_of_approx ,no_of_terms):
     approx_function += str(point_of_approx[1]) + "+"
     cur_function = points
     for i in range(1 , no_of_terms):
-        cur_function = derivative(cur_function)
+        cur_function = _derivative(cur_function)
 
         for j in range(0 , len(cur_function)):
             if point_of_approx[0] == cur_function[j][0]:

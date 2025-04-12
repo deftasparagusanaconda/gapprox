@@ -81,7 +81,7 @@ class Engine():
 	def line(input, output_type="string"):
 		"""least squares line approximation (https://en.wikipedia.org/wiki/Linear_least_squares)
 provided for convenience"""
-		return expressions.polynomial.polynomial(generators.line.least_squares(input), number_of_points=len(input), output_type=output_type)
+		return expressions.polynomial(generators.line.least_squares(input), number_of_points=len(input), output_type=output_type)
 	
 	# should this be static? or take array1 & array2?
 	def plot(self):
