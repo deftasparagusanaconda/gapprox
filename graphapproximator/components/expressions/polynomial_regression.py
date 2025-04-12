@@ -1,6 +1,6 @@
 import numpy as np
 
-def polynomial_regression(data_points , degree:int = 4):
+def polynomial_regression(data_points , degree:int = 3):
     rhs_list = []
     lhs_list = []
     
