@@ -48,9 +48,9 @@ class Optimizer:
 	strategies = strategies
 		
 	# instance variables
-	def __init__(self, optimize):
+	def __init__(self):
 		# store configuration 
-		self.strategy = strategies.serial_competition
+		self.strategy = strategies.competition_serial
 		self.predictor = predictors.bfgs
 		self.error = errors.smape
 		self.keep_regressive_errors:bool = False
@@ -71,20 +71,19 @@ class Optimizer:
 		if len(self.error_history) != len(self.parameters_history):
 			raise ValueError(f"history length mismatch: len(error_history)={len(self.error_history)}, len(parameters_history)={len(self.parameters_history)}")
 		
-		# first iteration case
-		if self.iter_count == 0:
-			new_parameters = input_params
-			new_output = expression(input_params)
-			new_error = self.error(input_actual, new_output)
+		# get parameters
+		new_parameters = self.predictor(self.error_history, self.parameters_history)
+		# predictors shall handle things on their own if theres no history
 
-		# normal iteration case
-		else:
-			new_parameters = self.predictor(self.error_history, self.parameters_history)
-			new_output = expression(new_parameters)
-			new_error = self.error(input_actual, new_output)
-			if not self.keep_regressive_errors and new_error > self.error_history[-1]:
-				return None
+		# get output
+		new_output = expression(new_parameters)
+
+		# get error
+		new_error = self.error(input_actual, new_output)
+		if not self.keep_regressive_errors and len(self.error_history)!=0 and new_error > self.error_history[-1]:
+			return None
 		
+		# chores
 		self.error_history.append(new_error)
 		self.parameters_history.append(new_parameters)
 		if self.store_output_history:
@@ -101,6 +100,7 @@ class Optimizer:
 	__call__ = optimize	# optimizer.optimize() and optimizer() are same
 	
 	def show(self):
+		print("strategy =", self.strategy)
 		print("predictor =", self.predictor)
 		print("error =", self.error)
 		print("keep_regressive_errors =", self.keep_regressive_errors)

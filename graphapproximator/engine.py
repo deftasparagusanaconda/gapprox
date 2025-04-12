@@ -3,18 +3,20 @@
 # the instance manages your current configuration of generator, expression, interpolator, ...
 # the instance also exposes a list of available modules (generators, expressions, interpolators, ...)
 
-from .components import interpolators, generators, optimizers, expressions, outliers, parsers
+from .components import interpolators, generators, expressions, outliers, parsers
+from .components.optimizers.optimizer import Optimizer
+from .components.optimizers import strategies
 
 class Engine():
 	# expose modules through the class instance 
 	parsers = parsers
 	interpolators = interpolators
 	generators = generators
-	optimizers = optimizers
+	optimizers = strategies		# ga.optimizer = something only sets its strategy
 	expressions = expressions
 	outliers = outliers
 	output_types = ["values", "points", "string"]
-
+	
 	# store configuration
 	def __init__(self):
 		self.input = None
@@ -22,7 +24,7 @@ class Engine():
 		self.parser = None
 		self.interpolator = None
 		self.generator = None
-		self.optimizer = optimizers._Optimizer()	# start instance/module hybrid
+		self._optimizer = Optimizer()	# start instance/module hybrid
 		self.expression = None
 		self.output = None
 		self.output_type = None
@@ -30,18 +32,36 @@ class Engine():
 	
 	#def auto():
 	#	"""mini-AI to choose which approximation is best"""
-	
+
+	# fancy schmancy code i got from AI
+	# expose optimizer instance normally
+	@property
+	def optimizer(self):
+		return self._optimizer
+	# intercept the ga.optimizer = ... assigner
+	@optimizer.setter
+	def optimizer(self, value):
+		if callable(value):		
+			self._optimizer.strategy = value
+		elif value is None:
+			self._optimizer.strategy = None
+		else:
+			raise ValueError("assign a callable strategy or None only")
+	# ga.optimizer = something is now an alias for:
+	# ga.optimizer.strategy = something
+
 	# THE PIPELINE!!!! -----------------------------------------------------
 	def approximate(self, input=None):
 		# input=None is kept for convenience-sake because
 		# ga.approximate(something) is easier than
 		# ga.input = something; ga.approximate()
 		"""calculate an approximation using the configuration given (in other words, start the data pipeline)"""
-		if input:
+		if input is not None:
 			self.input = input
 		temp = input
 		if self.parser:		# string to any
 			temp = self.parser(temp)
+		print
 		if self.interpolator:	# points to points
 			temp = self.interpolator(temp)
 		if self.generator:	# points to params
@@ -56,24 +76,6 @@ class Engine():
 
 	__call__ = approximate	# ga() and ga.approximate() now do the same thing
 	
-	# fancy schmancy black magic i got from AI that allows you to do:
-	# ga.optimizer = ga.optimizers.single_thread while also doing:
-	# ga.optimizer.someconfig = newsomething or:
-	# ga.optimizer = None
-	# all while still keeping the instance and config and histories intact
-	# only ga.optimizer.threading changes
-	@property
-	def optimizer(self):
-		return self._optimizer
-	@optimizer.setter
-	def optimizer(self, value):
-		if callable(value):		
-			self._optimizer.strategy = value
-		elif value is None:
-			self._optimizer.strategy = None
-		else:
-			raise ValueError("assign a callable strategy or None only")
-
 	# provided for convenience, so you can do ga.line(something)
 	@staticmethod
 	def line(input, output_type="string"):

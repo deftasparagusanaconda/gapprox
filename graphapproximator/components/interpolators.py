@@ -54,4 +54,4 @@ def linear_interpolation(points, step):
 
     return result
 
-print(linear_interpolation([(1,1),(2,4),(3,9),(4,16),(5.1,25)],0.1))
+# print(linear_interpolation([(1,1),(2,4),(3,9),(4,16),(5.1,25)],0.1))
