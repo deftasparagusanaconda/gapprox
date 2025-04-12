@@ -3,9 +3,9 @@
 # the instance manages your current configuration of generator, expression, interpolator, ...
 # the instance also exposes a list of available modules (generators, expressions, interpolators, ...)
 
-from .components import interpolators, generators, expressions, outliers, parsers
-from .components.optimizers.optimizer import Optimizer
-from .components.optimizers import strategies
+from . import interpolators, generators, expressions, outliers, parsers
+from .optimizers.optimizer import Optimizer
+from .optimizers import strategies
 
 class Engine():
 	# expose modules through the class instance 
