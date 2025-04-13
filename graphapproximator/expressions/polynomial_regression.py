@@ -19,9 +19,9 @@ def polynomial_regression(data_points , degree:int = 3):
     res = ""
     for i in range(len(coefficients)):
         if i == len(coefficients) -1:
-            res += str(coefficients[i]) + "x^" + str(i) +"  "
+            res += str(round(coefficients[i] ,3)) + "*x**" + str(i) +"  "
             break
-        res += str(coefficients[i]) + "x^" + str(i) + "+ "
+        res += str(round(coefficients[i],3)) + "*x**" + str(i) + "+ "
     return res
 
 #points = [[12, 34], [7, 19], [25, 5], [3, 14], [18, 29], [11, 8], [30, 21], [4, 27], [22, 17], [15, 2]]

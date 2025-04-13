@@ -1,15 +1,14 @@
 # when you do "import graphapproximator", it imports this directory as a module
-# this __init__.py file will convert that from a module to an instance of Engine
+# this __init__.py file will convert that from a module to an instance of API
 # graphapproximator then becomes an instance/module hybrid
 # the instance exposes the modules using dot notation (e.g. ga.interpolators)
 
-from .engine import Engine
+from . import api, approximators, expressions, extrapolators, generators, interpolators, optimizer, outliers, parsers
 
 # spawn the default instance
-_instance = Engine()
+_instance = api.API()
 
 # make the package itself behave like an instance of Engine
-# i got this code from AI, please dont berate me
 def __getattr__(name):
     return getattr(_instance, name)
 

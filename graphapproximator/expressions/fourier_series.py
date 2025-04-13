@@ -14,7 +14,7 @@ def fourier_series(params: list[complex], output_type="values"):
 	L = N
 
 	if numpy.iscomplexobj(params):
-		terms = tuple((params[i].real()*sympy.cos(i*sympy.pi*x/L) - params[i].imag()*sympy.sin(i*sympy.pi*x/L)) for i in range(N))
+		terms = tuple((params[i].real*sympy.cos(i*sympy.pi*x/L) - params[i].imag*sympy.sin(i*sympy.pi*x/L)) for i in range(N))
 	else:
 		terms = tuple((params[i]*sympy.cos(i*sympy.pi*x/L) for i in range(N)))
 

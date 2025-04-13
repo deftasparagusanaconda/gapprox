@@ -50,7 +50,7 @@ class Optimizer:
 	# instance variables
 	def __init__(self):
 		# store configuration 
-		self.strategy = strategies.competition_serial
+		self.strategy = None
 		self.predictor = predictors.bfgs
 		self.error = errors.smape
 		self.keep_regressive_errors:bool = False

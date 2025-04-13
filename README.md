@@ -71,6 +71,7 @@ it is also capable of multithreading/parallel processing
 - GUI
 - automatic expression selector
 - symbolic regression (adaptive expression)
+- parametric function
 - hypersonic blasters
 
 ---
