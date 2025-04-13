@@ -1,58 +1,39 @@
-def sampler(functi, x_array=None, x_start=None, x_stop=None, x_step=None, number_of_points:int=None, include_endpoint:bool=False):
-	function = 
-	"""sampler(coefficients, x_start=None, x_stop=None, x_step=None, number_of_points=None, include_endpoint=False):
+def sampler(expression:str, mode:list|int|tuple, include_endpoint:bool=True):
+	"""sample an expression at discrete x values
 	
-	sampler(function, x_array)
-	sampler(function, number_of_points=None)
-	sampler(function, x_start=None, x_stop=None, x_step=None)
-	sampler(function, x_start=None, x_stop=None, number_of_points=None)
-	"""
-
-	values = []
+sampler(expression, number_of_points=None, x_array=None, x_start=None, x_stop=None, x_step=None, include_endpoint=False):
 	
-	if x_array is not None:
-		for x in x_array:
-			values.append(function(x))
+the following formats are supported:
+sampler(function, [4, 3, 5, 1, ...])
+sampler(function, number_of_points)	(assumes x = 0, 1, 2, ...)
+sampler(function, (x_start, x_stop, number_of_points:int))
+sampler(function, (x_start, x_stop, x_step:float))
+"""	
+	if isinstance(mode, list):
+		x_array = mode
 
-	# only number of points is given
-	if x_start is None and x_stop is None and x_step is None and number_of_points is not None:
-		values = list(function(x) for x in range(number_of_points))
+	elif isinstance(mode, int):
+		x_array = list(range(mode))
 
-	# start, stop, step are given
-	elif x_start is not None and x_stop is not None and x_step is not None and number_of_points is None:
-		if include_endpoint:
-			x_stop += x_step
+	elif isinstance(mode, tuple):
+		if len(mode) != 3:
+			raise ValueError("correct usage is sampler((start, stop, step) or sampler(start, stop, num)")
 
-		from numpy import arange
-		for x in arange(x_start, x_stop, x_step):
-			values.append(function(x))
+		a, b, c = mode	# sampler(someexpression, (a,b,c))
 
-	# start, stop, num are given
-	elif x_start is not None and x_stop is not None and x_step is None and number_of_points is not None:
-		from numpy import linspace
-		for x in linspace(x_start, x_stop, num=number_of_points, endpoint=include_endpoint):
-			values.append(sum(coefficient * x**index for index,coefficient in enumerate(coefficients)))
+		if isinstance(c, int):
+			from numpy import linspace
+			x_array = list(linspace(a,b,c, endpoint=include_endpoint))
 
+		else:
+			from numpy import arange
+			x_array = list(arange(a, (b+c) if include_endpoint else b, c))
+	
 	else:
-		raise ValueError(f"incorrect arguments: polynomial({coefficients}, x_start={x_start}, x_stop={x_stop}, x_step={x_step}, number_of_points={number_of_points}, include_endpoint={include_endpoint}, output_type={output_type}\n see print(polynomial.__doc__)")
-
-	output["values"] = values
-
-if "string" in output_type:
-	outstr = f"f(x) =\n  {coefficients[0]} * x**0"
-	for index, coefficient in enumerate(coefficients[1:], start=1):
-		outstr += f"\n+ {coefficient} * x**{index}"
-	output["string"] = outstr
-
-if "symbolic" in output_type:
-	from sympy import symbols
-	x = symbols("x")
-	expr = coefficients[0]
-	for index, coefficient in enumerate(coefficients[1:], start=1):
-		expr += coefficient * x**index
-	output["symbolic"] = expr
-
-if len(output) == 1:
-	return next(iter(output.values()))
-else:
-	return output
+		raise ValueError(f"incorrect arguments. see print(sampler.__doc__)")
+	
+	# not using sympy
+	def function(x):
+		return eval(expression, {"x": x})
+	
+	return x_array, list(function(x) for x in x_array)
