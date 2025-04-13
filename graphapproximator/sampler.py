@@ -1,7 +1,7 @@
-def sampler(expression:str, mode:list|int|tuple, include_endpoint:bool=True):
-	"""sample an expression at discrete x values
+def sampler(function, mode:list|int|tuple, include_endpoint:bool=True):
+	"""sample a function at discrete x values
 	
-sampler(expression, number_of_points=None, x_array=None, x_start=None, x_stop=None, x_step=None, include_endpoint=False):
+sampler(function, mode, include_endpoint=False):
 	
 the following formats are supported:
 sampler(function, [4, 3, 5, 1, ...])
@@ -31,9 +31,5 @@ sampler(function, (x_start, x_stop, x_step:float))
 	
 	else:
 		raise ValueError(f"incorrect arguments. see print(sampler.__doc__)")
-	
-	# not using sympy
-	def function(x):
-		return eval(expression, {"x": x})
 	
 	return x_array, list(function(x) for x in x_array)
