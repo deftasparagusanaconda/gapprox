@@ -1,9 +1,16 @@
+from .api import api as _api
+
+api = _api()
+
+from . import approximators, expressions, extrapolators, generators, interpolators, optimizer, outliers, parser
+
+"""
 # when you do "import graphapproximator", it imports this directory as a module
 # this __init__.py file will convert that from a module to an instance of API
 # graphapproximator then becomes an instance/module hybrid
 # the instance exposes the modules using dot notation (e.g. ga.interpolators)
 
-from . import api, approximators, expressions, extrapolators, generators, interpolators, optimizer, outliers, parsers
+from . import api, approximators, expressions, extrapolators, generators, interpolators, optimizer, outliers, parser
 
 # spawn the default instance
 _instance = api.API()
@@ -21,3 +28,4 @@ def __dir__():
 # replace the module import with the instance
 from sys import modules
 modules[__name__] = _instance
+"""

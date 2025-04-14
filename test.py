@@ -1,4 +1,4 @@
-import graphapproximator as ga
+import graphapproximator.api as ga
 
 ga.input = [1,2,3,5,4]
 ga.generator = ga.generators.dct
