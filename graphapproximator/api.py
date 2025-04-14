@@ -3,7 +3,7 @@
 # the instance manages your current configuration of generator, expression, interpolator, ...
 # the instance also exposes a list of available modules (generators, expressions, interpolators, ...)
 
-from . import interpolators, generators, expressions, outliers, plotters
+from . import interpolators, analyzers, expressions, outliers, plotters
 from .utils import StatefulFunction
 from .parser import parser
 from .sampler import sampler
@@ -11,11 +11,11 @@ from .optimizer.optimizer import Optimizer
 from .optimizer import strategies
 
 class api():
-	_stateful_components = ["interpolator", "generator", "expression"]
+	_stateful_components = ["interpolator", "analyzer", "expression"]
 	
 	# expose modules through the class instance
 	interpolators = interpolators
-	generators = generators
+	analyzers = analyzers
 	optimizers = strategies		# ga.optimizer = something only sets its strategy
 	expressions = expressions
 	parser = parser
@@ -28,7 +28,7 @@ class api():
 		#self.optimizer = Optimizer()	# start instance/module hybrid
 		super().__setattr__("optimizer", Optimizer())	# because its checked by __setattr__
 		self.interpolator = None
-		self.generator = None
+		self.analyzer = None
 		self.expression = None
 
 		self.input = None
@@ -63,8 +63,8 @@ class api():
 			temp = parser(temp)
 		if self.interpolator:	# points to points
 			temp = self.interpolator(temp)
-		if self.generator:	# points to params
-			temp = self.generator(temp)
+		if self.analyzer:	# points to params
+			temp = self.analyzer(temp)
 		if self.optimizer.strategy:	# params to params
 			temp = self.optimizer(self, temp, self.input, self.expression)
 		if self.expression:	# params to any
@@ -80,7 +80,7 @@ class api():
 	def line(input, output_type="string"):
 		"""least squares line approximation (https://en.wikipedia.org/wiki/Linear_least_squares)
 provided for convenience"""
-		return expressions.polynomial(generators.line.least_squares(input), number_of_points=len(input), output_type=output_type)
+		return expressions.polynomial(analyzers.line.least_squares(input), number_of_points=len(input), output_type=output_type)
 	
 	def plot(self):
 		"""plot input and output using matplotlib"""
@@ -101,13 +101,13 @@ provided for convenience"""
 	def show(self):
 		"""print current configuration"""
 		print("input =", self.input)
-		print("input_type =", self.input_type)
-		print("interpolator =", self.interpolator)
-		print("generator =", self.generator)
+		print("analyzer =", self.analyzer)
 		print("optimizer =", self.optimizer.strategy)
 		print("expression =", self.expression)
 		print("output =", self.output)
-		print("output_type =", self.output_type)
+		print("parser =", self.parser)
+		print("sampler =", self.sampler)
+		print("interpolator =", self.interpolator)
 	
 	def show_full(self):
 		"""print current configuration + ALL sub-configurations"""

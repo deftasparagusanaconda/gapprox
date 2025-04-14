@@ -1,0 +1,41 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; Linux x86_64; rv:136.0) Gecko/20100101 Firefox/136.0" version="26.2.12">
+  <diagram name="Page-1" id="KC7CFtBC38X2bqlHc1EF">
+    <mxGraphModel dx="788" dy="468" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" background="light-dark(#ffffff, #000000)" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="73dBADOwIUqYBYDH4b4a-1" value="converter" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=none;align=center;fontFamily=Jetbrains Mono;fontSize=12;fontColor=light-dark(#000000,#FFFFFF);fillOpacity=0;" vertex="1" parent="1">
+          <mxGeometry x="200" y="370" width="400" height="270" as="geometry" />
+        </mxCell>
+        <mxCell id="73dBADOwIUqYBYDH4b4a-2" value="&lt;div&gt;string&lt;/div&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontFamily=Jetbrains Mono;" edge="1" parent="1" source="73dBADOwIUqYBYDH4b4a-3" target="73dBADOwIUqYBYDH4b4a-5">
+          <mxGeometry x="-0.2308" relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="300" y="570" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="73dBADOwIUqYBYDH4b4a-3" value="&lt;div&gt;interpolator&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Jetbrains Mono;fontSize=12;fontColor=light-dark(#000000,#FFFFFF);fillOpacity=0;" vertex="1" parent="1">
+          <mxGeometry x="240" y="420" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="73dBADOwIUqYBYDH4b4a-4" value="function" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontFamily=Jetbrains Mono;" edge="1" parent="1" source="73dBADOwIUqYBYDH4b4a-5" target="73dBADOwIUqYBYDH4b4a-7">
+          <mxGeometry x="0.2308" relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="500" y="570" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="73dBADOwIUqYBYDH4b4a-5" value="parser" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Jetbrains Mono;fontSize=12;fontColor=light-dark(#000000,#FFFFFF);fillOpacity=0;" vertex="1" parent="1">
+          <mxGeometry x="340" y="540" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="73dBADOwIUqYBYDH4b4a-6" value="points" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontFamily=Jetbrains Mono;" edge="1" parent="1" source="73dBADOwIUqYBYDH4b4a-7" target="73dBADOwIUqYBYDH4b4a-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="73dBADOwIUqYBYDH4b4a-7" value="&lt;div&gt;sampler&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Jetbrains Mono;fontSize=12;fontColor=light-dark(#000000,#FFFFFF);fillOpacity=0;" vertex="1" parent="1">
+          <mxGeometry x="440" y="420" width="120" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,5 +1,5 @@
 from .api import api
-from . import approximators, expressions, generators, interpolators, optimizer, outliers, parser
+from . import approximators, expressions, analyzers, interpolators, optimizer, outliers, parser
 
 """
 # when you do "import graphapproximator", it imports this directory as a module
