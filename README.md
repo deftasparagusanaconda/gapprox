@@ -43,8 +43,9 @@ check out more [examples!][examples]
 ## ⚙️ how it works
 
 ### api
-
-![api.webp](<https://github.com/deftasparagusanaconda/graphapproximator/blob/main/documentation/diagrams/api.webp> "api.webp")
+<p align="center">
+        <img src="https://github.com/deftasparagusanaconda/graphapproximator/blob/main/documentation/diagrams/api.webp">
+</p>
 
 [converter](#converter) converts a graph from one form to another  
 [analyzer](https://en.wikipedia.org/wiki/Functional_analysis) analyzes the input to generate parameters for an expression  
@@ -57,7 +58,9 @@ input and output are handled differently, depending on the interface
 
 ### converter
 
-![converter.webp]("converter.webp")
+<p align="center">
+        <img height="250" src="https://github.com/deftasparagusanaconda/graphapproximator/blob/main/documentation/diagrams/converter.webp">
+</p>
 
 [parser](https://en.wikipedia.org/wiki/Parsing) decodes string input into a callable function  
 [sampler](https://en.wikipedia.org/wiki/Sampling_(statistics)) samples a callable function into points  
@@ -74,7 +77,9 @@ string is the most favourable representation, so the api will try to preserve it
 
 ### optimizer
 
-![optimizer.webp](<https://github.com/deftasparagusanaconda/graphapproximator/blob/main/documentation/diagrams/optimizer.webp> "optimizer.webp")
+<p align="center">
+        <img height="250" src="https://github.com/deftasparagusanaconda/graphapproximator/blob/main/documentation/diagrams/optimizer.webp">
+</p>
 
 [predictor](https://en.wikipedia.org/wiki/Iterative_method) finds the next best set of parameters to minimize error  
 [expression](https://en.wikipedia.org/wiki/Expression_(mathematics)) turns parameters into a math expression  
