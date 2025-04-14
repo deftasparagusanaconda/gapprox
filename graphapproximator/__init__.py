@@ -1,8 +1,5 @@
-from .api import api as _api
-
-api = _api()
-
-from . import approximators, expressions, extrapolators, generators, interpolators, optimizer, outliers, parser
+from .api import api
+from . import approximators, expressions, generators, interpolators, optimizer, outliers, parser
 
 """
 # when you do "import graphapproximator", it imports this directory as a module

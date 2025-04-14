@@ -2,7 +2,7 @@ from . import interpolators, generators, expressions, outliers, parser, plotters
 from .optimizer.optimizer import Optimizer
 from .optimizer import strategies
 
-class api():
+class _api():
 	# expose modules through the class instance
 	parser = parser.parser
 	interpolators = interpolators
@@ -90,6 +90,6 @@ provided for convenience"""
 		from copy import deepcopy
 		return deepcopy(self)
 	
-	api = api()	# import api now imports an instance, not the class
+api = _api()	# import api now imports an instance, not the class
 	
 # ideally, API should not have any static methods

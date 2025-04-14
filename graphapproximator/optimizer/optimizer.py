@@ -6,6 +6,7 @@
 # it also exposes its components as modules
 
 from . import predictors, errors, strategies
+from ..utils import StatefulFunction
 
 def warn(input):
 	print(input)
@@ -42,6 +43,7 @@ class EndConditions:
 #		return False
 
 class Optimizer:
+	_stateful_components = ["predictor", "error", "strategy"]
 	# expose modules
 	predictors = predictors
 	errors = errors
@@ -66,6 +68,15 @@ class Optimizer:
 		self.output_history = []
 		self.iter_count:int = 0
 		
+	def __setattr__(self, name, value):
+		if name in self._stateful_components:
+			if value is not None:
+				name = StatefulFunction(value)
+			else:
+				name = None
+		else:
+			super().__setattr__(name, value)
+	
 	def iterate(self, input_params, input_actual, expression):
 		"""run one iteration of the optimizer"""
 		if len(self.error_history) != len(self.parameters_history):
