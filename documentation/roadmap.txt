@@ -1,0 +1,68 @@
+i was pondering how ga would approximate a circle. its a many-many shape
+then i realized it can be done with parametric functions
+then i kept thinking and thinking and i devised this:
+
+# introduction ----------------------------------------------------------------
+
+ga should support parametric functions and also support approximating surfaces.
+but before we start, let us observe four models:
+
+x -> f(x) is a curve in 2D (the one ga is comfortable with)
+x & y -> f(x,y) is a surface in 3D (z is output)
+t -> (f(t), g(t)) is a curve in 3D (z is input)
+x & y -> (f(x,y), g(x,y)) is *something* in 4D
+(4D is hard to represent, as we can only cleanly represent a 3D graph on a 2D screen, projected onto your 1D brain)
+
+single input multiple output ---------------------------------------------------
+
+as of now, ga only supports single-input single-output many-to-one functions.
+
+it can be extended to support parametric functions, such as (sin t, cos t)
+(sin t, cos t) can be represented as :
+x(t) = sin t
+y(t) = cos t
+and thus just run two separate approximations. then finally, plot it in a 3D graph:
+x = sin t, y = cos t, z = t
+it will show a curve. if you look at the 3D graph with the z-axis pointing toward you,
+(i.e., if you view the projection of the curve on the x-y plane), you will get the flattened 2D parametric curve
+
+so, ga supports "parametric functions", which are just functions with one input, multiple output.
+for one input and n outputs, n approximations will be done.
+
+multiple input single output ---------------------------------------------------
+
+it is slightly more abstract to think of how the program will approximate a surface
+
+the three representations already support storing surfaces:
+string can represent a surface
+function (like def func(x, y)) can represent a surface
+points can represent a surface
+
+the three conversions: parser, sampler, interpolator all work with surfaces
+they just need to be extended to support surfaces
+
+ga currently does not have any analyzers or expressions for surfaces
+(or manifolds of >1D for that matter)
+
+furthermore, a surface is a 2D manifold
+the functionality of the program can be extended to an arbitrary amount
+to support any m-dimensional manifold
+
+multiple input multiple output -------------------------------------------------
+
+like how extending single input single output to single input multiple output was trivial,
+it is trivial to extend multiple input single output to multiple input multiple output
+
+for m input n output, you simply calculate n approximations of m-dimensional manifolds
+
+conclusion ---------------------------------------------------------------------
+
+thus we conclude that ga is capable of approximating multiple input multiple output systems
+it simply runs n approximations of m-dimensional manifolds
+
+currently, ga supports 1 approximation of a 1-dimensional manifold
+
+ga seems to be an alternative framework for higher intelligence
+AI is created by a similar process. it takes many inputs, many outputs, predicts the behaviour of each output, and improves its prediction by gauging how accurate that prediction was. 
+ga is able to do a similar thing ,but instead of abstractign to networks, neurons, layers, etc, it takes a simpler more grounded intuitive approach or analyzers, optimizers, expressions, etc. 
+perhaps, ga is an analogy to AI; or, AI is an analogy to what ga is doing.

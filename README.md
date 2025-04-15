@@ -92,16 +92,24 @@ it is also capable of multithreading/parallel processing
 
 ---
 ## ⏳ coming soon ~
-- file IO support
-- PyPI support
-- CLI
-- webUI
-- GUI
-- automatic expression selector  
-- symbolic regression (adaptive expression)
-- customizable api pipeline
-- parametric function
-- hypersonic blasters
+- file IO support  
+- PyPI support  
+- CLI  
+- webUI  
+- GUI  
+- symbolic regression (automatic expression selector)  
+- customizable api pipeline  
+- parametric function support  
+- n-dimensional plotters  
+- surface approximation  
+- [many-to-many](https://en.wikipedia.org/wiki/Relation_(mathematics)#Combinations_of_properties) relation approximation  
+- point density evaluators  
+- hypersonic blasters 🚀  
+
+in the far far future, ga will support multiple-input multiple-output approximation. for m inputs and n outputs, it runs n approximations of m-dimensional [manifolds](https://en.wikipedia.org/wiki/Manifold) separately  
+effectively, this turns it into a general-purpose prediction library, analogous to AI but modular, intuitive, open (not a black-box approximator), mathematically grounded, and intuitive  
+currently, ga only supports single-input single-output [many-to-one](https://en.wikipedia.org/wiki/Relation_(mathematics)#Combinations_of_properties) functions. see [roadmap](https://github.com/deftasparagusanaconda/graphapproximator/tree/main/documentation/roadmap.txt) for details  
+the project is feature-oriented, not performance-oriented. if performance is required, you are free to fork it ☺️
 
 ---
 ## 📔 you read all that?!?
@@ -115,3 +123,4 @@ with love, and a passion for maths ~
 [documentation]: https://github.com/deftasparagusanaconda/graphapproximator/tree/main/documentation/  
 [license]: https://github.com/deftasparagusanaconda/graphapproximator/tree/main/LICENSE  
 [contact]: https://github.com/deftasparagusanaconda  
+```
