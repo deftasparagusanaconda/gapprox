@@ -1,0 +1,21 @@
+the project will be versioned as major.minor.patch:
+0.1.0 = first PyPI commit, minimal features, but usable
+1.0.0 = first official release
+x.0.0 = breaking changes, refactoring, etc
+x.y.0 = new features, but backward-compatible
+x.y.z = bug fixes
+
+the minimum viable product (MVP) will be released as 0.1.0 on PyPI
+it should:
+	- accept points input (as two lists)
+	- approximate it using line regression
+	- plot result interactively (matplotlib or browser-based)
+	- API that supports:
+		- ga.input = ([x1,x2,x3,...], [y1,y2,y3,y4])
+		- ga.analyzers = ga.analyzers.line.least_squares
+		- ga.expression = ga.expressions.polynomial
+		- ga.approximate()	# same as ga()
+		- ga.plot()
+		- ga.line()
+		- ga.transpose()	# transpose list of tuples [(x1,y1), (x2,y2), (x3,y3), ...] to tuple of lists ([x1,x2,x3,...], [y1,y2,y3,...])
+

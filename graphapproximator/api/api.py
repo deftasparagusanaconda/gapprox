@@ -3,56 +3,8 @@
 # the instance manages your current configuration of generator, expression, interpolator, ...
 # the instance also exposes a list of available modules (generators, expressions, interpolators, ...)
 
-# ga.generator = ga.generators.dct already works
-# but i want ga.generator.<tab> to show dct's arguments
-	# this can be done by setting __dir__
-# and also to let ga.generator.dct_type = 3 to set the argument
-	# this can be done by overriding __setattr__
-# and also to let the approximator use the generator with those arguments
-	# this can be done by a wrapper with a modified __call__
-
-class ComponentWrapper:
-	def __init__(self):	# innit? hahahaha
-		self.component = None
-		self.arguments = {}
-
-	def __dir__(self):
-		from inspect import getfullargspec
-		if self.component is None:
-			return []
-		return getfullargspec(self.component).args
-#		from inspect import signature
-#		if self.component is None:
-#			return []
-#		return list(signature(self.component).parameters.keys())
-
-#	def __setattr__(self, name, value):	# self.name = value
-#		#if the attribute theyre trying to set is one of the modules, then-
-#		if name in ("parser", "interpolator", "generator", "expression"):
-#			super().__setattr__(name, value)
-#		else:
-#			self.arguments[name] = value
-
-#	def __call__(self, *args, **kwargs):
-#		if self.component is None:
-#			raise ValueError("no component assigned!")
-#		kwargs = {**self.arguments, **kwargs}
-#		return self.component(*args, **kwargs)
-
-	def __call__(self, *args, **kwargs):
-		if self.component is None:
-			return
-		return self.component(*args, **kwargs)
-
-	def __repr__(self):
-		if self.component is None:
-			return "<ComponentWrapper (unassigned)>"
-		return f"<ComponentWrapper for {self.component.__name__}>"
-
-# youll also have to capture the `ga.generator = something` assignment to change the ComponentWrapper's component
-# i think that has to be implemented *inside* API
-
-from . import interpolators, generators, expressions, outliers, parsers
+from . import converter, analyzers, expressions, outliers, plotters
+from .utils import StatefulFunction, Colours
 from .optimizer.optimizer import Optimizer
 from .optimizer import strategies
 
@@ -94,16 +46,24 @@ class API():
 		# input=None is kept for convenience-sake because
 		# ga.approximate(something) is easier than
 		# ga.input = something; ga.approximate()
-		"""calculate an approximation using the configuration given (in other words, start the data pipeline)"""
+		"""calculate an approximation with the configuration given"""
+		print("press ctrl+c to abort")
 		if input is not None:
 			self.input = input
 		temp = self.input
-		
-		temp = self.parser(temp)	# string to any
-		temp = self.interpolator(temp)	# points to points
-		temp = self.generator(temp)	# points to params
-		temp = self.optimizer(self, temp, self.input, self.expression)	# params to params
-		temp = self.expression(temp)	# params to any
+
+		utils.warn_input_dimensions(self.input)
+
+		if isinstance(temp, str) and self.parser:		# string to any
+			temp = parser(temp)
+		if self.interpolator:	# points to points
+			temp = self.interpolator(temp)
+		if self.analyzer:	# points to params
+			temp = self.analyzer(temp)
+		if self.optimizer.strategy:	# params to params
+			temp = self.optimizer(self, temp, self.input, self.expression)
+		if self.expression:	# params to any
+			temp = self.expression(temp)
 		self.output = temp
 
 		return temp

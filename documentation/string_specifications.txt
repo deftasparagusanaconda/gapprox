@@ -1,0 +1,64 @@
+expressions are stored as strings
+strings should follow academic mathematical conventional notation as much as possible:
+- ^ instead of **
+- 1/2x is interpreted as 1/2*x (although implied multiplication should be avoided)
+- sin, cos, tan, ..., all trig functions work in radians
+- % is interpreted directly as /100, as per the name "per-cent"
+- ! denotes a factorial
+- || denotes the absolute value or modulus 
+- (), [], {}:
+	- all converted to () for internal consistency
+	- converted to nesting order for output (if desired)
+	- nesting order is () for innermost, [] for middle, {} for outermost.
+	- e.g.: {[(x+y)*z] + (a-b)}
+
+exceptions:
+- * instead of x or × or ⋅
+- / instead of ÷
+- <= >= instead of ≤ ≥
+
+exclusions:
+- : is not used to denote ratio or division
+- ± and ∓ due to rarity/inaccessiblity of symbols
+- √ due to inaccessibility of symbol. the alternative is sqrt() or ()^0.5
+
+notes:
+- ∧ and ^ are not the same. the former is not used
+- middle school and high school students are taught () {} [] but since {} is reserved for sets, piecewise functions, ..., formal academic notation prefers () [] {}
+
+# the tricky stuff -------------------------------------------------------------
+
+1. piecewise functions:
+piecewise functions are most commonly written as:
+	f(x) = {expression if condition, expression if condition, ...}
+
+however, the curly brackets and the "f(x)" are redundant for our purpose. so:
+	"expression if condition, expression if condition"
+
+as an example, see the modulus function |x|:
+	"x if x>0, -x if x<0"
+
+piecewise expressions may be identified with the "if" keyword
+each piece is delimited by the comma ','
+
+2. multiple outputs:
+multiple outputs are most commonly written as:
+"f(x) = x^2, g(x) = x*4"
+"x = f(x), g(x)
+
+there are many ways, but preferably ones that do not clash with piecewise notation
+a comma ',' may be used when it is not piecewise. e.g:
+	"x+2, x-2"
+	this also allows it to represent parametric functions
+as an example, see the parametric form of a circle:
+	(cos(t), sin(t))
+(the
+
+
+
+
+
+links:
+https://en.wikipedia.org/wiki/Absolute_value
+https://en.wikipedia.org/wiki/Order_of_operations
+https://en.wikipedia.org/wiki/Piecewise_function

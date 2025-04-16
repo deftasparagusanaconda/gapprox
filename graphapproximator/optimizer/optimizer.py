@@ -6,6 +6,7 @@
 # it also exposes its components as modules
 
 from . import predictors, errors, strategies
+from ..api.utils import StatefulFunction
 
 def warn(input):
 	print(input)
