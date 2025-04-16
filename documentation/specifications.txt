@@ -1,0 +1,19 @@
+a 2D graph (technically, a path on a 2D surface) can be represented in the following ways:
+
+string: "2 + x + x^2"
+function: def func(x): return 2+x+x**2
+points: [x1, x2, x3, ...], [y1, y2, y3, y4]
+
+the project must be versioned as major.minor.patch
+the minimal viable product will be released as 0.1.0
+1.0.0 will be the first major release
+
+the MVP (minimum viable product) should:
+
+- accept points input (as two lists)
+- approximate it using line regression
+- plot result interactively (matplotlib or browser-based)
+- API that supports:
+	- ga.input = ([x1,x2,x3,...], [y1,y2,y3,y4])	(can also automatically convert [(x1,y1), (x2,y2), (x3,y3), ...] to tuple of lists
+	- ga.analyzers = ga.analyzers.
+	- ga.expression = ga.expressions.polynomial

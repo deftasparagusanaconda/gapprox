@@ -1,6 +1,14 @@
-from .api import api
-from . import approximators, expressions, analyzers, interpolators, optimizer, outliers, parser
+#from . import approximators, expressions, analyzers, interpolators, optimizer, outliers, parser
 
+#from . import *
+from .approximators import *
+from . import expressions
+from .optimizer import errors, predictors, strategies
+from .optimizer.optimizer import Optimizer
+from . import outliers
+
+from .api import api
+api = api()
 """
 # when you do "import graphapproximator", it imports this directory as a module
 # this __init__.py file will convert that from a module to an instance of API

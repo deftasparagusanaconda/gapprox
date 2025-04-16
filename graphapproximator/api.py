@@ -3,10 +3,8 @@
 # the instance manages your current configuration of generator, expression, interpolator, ...
 # the instance also exposes a list of available modules (generators, expressions, interpolators, ...)
 
-from . import interpolators, analyzers, expressions, outliers, plotters
+from . import converter, analyzers, expressions, outliers, plotters
 from .utils import StatefulFunction
-from .parser import parser
-from .sampler import sampler
 from .optimizer.optimizer import Optimizer
 from .optimizer import strategies
 
@@ -14,7 +12,6 @@ class api():
 	_stateful_components = ["interpolator", "analyzer", "expression"]
 	
 	# expose modules through the class instance
-	interpolators = interpolators
 	analyzers = analyzers
 	optimizers = strategies		# ga.optimizer = something only sets its strategy
 	expressions = expressions
@@ -25,16 +22,15 @@ class api():
 	
 	# store configuration
 	def __init__(self):
+		print("initializing!")
 		#self.optimizer = Optimizer()	# start instance/module hybrid
 		super().__setattr__("optimizer", Optimizer())	# because its checked by __setattr__
-		self.interpolator = None
-		self.analyzer = None
-		self.expression = None
+		super().__setattr__("interpolator", None)
+		super().__setattr__("analyzer", None)
+		super().__setattr__("expression", None)
 
 		self.input = None
-		self.input_type = None
 		self.output = None
-		self.output_type = None
 		
 	reset = __init__	# ga.reset() now resets the instance
 	
@@ -45,10 +41,21 @@ class api():
 			else:
 				name = None
 		elif name == "optimizer":
-			self.optimizer.strategy = value
+			super().__setattr("optimizer.strategy", value)
 		else:
 			super().__setattr__(name, value)
 	
+	#def __getattr__(self, name):
+	#	print("__getattr__", self, name)
+
+#	def __getattr__(self, name):
+#		if name in self._params:
+#			return self._params[name]
+#		raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+		
+#	def __dir__(self):
+#		
+
 	# THE PIPELINE!!!! -----------------------------------------------------
 	def approximate(self, input=None):
 		# input=None is kept for convenience-sake because
