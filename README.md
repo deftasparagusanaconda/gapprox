@@ -1,4 +1,4 @@
-[🔍 examples][examples] | [📖 documentation][documentation] | [📜 license][license] | [💡suggest ideas!][contact]
+[🔍 examples][examples] | [📖 documentation][documentation] | [📜 license][license] | [💡suggest silly ideas!][contact]  
 
 # graphapproximator
 a python toolkit to help you find the approximate equation of any 2D graph  
@@ -17,62 +17,99 @@ python3 launcher.py
 ```
 or run it as a python package ^-^
 ```python
-import graphapproximator as ga
+import graphapproximator.api as ga
 
-mypoints = [ (1,1), (2,3), (4,3), (-2,-1), (-4,-5), (5,7) ]
+mypoints = [(1,1), (2,3), (4,3), (-2,-1), (-4,-5), (5,7)]
 approx = ga.line(mypoints)
 
 print(approx)
 
 # f(x) = 0.2 + 1.1333333333*x
 ```
+```python
+import graphapproximator.api as ga
+
+ga.input = [2,3,6,5,4]
+ga.generator = ga.generators.parabola.least_squares
+ga.expression = ga.expressions.polynomial
+ga.approximate()  # also the same as ga()
+
+print(ga.output)  # 
+ga.plot()
+```
+check out more [examples!][examples]
+
 ---
 ## ⚙️ how it works
 
-importing graphapproximator automatically spawns an Engine instance, ready to use out of the box
-![engine.webp](<https://github.com/deftasparagusanaconda/graphapproximator/blob/main/documentation/diagrams/engine.webp> "engine.webp")
+### api
+<p align="center">
+        <img src="https://github.com/deftasparagusanaconda/graphapproximator/blob/main/documentation/diagrams/api.webp">
+</p>
 
-each interface (API/CLI/GUI/webUI) talks to a single *Engine* instance  
-this object manages your current configuration of generator, expression, interpolator, ...  
-the *Engine* also exposes a list of available modules (generators, expressions, interpolators, ...)  
+[converter](#converter) converts a graph from one form to another  
+[analyzer](https://en.wikipedia.org/wiki/Functional_analysis) analyzes the input to generate parameters for an expression  
+[optimizer](#optimizer) improves parameters by iterative [optimization](https://en.wikipedia.org/wiki/Mathematical_optimization)  
+[expression](https://en.wikipedia.org/wiki/Expression_(mathematics)) turns parameters into a math expression  
+[converter](#converter) converts a graph from one form to another  
 
-input: provided by API/CLI/GUI/webUI  
-parser: decodes string input into symbolic math input  
-interpolator: turns scattered points into a smooth function, then samples it  
-generator: generates parameters for an expression  
-optimizer: iteratively improves parameters  
-expression: turns parameters into a math expression  
-output: passed to API/CLI/GUI/webUI  
+each component is optional. if you didnt set that component, the data simply passes through  
+input and output are handled differently, depending on the interface  
 
-each module is optional. if you didn't define it, the data simply passes through  
-there are also other standalone features like extrapolator, outlier, ...  
+### converter
 
-![iterative optimizer.webp](<https://github.com/deftasparagusanaconda/graphapproximator/blob/main/documentation/diagrams/iterative optimizer.webp> "iterative optimizer.webp")
+<p align="center">
+        <img height="250" src="https://github.com/deftasparagusanaconda/graphapproximator/blob/main/documentation/diagrams/converter.webp">
+</p>
 
-the iterative optimizer is a special kind of generator  
-it is an instance of *"IterativeOptimizer"*  
-this object manages your current configuration of expression, error, predictor, ...  
+[parser](https://en.wikipedia.org/wiki/Parsing) decodes string input into a callable function  
+[sampler](https://en.wikipedia.org/wiki/Sampling_(statistics)) samples a callable function into points  
+[interpolator](https://en.wikipedia.org/wiki/Interpolation) turns scattered points into a smooth function, then samples it  
 
-input: provided by API/CLI/GUI  
-predictor: find the next best set of parameters to minimize error  
-expression: turns parameters into a math expression  
-error: calculates the discordance between original input and approximation  
-output: passed to API/CLI/GUI  
+converter converts a graph from one form to another  
+depending on input type and the desired output type, one or two components are chosen automatically  
 
-the iterative optimizer runs until it reaches an end condition, such as time_limit, iter_limit, ...  
+as you parse string to function, you lose the ability to [differentiate/integrate](https://en.wikipedia.org/wiki/Differential_calculus) smoothly  
+as you sample function to points, you lose the [smoothness](https://en.wikipedia.org/wiki/Smoothness) of the function  
+as you interpolate points to string, you add "fake" data which was not originally there  
+
+string is the most favourable representation, so the api will try to preserve it
+
+### optimizer
+
+<p align="center">
+        <img height="250" src="https://github.com/deftasparagusanaconda/graphapproximator/blob/main/documentation/diagrams/optimizer.webp">
+</p>
+
+[predictor](https://en.wikipedia.org/wiki/Iterative_method) finds the next best set of parameters to minimize error  
+[expression](https://en.wikipedia.org/wiki/Expression_(mathematics)) turns parameters into a math expression  
+[error](https://en.wikipedia.org/wiki/Error_analysis_(mathematics)) calculates the discordance between original input and approximation  
+
+optimizer improves parameters by iterative [optimization](https://en.wikipedia.org/wiki/Mathematical_optimization)  
+it hold its own configuration. this is done by making it an [object](https://en.wikipedia.org/wiki/Object_(computer_science))  
+it runs until it reaches an end condition, such as time limit, iteration limit, ...  
 it is also capable of multithreading/parallel processing  
 
 ---
 ## ⏳ coming soon ~
-- file IO support
-- PyPI support
-- CLI
-- webUI
-- GUI
-- automatic expression selector
-- symbolic regression (adaptive expression)
-- parametric function
-- hypersonic blasters
+- file IO support  
+- PyPI support  
+- CLI  
+- webUI  
+- GUI  
+- symbolic regression (automatic expression selector)  
+- customizable api pipeline  
+- parametric function support  
+- n-dimensional plotters  
+- surface approximation  
+- [many-to-many](https://en.wikipedia.org/wiki/Relation_(mathematics)#Combinations_of_properties) relation approximation  
+- point density evaluators  
+- hypersonic blasters 🚀  
+
+in the far far future, ga will support multiple-input multiple-output approximation. for m inputs and n outputs, it runs n approximations of m-dimensional [manifolds](https://en.wikipedia.org/wiki/Manifold) separately  
+effectively, this turns it into a general-purpose prediction library, analogous to AI but modular, intuitive, open (not a black-box approximator), mathematically grounded, and intuitive  
+currently, ga only supports single-input single-output [many-to-one](https://en.wikipedia.org/wiki/Relation_(mathematics)#Combinations_of_properties) functions. see [roadmap](https://github.com/deftasparagusanaconda/graphapproximator/tree/main/documentation/roadmap.txt) for details  
+the project is feature-oriented, not performance-oriented. if performance is required, you are free to fork it ☺️
 
 ---
 ## 📔 you read all that?!?
@@ -80,9 +117,10 @@ it is also capable of multithreading/parallel processing
 this project is still blooming ✨ if you'd like to change something, add something, or suggest ideas—[come say hi!][contact]
 
 with love, and a passion for maths ~  
-\- [daa][contact] 🌸
+\- daa 🌸
 
-[examples]: https://github.com/deftasparagusanaconda/graphapproximator/tree/main/examples/
-[documentation]: https://github.com/deftasparagusanaconda/graphapproximator/tree/main/documentation/
-[license]: https://github.com/deftasparagusanaconda/graphapproximator/tree/main/LICENSE
-[contact]: https://discord.com/users/608255432859058177
+[examples]: https://github.com/deftasparagusanaconda/graphapproximator/tree/main/examples/  
+[documentation]: https://github.com/deftasparagusanaconda/graphapproximator/tree/main/documentation/  
+[license]: https://github.com/deftasparagusanaconda/graphapproximator/tree/main/LICENSE  
+[contact]: https://github.com/deftasparagusanaconda  
+```

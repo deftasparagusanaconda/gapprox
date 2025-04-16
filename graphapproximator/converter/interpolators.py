@@ -17,8 +17,8 @@ def linear_interpolator(data_points , offset:int = 0.1):
         if data_points[i+1][0] - data_points[i][0] > offset:
             equation = find_equation(data_points[i] , data_points[i+1])
 '''
-from math import sqrt
-def linear_interpolation(points, step):
+def linear(points, step):
+    from math import sqrt
     # Ensure points are sorted by x-coordinate
     points = sorted(points, key=lambda p: p[0])
     
@@ -54,4 +54,29 @@ def linear_interpolation(points, step):
 
     return result
 
-# print(linear_interpolation([(1,1),(2,4),(3,9),(4,16),(5.1,25)],0.1))
+def polynomial(data_points , degree:int=None):
+    import numpy as np
+    from ..expressions import polynomial as expr_poly
+    rhs_list = []
+    lhs_list = []
+    if degree is None:
+    	degree = len(data_points)
+    
+    for i in range(len(data_points)):
+        temp = []
+        for j in range(degree):  
+            temp.append(data_points[i][0]**j)  
+        lhs_list.append(temp)
+        rhs_list.append(data_points[i][1])
+    rhs = np.array(rhs_list)
+    lhs = np.array(lhs_list)
+    coefficients, *_ = np.linalg.lstsq(lhs , rhs, rcond=None)
+    return expr_poly(coefficients)
+    """res = ""
+    for i in range(len(coefficients)):
+        if i == len(coefficients) -1:
+            res += str(round(coefficients[i] ,3)) + "*x^" + str(i) +"  "
+            break
+        res += str(round(coefficients[i],3)) + "*x^" + str(i) + "+ "
+    return res
+    """
