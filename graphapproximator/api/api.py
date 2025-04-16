@@ -4,7 +4,7 @@
 # the instance also exposes a list of available modules (generators, expressions, interpolators, ...)
 
 from . import converter, analyzers, expressions, outliers, plotters
-from .utils import StatefulFunction
+from .utils import StatefulFunction, Colours
 from .optimizer.optimizer import Optimizer
 from .optimizer import strategies
 
@@ -15,8 +15,6 @@ class api():
 	analyzers = analyzers
 	optimizers = strategies		# ga.optimizer = something only sets its strategy
 	expressions = expressions
-	parser = parser
-	sampler = sampler
 	outliers = outliers
 	plotters = plotters
 	
@@ -62,9 +60,12 @@ class api():
 		# ga.approximate(something) is easier than
 		# ga.input = something; ga.approximate()
 		"""calculate an approximation with the configuration given"""
+		print("press ctrl+c to abort")
 		if input is not None:
 			self.input = input
 		temp = self.input
+
+		utils.warn_input_dimensions(self.input)
 
 		if isinstance(temp, str) and self.parser:		# string to any
 			temp = parser(temp)
