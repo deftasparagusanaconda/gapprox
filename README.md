@@ -129,7 +129,7 @@ with love, and a passion for maths ~
 [documentation]: https://github.com/deftasparagusanaconda/graphapproximator/tree/main/documentation/  
 [license]: https://github.com/deftasparagusanaconda/graphapproximator/tree/main/LICENSE  
 [contact]: https://discordapp.com/users/608255432859058177
-[roadmap]: <https://github.com/deftasparagusanaconda/graphapproximator/tree/main/documentation/personal rants/roadmap.txt>
+[roadmap]: <https://github.com/deftasparagusanaconda/graphapproximator/tree/main/documentation/personal rants/roadmap MIMO.txt>
 
 [graph]: https://en.wikipedia.org/wiki/Graph_of_a_function  
 [function]: https://en.wikipedia.org/wiki/Function_(mathematics)

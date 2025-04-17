@@ -8,7 +8,9 @@ graphs are even more abstract, as they are nodes and edges.
 functions are a special case of relations, and relations are a special case of graphs.
 
 graphapproximator should generalize and in the far future, at least try to support relations
-approximating actual graphs (as from graph theory) is incredibly abstract and hard, and is out of my personal scope. id love to see it worked on by someone. is graphapproximator a good breeding ground for graph approximation? i am not sure. but id like to see it tried.
+the first line of the README.md is intentional: "a python toolkit to help you find the approximate equation of any 2D graph"
+an equation can represent a relation. and i want to generalize ga to a relation approximator
+but! approximating actual graphs (as from graph theory) is incredibly abstract and hard, and is out of my personal scope. id love to see it worked on by someone. is graphapproximator a good breeding ground for graph approximation? i am not sure. but id like to see it tried.
 
 graphapproximator 0.1.0 actually does take a relation as input
 a relation is a set of ordered pairs of a set X

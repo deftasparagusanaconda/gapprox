@@ -3,18 +3,8 @@
 # the instance manages your current configuration of generator, expression, interpolator, ...
 # the instance also exposes a list of available modules (generators, expressions, interpolators, ...)
 
-<<<<<<< HEAD
-<<<<<<<< HEAD:graphapproximator/api/api.py
-=======
->>>>>>> temp-branch
 from . import converter, analyzers, expressions, outliers, plotters
-from .utils import StatefulFunction, Colours
-from .optimizer.optimizer import Optimizer
-from .optimizer import strategies
-
-<<<<<<< HEAD
-========
-from . import interpolators, generators, expressions, outliers, parser
+from .utils import StatefulFunction
 from .optimizer.optimizer import Optimizer
 from .optimizer import strategies
 
@@ -25,110 +15,26 @@ from .optimizer import strategies
 	# this can be done by overriding __setattr__
 # and also to let the approximator use the generator with those arguments
 	# this can be done by a wrapper with a modified __call__
-"""
-_wrapped_components = ("parser", "interpolator", "generator", "expressions")
-class ComponentWrapper:
-	def __init__(self):	# innit? hahahaha
-		print("__init__", self)
-		self.component = None
-		self.arguments = {}
-
-	def __dir__(self):
-		print("__dir__", self)
-		from inspect import getfullargspec
-		if self.component is None:
-			return []
-		thing = getfullargspec(self.component)
-		return thing.args()
-#		from inspect import signature
-#		if self.component is None:
-#			return []
-#		return list(signature(self.component).parameters.keys())
-	
-	def __setattr__(self, name, value):	# self.name = value
-		print("__setattr__", self, name, value)
-		#if the attribute theyre trying to set is one of the modules, then-
-		if name in _wrapped_components:
-			super().__setattr__(name, value)
-		else:
-			self.arguments[name] = value
-
-#	def __call__(self, *args, **kwargs):
-#		print("__call__", self, *args, **kwargs)
-#		if self.component is None:
-#			raise ValueError("no component assigned!")
-#		kwargs = {**self.arguments, **kwargs}
-#		return self.component(*args, **kwargs)
-
-	def __call__(self, *args, **kwargs):
-		print("__call__", self, *args, **kwargs)
-		if self.component is None:
-			return None
-		return self.component(*args, **kwargs)
-
-	def __repr__(self):
-	#	print("__repr__")
-	#	if self.component is None:
-	#		return "<ComponentWrapper (unassigned)>"
-		return f"<ComponentWrapper for {self.component.__name__}>"
 
 # youll also have to capture the `ga.generator = something` assignment to change the ComponentWrapper's component
 # i think that has to be implemented *inside* API
-"""
->>>>>>>> temp-branch:.old/api_2.py
-class API():
-	# expose modules through the class instance
-	parser = parser.parser
-	interpolators = interpolators
-	generators = generators
-	optimizers = strategies		# ga.optimizer = something only sets its strategy
-	expressions = expressions
-	outliers = outliers
-	output_types = ["values", "points", "string"]
 	
-	# store configuration
-	# instance variables
-	def __init__(self):
-		print("__init__", self)
-		self.input = None
-		self.input_type = None
-		self.interpolator = None
-		self.generator = None
-		self.optimizer = Optimizer()	# start instance/module hybrid
-		self.expression = None
-		self.output = None
-		self.output_type = None
-	reset = __init__	# ga.reset() now resets the instance
-	"""
-	# override attribute assignments like ga.generator = something
-	def __setattr__(self, name, value):
-		print("__setattr__", self, name, value)
-		obj = self.__dict__.get
-		if name in _wrapped_components:
-			obj = self.__dict__.get(name)
-			if isinstance(obj, ComponentWrapper):
-				obj.component = value
-		else:
-			super().__setattr__(name, value)
-	"""
-	#def auto():
-	#	"""mini-AI to choose which approximation is best"""
-	
-=======
 class api():
-	_stateful_components = ["interpolator", "analyzer", "expression"]
+	_stateful_components:list[str] = ["interpolator", "analyzer", "expression"]
 	
 	# expose modules through the class instance
 	analyzers = analyzers
-	optimizers = strategies		# ga.optimizer = something only sets its strategy
+	optimizers = strategies
 	expressions = expressions
 	outliers = outliers
 	plotters = plotters
-	
+	converter = converter
+	plotters = plotters
+	"""
 	# store configuration
 	def __init__(self):
-		print("initializing!")
-		#self.optimizer = Optimizer()	# start instance/module hybrid
+		_warn:bool = True		# show warnings
+		_multithread:bool = True	# use n threads for n outputs
 		super().__setattr__("optimizer", Optimizer())	# because its checked by __setattr__
 		super().__setattr__("interpolator", None)
 		super().__setattr__("analyzer", None)
@@ -136,17 +42,34 @@ class api():
 
 		self.input = None
 		self.output = None
+	"""	
+
+	def __init__(self):
+		analyzer = None
+		expression = None
 		
+		input = None
+		output = None
+
+		_check_input:bool = True	# check input signature
+		_multithread:bool = True	# use n threads for n outputs
+	
 	reset = __init__	# ga.reset() now resets the instance
 	
 	def __setattr__(self, name, value):
-		if name in self._stateful_components:
-			if value is not None:
-				name = StatefulFunction(value)
-			else:
-				name = None
-		elif name == "optimizer":
+		#if name in self._stateful_components:
+		#	if value is not None:
+		#		name = StatefulFunction(value)
+		#	else:
+		#		name = None
+		if name == "optimizer":
 			super().__setattr("optimizer.strategy", value)
+
+		elif name == "input" and self._warn:
+			super().__setattr__(name, value)
+			if utils.warn_input(self.input):
+				print(f"{utils.Colours.BRIGHT_BLACK}disable check{utils.Colours.RESET}\t: ga._check_input = False\n")
+
 		else:
 			super().__setattr__(name, value)
 	
@@ -161,7 +84,6 @@ class api():
 #	def __dir__(self):
 #		
 
->>>>>>> temp-branch
 	# THE PIPELINE!!!! -----------------------------------------------------
 	def approximate(self, input=None):
 		# input=None is kept for convenience-sake because
@@ -172,90 +94,38 @@ class api():
 		if input is not None:
 			self.input = input
 		temp = self.input
-<<<<<<< HEAD
-<<<<<<<< HEAD:graphapproximator/api/api.py
-=======
->>>>>>> temp-branch
 
-		utils.warn_input_dimensions(self.input)
 
-		if isinstance(temp, str) and self.parser:		# string to any
-			temp = parser(temp)
-		if self.interpolator:	# points to points
-			temp = self.interpolator(temp)
-		if self.analyzer:	# points to params
+		if self.analyzer:
 			temp = self.analyzer(temp)
-		if self.optimizer.strategy:	# params to params
-			temp = self.optimizer(self, temp, self.input, self.expression)
+		#if self.optimizer.strategy:
+		#	temp = self.optimizer(self, temp, self.input, self.expression)
 		if self.expression:	# params to any
 			temp = self.expression(temp)
-<<<<<<< HEAD
-========
-		
-		temp = parser.parser(temp)	# string to func
-		temp = self.interpolator(temp)	# points to points
-		temp = self.generator(temp)	# points to params
-		temp = self.optimizer(self, temp, self.input, self.expression)	# params to params
-		temp = self.expression(temp)	# params to any
->>>>>>>> temp-branch:.old/api_2.py
-		self.output = temp
-
-		return temp
-=======
 		self.output = temp
 		return temps
->>>>>>> temp-branch
 	# the end ~w~ ----------------------------------------------------------
 
-	__call__ = approximate	# ga() and ga.approximate() now do the same thing
+	__call__ = approximate	# ga() and ga.approximate() are now same
 	
 	# provided for convenience, so you can do ga.line(something)
 	@staticmethod
 	def line(input, output_type="string"):
 		"""least squares line approximation (https://en.wikipedia.org/wiki/Linear_least_squares)
 provided for convenience"""
-<<<<<<< HEAD
-		return expressions.polynomial(generators.line.least_squares(input), number_of_points=len(input), output_type=output_type)
-=======
 		return expressions.polynomial(analyzers.line.least_squares(input), number_of_points=len(input), output_type=output_type)
->>>>>>> temp-branch
 	
+	@staticmethod
 	def plot(self):
-		"""plot input and output using matplotlib"""
-		from matplotlib.pyplot import plot as plt_plot
-		try:
-			plt_plot(self.input)
-		except:
-			# add debugging prints here
-			pass
-		from matplotlib.pyplot import show as plt_show
-		try:
-			plt_plot(self.output)
-		except:
-			# add debugging prints here
-			pass
-		plt_show()	
-                
+               plotters.plotter(self.input, self.output)
+
 	def show(self):
 		"""print current configuration"""
 		print("input =", self.input)
-<<<<<<< HEAD
-		print("input_type =", self.input_type)
-		print("interpolator =", self.interpolator)
-		print("generator =", self.generator)
-		print("optimizer =", self.optimizer.strategy)
-		print("expression =", self.expression)
-		print("output =", self.output)
-		print("output_type =", self.output_type)
-=======
 		print("analyzer =", self.analyzer)
-		print("optimizer =", self.optimizer.strategy)
+		#print("optimizer =", self.optimizer.strategy)
 		print("expression =", self.expression)
 		print("output =", self.output)
-		print("parser =", self.parser)
-		print("sampler =", self.sampler)
-		print("interpolator =", self.interpolator)
->>>>>>> temp-branch
 	
 	def show_full(self):
 		"""print current configuration + ALL sub-configurations"""
@@ -271,11 +141,7 @@ provided for convenience"""
 	def new(self):			# foo = ga.new() creates new instance
 		"""return a new instance of Engine"""
 		return type(self)()
-<<<<<<< HEAD
-
-=======
 	
->>>>>>> temp-branch
 	def copy(self):			# foo = ga.copy() creates a copy
 		"""returns a copy of the current Engine instance"""
 		from copy import deepcopy
