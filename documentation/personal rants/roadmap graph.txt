@@ -1,0 +1,24 @@
+graphapproximator, although named as such, does not actually approximate graphs
+it approximates relations. and as of 0.1.0, only approximates functions.
+
+functions are simple. they can be represented by one side of an equation, an "expression". the other side being a "f(x)"
+relations are a bit trickier. but they can be represented with equations. or inequations. two expressions with a comparison operator in between them.
+graphs are even more abstract, as they are nodes and edges. 
+
+functions are a special case of relations, and relations are a special case of graphs.
+
+graphapproximator should generalize and in the far future, at least try to support relations
+approximating actual graphs (as from graph theory) is incredibly abstract and hard, and is out of my personal scope. id love to see it worked on by someone. is graphapproximator a good breeding ground for graph approximation? i am not sure. but id like to see it tried.
+
+graphapproximator 0.1.0 actually does take a relation as input
+a relation is a set of ordered pairs of a set X
+a set of points is exactly that. it is a set of ordered pairs, of the set of real numbers.
+graphapproximator outputs a function as an approximaton of that relation.
+that means ga already supports relation input. relation output is incredibly tricky though.
+one way to cheat is to flatten/project/trace a parametric curve onto the xy plane
+like how (cos t, sin t) is actually a point but if you trace it, its locus is a circle
+this is disgusting though, and effectively hides a dimension, which is the parameter t, in order to fake a many-many relation
+this will NOT be implemented
+the actual accurate representation of that very same parametric function is actually a path in 3D space:
+x = cos(t), y = sin(t), z = t
+the circle only comes about as a projection of the path to the xy plane
