@@ -1,0 +1,16 @@
+there is no "best approximation" 
+
+say you had a bunch of points [1,2,4,5,8,9,10], [1,5,3,6,9,7,4]
+and you wanted to find the best approximation.
+the first thing that comes to mind is a linear regression. next you might think of a parabola regression. then you think "ah! a polynomial regression!"
+
+then you make a function that approximates the points *so well* that it goes through all of them exactly. try this. a polynomial interpolation/regression/approximation of n degree for n points behaves very very wildly for high n. then how about a fourier approximation? DFT/DCT/DST. well, you do get a nice oscillating curve that repeats and doesnt go to infinity. but you lose the underlying structure and meaning of the original points.
+how about symbolic regression? well, it has the same problem too. it could technically approximate something so well that it goes through all the points. but the final result would be a function so diabolic and complex that it doesnt really reveal any useful information about the original data.
+
+the reason is this: there is no single best approximation. only a best-for-purpose approximation. you have to make a tradeoff between accuracy and complexity of approximation. the best thing to do is not to run one approximation and let users accept whatever ratio you have decided for accuracy and complexity, but instead run multiple approximations with different tradeoffs. you map the final results on a accuracy-complexity x-y plot. a pareto front will be exposed. the user can either choose a tradeoff from the beginning or choose along this front.
+
+it is analogous to letting users choose the quality of compression of a JPEG image. you may want a small file size, or you may want more quality. it depends on your use case. and so most jpeg encoders allow you to choose a tradeoff beforehand. well, ga will let you choose a tradeoff from the beginning, or instead run multiple approximations with different tradeoffs. the most prominent point of the pareto front is chosen as the "best" approximation, or the user chooses which one is most appropriate.
+
+ga will be slightly more advanced that that, allowing more than just a complexity/accuracy tradeoff. there must be multiple metrics (higher is always good):
+accuracy, simplicity, smoothness, symmetry, consistency, periodicity, extrapolaticty, invertibility, compressibility, size,
+these are just some buzz words im throwing around. i probably wont want all of these. only some. and maybe some others more instead.

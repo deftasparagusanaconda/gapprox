@@ -1,5 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
+
+
 #Here the function is the function to plot
 def plotter(function ,start_range , end_range , resolution : int = 400):
     x = np.linspace(start_range , end_range , resolution)

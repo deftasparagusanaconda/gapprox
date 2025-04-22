@@ -1,18 +1,24 @@
 [🔍 examples][examples] | [📖 documentation][documentation] | [📜 license][license] | [💡suggest silly ideas!][contact]  
 
 # graphapproximator
-a python toolkit to help you find the approximate equation of any 2D [graph][graph]  
+a python toolkit to help you find the approximate equation of any [graph][graph]  
 instead of "find the graph of the equation", youre flipping it: "find the equation of the graph"
 
 --- 
 ## 💾 installation
 
+from PyPI:
 ```shell
 pip install graphapproximator
 ```
+from github:
+```shell
+git clone https://github.com/deftasparagusanaconda/graphapproximator
+```
+
 ---
 ## 🔧 how to use
-run it as an app:
+<!-- run it as an app:
 ```bash
 ./launcher.sh
 ```
@@ -21,11 +27,11 @@ or:
 python3 launcher.py
 # "python3 launcher.py --headless" to launch the CLI!
 ```
-or run it as a python package ^-^
+or -->try the python API ^-^
 ```python
 import graphapproximator.api as ga
 
-mypoints = [(1,1), (2,3), (4,3), (-2,-1), (-4,-5), (5,7)]
+mypoints = [1, 2, 4, -2, -4, 5], [1, 3, 3, -1, -5, 7]
 approx = ga.line(mypoints)
 
 print(approx)
@@ -146,3 +152,4 @@ with love, and a passion for maths ~
 [error analysis]: https://en.wikipedia.org/wiki/Error_analysis_(mathematics)
 [relation types]: https://en.wikipedia.org/wiki/Relation_(mathematics)#Combinations_of_properties
 [object in cs]: https://en.wikipedia.org/wiki/Object_(computer_science)
+

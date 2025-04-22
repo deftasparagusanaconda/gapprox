@@ -1,0 +1,4 @@
+strings are powerful for storing expressions, but DAGs are even more powerful
+ASTs are another way, and so are expression trees. but DAGs are the best in my opinion
+
+strings come before DAGs. an interpolator (actually an approximator)
