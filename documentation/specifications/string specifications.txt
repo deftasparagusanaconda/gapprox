@@ -1,4 +1,4 @@
-expressions are stored as strings
+expressions can be stored as strings
 strings should follow academic mathematical conventional notation as much as possible:
 - ^ instead of **
 - 1/2x is interpreted as 1/2*x (although implied multiplication should be avoided)

@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-def remove_np(function):
+#def remove_np(function):
     
 #Here the function is the function to plot
 def plotter(function ,start_range , end_range , resolution : int = 400):

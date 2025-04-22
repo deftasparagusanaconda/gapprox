@@ -1,0 +1,15 @@
+if ga will be able to support multiple input functions, effectively it will be able to support scalar fields
+take for example a 2D scalar field: f(x,y) = x + y
+it is two inputs, one output, thus representable in 3 dimensions
+
+a scalar field can be extended to have direction, making it a vector field
+(im not sure how direction will be extracted, but say we could)
+
+the tricky part is that direction is not a new dimension
+the original 2D scalar field example f(x,y) = x + y outputs a real number
+instead of this, for a vector field, it should output two real numbers
+thus, it returns a vector for a given x and y. for example: f(x,y) = (x², y+2)
+
+and so instead of points being a simple set of cartesian coordinates, they are vectors.
+*all* the components will have to support vectors, but this may open the door for field modelling, perhaps?
+i am not sure exactly what supporting vectors will mean. but it should have some profound meaning im not yet sure of

@@ -3,10 +3,10 @@
 # the instance manages your current configuration of generator, expression, interpolator, ...
 # the instance also exposes a list of available modules (generators, expressions, interpolators, ...)
 
-from . import converter, analyzers, expressions, outliers, plotters
-from .utils import StatefulFunction
-from .optimizer.optimizer import Optimizer
-from .optimizer import strategies
+from . import utils
+from .check_input import check_input
+from .. import converter, analyzers, expressions, outliers, plotters
+#from ..optimizer import Optimizer, strategies
 
 # ga.generator = ga.generators.dct already works
 # but i want ga.generator.<tab> to show dct's arguments
@@ -19,12 +19,17 @@ from .optimizer import strategies
 # youll also have to capture the `ga.generator = something` assignment to change the ComponentWrapper's component
 # i think that has to be implemented *inside* API
 	
-class api():
+class API():
 	_stateful_components:list[str] = ["interpolator", "analyzer", "expression"]
+
+	_assume_first_one_input = staticmethod(utils.assume_first_one_input)
+	_assume_last_one_output = staticmethod(utils.assume_last_one_output)
+	_assume_x_array = staticmethod(utils.assume_x_array)
+	_transpose = staticmethod(utils.transpose)
 	
 	# expose modules through the class instance
 	analyzers = analyzers
-	optimizers = strategies
+#	optimizers = strategies
 	expressions = expressions
 	outliers = outliers
 	plotters = plotters
@@ -45,14 +50,14 @@ class api():
 	"""	
 
 	def __init__(self):
-		analyzer = None
-		expression = None
-		
-		input = None
-		output = None
+		super().__setattr__("_check_input", True)	# check input signature
+		super().__setattr__("_multithread", True)	# use n threads for n outputs
 
-		_check_input:bool = True	# check input signature
-		_multithread:bool = True	# use n threads for n outputs
+		self.analyzer = None
+		self.expression = None
+		
+		super().__setattr__("input", None)		# to bypass input check
+		self.output = None
 	
 	reset = __init__	# ga.reset() now resets the instance
 	
@@ -65,10 +70,10 @@ class api():
 		if name == "optimizer":
 			super().__setattr("optimizer.strategy", value)
 
-		elif name == "input" and self._warn:
+		elif name == "input" and self._check_input:
 			super().__setattr__(name, value)
-			if utils.warn_input(self.input):
-				print(f"{utils.Colours.BRIGHT_BLACK}disable check{utils.Colours.RESET}\t: ga._check_input = False\n")
+			if check_input(self.input):
+				print(f"disable check\t: ga._check_input = False")
 
 		else:
 			super().__setattr__(name, value)
@@ -103,7 +108,7 @@ class api():
 		if self.expression:	# params to any
 			temp = self.expression(temp)
 		self.output = temp
-		return temps
+		return temp
 	# the end ~w~ ----------------------------------------------------------
 
 	__call__ = approximate	# ga() and ga.approximate() are now same
@@ -127,23 +132,23 @@ provided for convenience"""
 		print("expression =", self.expression)
 		print("output =", self.output)
 	
-	def show_full(self):
-		"""print current configuration + ALL sub-configurations"""
-		self.show()
-		print()
-		print("optimizer:")
-		self.optimizer.show_full()
-
+	#def show_full(self):
+	#	"""print current configuration + ALL sub-configurations"""
+	#	self.show()
+	#	print()
+	#	print("optimizer:")
+	#	self.optimizer.show_full()
+	
 	# basically what you see when you do `print(ga)` in the python interpreter
 	def __repr__(self):
 		return f"<API instance & module 'graphapproximator' at {hex(id(self))}>"
 		
 	def new(self):			# foo = ga.new() creates new instance
-		"""return a new instance of Engine"""
+		"""return a new API instance"""
 		return type(self)()
 	
 	def copy(self):			# foo = ga.copy() creates a copy
-		"""returns a copy of the current Engine instance"""
+		"""returns a copy of the API instance"""
 		from copy import deepcopy
 		return deepcopy(self)
 
