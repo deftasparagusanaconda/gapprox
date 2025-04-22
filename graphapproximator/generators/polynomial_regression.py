@@ -12,7 +12,6 @@ def polynomial_regression(data_points , degree:int = 3):
         rhs_list.append(data_points[i][1])
     rhs = np.array(rhs_list)
     lhs = np.array(lhs_list)
-<<<<<<< Updated upstream:graphapproximator/generators/polynomial_regression.py
     #print(rhs)
     #print(lhs)
     coefficients, *_ = np.linalg.lstsq(lhs , rhs, rcond=None)
@@ -33,8 +32,7 @@ def polynomial_regression(data_points , degree:int = 3):
     return res
 <<<<<<< Updated upstream:graphapproximator/generators/polynomial_regression.py
     """
-=======
+
 
 #points = [[12, 34], [7, 19], [25, 5], [3, 14], [18, 29], [11, 8], [30, 21], [4, 27], [22, 17], [15, 2]]
 #print(polynomial_regression(points ,8))
->>>>>>> Stashed changes:graphapproximator/analyzers/polynomial_regression.py

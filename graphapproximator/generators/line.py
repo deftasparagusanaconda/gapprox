@@ -1,15 +1,15 @@
 #Author : T.Jeffrin Santon
 #Date : 27.02.2025
-def linear_regression(points, output_type:str|list[str]="params"):
+def linear_regression(xpoints,ypoints, output_type:str|list[str]="params"):
     summation_x ,summation_xy , summation_sqx ,summation_y = 0 , 0 , 0 , 0
-    no_of_points = len(points)
+    no_of_points = len(xpoints)
     slope = 0.0
     y_intercept = 0.0
     for i in  range(no_of_points):
-        summation_x += points[i][0]
-        summation_y += points[i][1]
-        summation_sqx += points[i][0]*points[i][0]
-        summation_xy += points[i][0]*points[i][1]
+        summation_x += xpoints[i]
+        summation_y += ypoints[i]
+        summation_sqx += xpoints[i]* xpoints[i]
+        summation_xy += xpoints[i]*ypoints[i]
     #slope calculation
     slope = ((no_of_points*summation_xy) - (summation_x*summation_y))/((no_of_points*summation_sqx) - (summation_x * summation_x))
     #Y-Intercept calculation
