@@ -1,7 +1,25 @@
+def fourier_series(a_terms:list, b_terms:list=None, L=None):
+	"""fourier_series(real, imag, L=None) returns fourier series
+https://en.wikipedia.org/wiki/Fourier_series"""
+	#if "values" in output_type:
+	#	output.append(scipy.fft.ifft(params, norm="forward"))
+
+	L = len(a_terms) if L is None else L
+	
+	if b_terms is None:
+		terms = (f"{a_terms[n]}*cos({n}*pi*x/{L}) - 0*sin({n}*pi*x/{L})" for n in range(L))
+	else:
+		terms = (f"{a_terms[n]}*cos({n}*pi*x/{L}) - {b_terms[n]}*sin({n}*pi*x/{L})" for n in range(L))
+	
+	return " + ".join(str(term) for term in terms)
+
+# add support for more complex inputs
+
+"""
 def fourier_series(params: list[complex], output_type="values"):
-	"""
+
 	output_type: "terms", "string", "matrix_symbolic", "matrix", "values_symbolic", "values"
-	"""
+	
 	import scipy.fft, sympy, numpy
 	
 	output = []
@@ -38,4 +56,4 @@ def fourier_series(params: list[complex], output_type="values"):
 		return output[0]
 	else:
 		return output
-
+"""

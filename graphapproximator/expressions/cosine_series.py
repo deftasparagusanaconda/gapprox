@@ -1,8 +1,15 @@
-def cosine_series(params, output_type="values"):
-	"""
-	https://en.wikipedia.org/wiki/Fourier_sine_and_cosine_series
-	output_type: "terms", "string", "matrix_symbolic", "matrix", "values_symbolic", "values"
-	"""
+def cosine_series(params, L=None):
+	"""return string of cosine series
+https://en.wikipedia.org/wiki/Fourier_sine_and_cosine_series"""
+	
+	if L is None:
+		L = len(params)
+	
+	params[0] /= 2
+
+	return " + ".join(f"{param}*cos({n}*pi*x/{L})" for n, param in enumerate(params))	
+
+"""
 	import sympy
 
 	output = []
@@ -12,12 +19,12 @@ def cosine_series(params, output_type="values"):
 
 	if "terms" in output_type:
 		output.append(terms)
-	
+
 	if "string" in output_type:
 		output.append(	"f(x) =\n  " + "\n+ ".join(str(term) for term in terms)	)
-	
+
 	matrix_symbolic = tuple(tuple(term.subs(x,i) for i in range(N)) for term in terms)
-	
+
 	if "matrix_symbolic" in output_type:
 		output.append(matrix_symbolic)
 	if "matrix" in output_type:
@@ -34,4 +41,4 @@ def cosine_series(params, output_type="values"):
 		return output[0]
 	else:
 		return output
-
+"""

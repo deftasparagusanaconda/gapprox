@@ -4,43 +4,86 @@
 # the instance also exposes a list of available modules (generators, expressions, interpolators, ...)
 
 from . import converter, analyzers, expressions, outliers, plotters
-from .utils import StatefulFunction, Colours
+from .utils import StatefulFunction
 from .optimizer.optimizer import Optimizer
 from .optimizer import strategies
 
-class API():
-	# expose modules through the class instance 
-	parsers = parsers
-	interpolators = interpolators
-	generators = generators
-	optimizers = strategies		# ga.optimizer = something only sets its strategy
+# ga.generator = ga.generators.dct already works
+# but i want ga.generator.<tab> to show dct's arguments
+	# this can be done by setting __dir__
+# and also to let ga.generator.dct_type = 3 to set the argument
+	# this can be done by overriding __setattr__
+# and also to let the approximator use the generator with those arguments
+	# this can be done by a wrapper with a modified __call__
+
+# youll also have to capture the `ga.generator = something` assignment to change the ComponentWrapper's component
+# i think that has to be implemented *inside* API
+	
+class api():
+	_stateful_components:list[str] = ["interpolator", "analyzer", "expression"]
+	
+	# expose modules through the class instance
+	analyzers = analyzers
+	optimizers = strategies
 	expressions = expressions
 	outliers = outliers
-	output_types = ["values", "points", "string"]
-	
+	plotters = plotters
+	converter = converter
+	plotters = plotters
+	"""
 	# store configuration
-	# instance variables
 	def __init__(self):
-		self.input = None
-		self.input_type = None
-		self.parser = ComponentWrapper()
-		self.interpolator = ComponentWrapper()
-		self.generator = ComponentWrapper()
-		self._optimizer = Optimizer()	# start instance/module hybrid
-		self.expression = ComponentWrapper()
-		self.output = None
-		self.output_type = None
-	reset = __init__	# ga.reset() now resets the instance
+		_warn:bool = True		# show warnings
+		_multithread:bool = True	# use n threads for n outputs
+		super().__setattr__("optimizer", Optimizer())	# because its checked by __setattr__
+		super().__setattr__("interpolator", None)
+		super().__setattr__("analyzer", None)
+		super().__setattr__("expression", None)
 
+		self.input = None
+		self.output = None
+	"""	
+
+	def __init__(self):
+		analyzer = None
+		expression = None
+		
+		input = None
+		output = None
+
+		_check_input:bool = True	# check input signature
+		_multithread:bool = True	# use n threads for n outputs
+	
+	reset = __init__	# ga.reset() now resets the instance
+	
 	def __setattr__(self, name, value):
-		if name in ("parser", "interpolator", "generator", "expression"):
+		#if name in self._stateful_components:
+		#	if value is not None:
+		#		name = StatefulFunction(value)
+		#	else:
+		#		name = None
+		if name == "optimizer":
+			super().__setattr("optimizer.strategy", value)
+
+		elif name == "input" and self._warn:
 			super().__setattr__(name, value)
-		
-		
+			if utils.warn_input(self.input):
+				print(f"{utils.Colours.BRIGHT_BLACK}disable check{utils.Colours.RESET}\t: ga._check_input = False\n")
+
+		else:
+			super().__setattr__(name, value)
 	
-	#def auto():
-	#	"""mini-AI to choose which approximation is best"""
-	
+	#def __getattr__(self, name):
+	#	print("__getattr__", self, name)
+
+#	def __getattr__(self, name):
+#		if name in self._params:
+#			return self._params[name]
+#		raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+		
+#	def __dir__(self):
+#		
+
 	# THE PIPELINE!!!! -----------------------------------------------------
 	def approximate(self, input=None):
 		# input=None is kept for convenience-sake because
@@ -52,58 +95,37 @@ class API():
 			self.input = input
 		temp = self.input
 
-		utils.warn_input_dimensions(self.input)
 
-		if isinstance(temp, str) and self.parser:		# string to any
-			temp = parser(temp)
-		if self.interpolator:	# points to points
-			temp = self.interpolator(temp)
-		if self.analyzer:	# points to params
+		if self.analyzer:
 			temp = self.analyzer(temp)
-		if self.optimizer.strategy:	# params to params
-			temp = self.optimizer(self, temp, self.input, self.expression)
+		#if self.optimizer.strategy:
+		#	temp = self.optimizer(self, temp, self.input, self.expression)
 		if self.expression:	# params to any
 			temp = self.expression(temp)
 		self.output = temp
-
-		return temp
+		return temps
 	# the end ~w~ ----------------------------------------------------------
 
-	__call__ = approximate	# ga() and ga.approximate() now do the same thing
+	__call__ = approximate	# ga() and ga.approximate() are now same
 	
 	# provided for convenience, so you can do ga.line(something)
 	@staticmethod
 	def line(input, output_type="string"):
 		"""least squares line approximation (https://en.wikipedia.org/wiki/Linear_least_squares)
 provided for convenience"""
-		return expressions.polynomial(generators.line.least_squares(input), number_of_points=len(input), output_type=output_type)
+		return expressions.polynomial(analyzers.line.least_squares(input), number_of_points=len(input), output_type=output_type)
 	
+	@staticmethod
 	def plot(self):
-		"""plot input and output using matplotlib"""
-		from matplotlib.pyplot import plot as plt_plot
-		try:
-			plt_plot(self.input)
-		except:
-			# add debugging prints here
-			pass
-		from matplotlib.pyplot import show as plt_show
-		try:
-			plt_plot(self.output)
-		except:
-			# add debugging prints here
-			pass
-		plt_show()	
-                
+               plotters.plotter(self.input, self.output)
+
 	def show(self):
 		"""print current configuration"""
 		print("input =", self.input)
-		print("input_type =", self.input_type)
-		print("interpolator =", self.interpolator)
-		print("generator =", self.generator)
-		print("optimizer =", self.optimizer.strategy)
+		print("analyzer =", self.analyzer)
+		#print("optimizer =", self.optimizer.strategy)
 		print("expression =", self.expression)
 		print("output =", self.output)
-		print("output_type =", self.output_type)
 	
 	def show_full(self):
 		"""print current configuration + ALL sub-configurations"""
@@ -119,7 +141,7 @@ provided for convenience"""
 	def new(self):			# foo = ga.new() creates new instance
 		"""return a new instance of Engine"""
 		return type(self)()
-
+	
 	def copy(self):			# foo = ga.copy() creates a copy
 		"""returns a copy of the current Engine instance"""
 		from copy import deepcopy

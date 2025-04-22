@@ -1,0 +1,10 @@
+a 2D graph (technically, a path on a 2D surface) can be represented in the following ways:
+
+string: "2 + x + x^2"
+function: def func(x): return 2+x+x**2
+points: [x1, x2, x3, ...], [y1, y2, y3, y4]
+
+functions that take points array should take them as 
+myfunc((input_array_1, input_array_2, input_array_3, ...), output_array, other arguments)
+this develops a clear visual that there is always only one output array, and that for multiple outputs, multiple approximations are just running at the same time
+this is the convention in ML, and across scikit, xgboost, pytorch, tensorflow, julia, caret, statsmodels, 

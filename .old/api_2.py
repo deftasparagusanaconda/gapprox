@@ -3,126 +3,147 @@
 # the instance manages your current configuration of generator, expression, interpolator, ...
 # the instance also exposes a list of available modules (generators, expressions, interpolators, ...)
 
-from . import interpolators, generators, expressions, outliers, plotters
-from .parser import parser 
-from .sampler import sampler
+<<<<<<<< HEAD:graphapproximator/api/api.py
+from . import converter, analyzers, expressions, outliers, plotters
+from .utils import StatefulFunction, Colours
 from .optimizer.optimizer import Optimizer
 from .optimizer import strategies
 
-# allows arguments of components to be visible by dot notation
-class FunctionWithState:
-	def __init__(self, func):
-		from inspect import signature, Parameter
-		self._func = func
-		self._sig = signature(func)
-		self._params = {}
+========
+from . import interpolators, generators, expressions, outliers, parser
+from .optimizer.optimizer import Optimizer
+from .optimizer import strategies
 
-		# initialize default values
-		for name, param in self._sig.parameters.items():
-			if param.default is not Parameter.empty:
-				self._params[name] = param.default
-			else:
-				# required arg; we leave it unset unless explicitly passed
-				pass
+# ga.generator = ga.generators.dct already works
+# but i want ga.generator.<tab> to show dct's arguments
+	# this can be done by setting __dir__
+# and also to let ga.generator.dct_type = 3 to set the argument
+	# this can be done by overriding __setattr__
+# and also to let the approximator use the generator with those arguments
+	# this can be done by a wrapper with a modified __call__
+"""
+_wrapped_components = ("parser", "interpolator", "generator", "expressions")
+class ComponentWrapper:
+	def __init__(self):	# innit? hahahaha
+		print("__init__", self)
+		self.component = None
+		self.arguments = {}
 
-	# make keyword args discoverable via tab
 	def __dir__(self):
-		return list(self._params.keys()) + list(self.__dict__.keys())
-
-	def __getattr__(self, name):
-		if name in self._params:
-			return self._params[name]
-		raise AttributeError(f"{name} not found")
-
-	def __setattr__(self, name, value):
-		if name in ['_func', '_sig', '_params']:
+		print("__dir__", self)
+		from inspect import getfullargspec
+		if self.component is None:
+			return []
+		thing = getfullargspec(self.component)
+		return thing.args()
+#		from inspect import signature
+#		if self.component is None:
+#			return []
+#		return list(signature(self.component).parameters.keys())
+	
+	def __setattr__(self, name, value):	# self.name = value
+		print("__setattr__", self, name, value)
+		#if the attribute theyre trying to set is one of the modules, then-
+		if name in _wrapped_components:
 			super().__setattr__(name, value)
-		elif name in self._params:
-			self._params[name] = value
 		else:
-			super().__setattr__(name, value)
+			self.arguments[name] = value
+
+#	def __call__(self, *args, **kwargs):
+#		print("__call__", self, *args, **kwargs)
+#		if self.component is None:
+#			raise ValueError("no component assigned!")
+#		kwargs = {**self.arguments, **kwargs}
+#		return self.component(*args, **kwargs)
 
 	def __call__(self, *args, **kwargs):
-		# allow override
-		all_args = {**self._params, **kwargs}
-		return self._func(*args, **all_args)
+		print("__call__", self, *args, **kwargs)
+		if self.component is None:
+			return None
+		return self.component(*args, **kwargs)
 
 	def __repr__(self):
-		return f"<ConfigurableFunction for {self._func.__name__}, with params {self._params}>"
+	#	print("__repr__")
+	#	if self.component is None:
+	#		return "<ComponentWrapper (unassigned)>"
+		return f"<ComponentWrapper for {self.component.__name__}>"
 
-class api():
-	# expose modules through the class instance 
+# youll also have to capture the `ga.generator = something` assignment to change the ComponentWrapper's component
+# i think that has to be implemented *inside* API
+"""
+>>>>>>>> temp-branch:.old/api_2.py
+class API():
+	# expose modules through the class instance
+	parser = parser.parser
 	interpolators = interpolators
 	generators = generators
 	optimizers = strategies		# ga.optimizer = something only sets its strategy
 	expressions = expressions
-	parser = parser
-	sampler = sampler
 	outliers = outliers
-	plotters = plotters
 	output_types = ["values", "points", "string"]
 	
 	# store configuration
+	# instance variables
 	def __init__(self):
+		print("__init__", self)
 		self.input = None
 		self.input_type = None
-		self.output = None
-		self.output_type = None
-		
-		self._optimizer = Optimizer()	# start instance/module hybrid
 		self.interpolator = None
 		self.generator = None
+		self.optimizer = Optimizer()	# start instance/module hybrid
 		self.expression = None
-		self.outliers = None
+		self.output = None
+		self.output_type = None
 	reset = __init__	# ga.reset() now resets the instance
-	
+	"""
+	# override attribute assignments like ga.generator = something
+	def __setattr__(self, name, value):
+		print("__setattr__", self, name, value)
+		obj = self.__dict__.get
+		if name in _wrapped_components:
+			obj = self.__dict__.get(name)
+			if isinstance(obj, ComponentWrapper):
+				obj.component = value
+		else:
+			super().__setattr__(name, value)
+	"""
 	#def auto():
 	#	"""mini-AI to choose which approximation is best"""
-	
-	def __setattr__(self, name, value):
-		# auto-wrap for configurable components
-		wrappable = ["generator", "interpolator", "parser", "expression"]
-		if name in wrappable and callable(value):
-			value = FunctionWithState(value)
-		super().__setattr__(name, value)
-	
-	# expose optimizer instance normally
-	@property
-	def optimizer(self):
-		return self._optimizer
-	# intercept the ga.optimizer = ... assigner
-	@optimizer.setter
-	def optimizer(self, value):
-		if callable(value):		
-			self._optimizer.strategy = value
-		elif value is None:
-			self._optimizer.strategy = None
-		else:
-			raise ValueError("assign a callable strategy or None only")
-	# ga.optimizer = something is now an alias for:
-	# ga.optimizer.strategy = something
 	
 	# THE PIPELINE!!!! -----------------------------------------------------
 	def approximate(self, input=None):
 		# input=None is kept for convenience-sake because
 		# ga.approximate(something) is easier than
 		# ga.input = something; ga.approximate()
-		"""calculate an approximation using the configuration given (in other words, start the data pipeline)"""
+		"""calculate an approximation with the configuration given"""
+		print("press ctrl+c to abort")
 		if input is not None:
 			self.input = input
 		temp = self.input
+<<<<<<<< HEAD:graphapproximator/api/api.py
 
-		if self.parser:		# string to any
-			temp = self.parser(temp)
+		utils.warn_input_dimensions(self.input)
+
+		if isinstance(temp, str) and self.parser:		# string to any
+			temp = parser(temp)
 		if self.interpolator:	# points to points
 			temp = self.interpolator(temp)
-		if self.generator:	# points to params
-			temp = self.generator(temp)
+		if self.analyzer:	# points to params
+			temp = self.analyzer(temp)
 		if self.optimizer.strategy:	# params to params
 			temp = self.optimizer(self, temp, self.input, self.expression)
 		if self.expression:	# params to any
 			temp = self.expression(temp)
+========
+		
+		temp = parser.parser(temp)	# string to func
+		temp = self.interpolator(temp)	# points to points
+		temp = self.generator(temp)	# points to params
+		temp = self.optimizer(self, temp, self.input, self.expression)	# params to params
+		temp = self.expression(temp)	# params to any
+>>>>>>>> temp-branch:.old/api_2.py
 		self.output = temp
+
 		return temp
 	# the end ~w~ ----------------------------------------------------------
 
@@ -135,7 +156,6 @@ class api():
 provided for convenience"""
 		return expressions.polynomial(generators.line.least_squares(input), number_of_points=len(input), output_type=output_type)
 	
-	# should this be static? or take array1 & array2?
 	def plot(self):
 		"""plot input and output using matplotlib"""
 		from matplotlib.pyplot import plot as plt_plot
@@ -177,7 +197,7 @@ provided for convenience"""
 	def new(self):			# foo = ga.new() creates new instance
 		"""return a new instance of Engine"""
 		return type(self)()
-	
+
 	def copy(self):			# foo = ga.copy() creates a copy
 		"""returns a copy of the current Engine instance"""
 		from copy import deepcopy

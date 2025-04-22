@@ -23,64 +23,29 @@ class Colours:
 	BRIGHT_CYAN	= '\033[96m'
 	BRIGHT_WHITE	= '\033[97m'
 
-def warn_input_dimensions(data, SUGGESTION_DIMENSION_MAX=3):
-	"""warns if the input is likely a list of coordinate pairs, e.g., [(x1, y1), (x2, y2), ...]
-the expected format is an array of value arrays: ([x1, x2, ...], [y1, y2, ...], ...)
-recommends transpose() if the number of rows >= the number of columns"""
+MAX_PRINTED_ARRAY_DIM = 3
+def short_repr(row, dim=MAX_PRINTED_ARRAY_DIM):
+	if len(row) == 1:
+		return f"{row[0]}"
+	elif len(row) <= dim:
+		return f"{', '.join(map(str, row))}"
+	else:
+		return f"{', '.join(map(str, row[:dim]))}, ..."
 
-	if not data or not hasattr(data, "__iter__"):
-		return
-	if not data[0] or not hasattr(data[0], "__iter__"):
-		return
+def assume_first_one_input(data):
+	return (data[0], data[1:])
 
-	m = len(data)
-	n = len(data[0])
+def assume_last_one_output(data):
+	return (data[:-1], data[-1])
 
-	if m < n:
-		return
-		
-	def short_repr(row):
-		if len(row) == 1:
-			return f"[{row[0]}]"
-		elif len(row) <= SUGGESTION_DIMENSION_MAX:
-			return f"[{', '.join(map(str, row))}]"
-		else:
-			return f"[{', '.join(map(str, row[:SUGGESTION_DIMENSION_MAX]))}, ...]"
-
-	
-	print(f"{Colours.BRIGHT_RED}input warning{Colours.RESET}\t: program takes ([x1,x2,x3,...], [y1,y2,y3,...], ...)")
-	try:
-		# current (wrong) input preview
-		input_preview = [short_repr(row) for row in data[:SUGGESTION_DIMENSION_MAX]]
-		if len(data) > SUGGESTION_DIMENSION_MAX:
-			input_preview.append("...")
-		print(f"current input\t: [{', '.join(input_preview)}]")
-
-	except Exception:
-		print(f"current input\t: (couldnt print input, sorry...)")
-	
-	try:
-		transposed = list(zip(*data))
-		pieces = [short_repr(row) for row in transposed]
-
-		if len(pieces) > SUGGESTION_DIMENSION_MAX:
-			suggestion = f"({', '.join(pieces[:SUGGESTION_DIMENSION_MAX])}, ...)"
-		else:
-			suggestion = f"({', '.join(pieces)})"
-
-		print(f"did you mean\t: {suggestion}")
-	except Exception:
-		print(f"did you mean\t: (couldnt auto-suggest fix, sowwyy)")
-
-	print(f"if yes, try\t: ga.input = ga.transpose(ga.input)")
-	print(f"disable check\t: ga._warn_input_dimensions = False")
-	print()
+def assume_x_array(data):
+	return (list(range(len(data))), data)
 
 def transpose(matrix):
 	m = len(matrix)
 	n = len(matrix[0])
 
-	output = [[None] * m for _ in range(n)]
+	output = [[None] * m for _ in range(n)]	# initialize memory
 
 	for i in range(m):
 		for j in range(n):

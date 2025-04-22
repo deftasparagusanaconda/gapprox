@@ -1,0 +1,30 @@
+"cloud" is a component that converts a set of points into a density map
+wherever points are denser, the cloud returns a higher number
+the metrics for this are up to the formulae
+
+it is highly adjacent to a kernel density estimator https://en.wikipedia.org/wiki/Kernel_density_estimation but has a slightly different, higher dimensional purpose in this project
+
+it is a transformer that converts a set of points (a relation) into a scalar field
+the scalar field is also described as a multiple input single output function
+
+perhaps in the future, it could even return a vector field (a scalar field with direction) or a pure direction field
+the project demands slightly more rigorous definitions on what a field is in this context. its not the same field as from algebraic structures
+
+
+one peculiarity of cloud is that it increments the number of working dimensions of an approximation
+cloud returns a function. say we had a set of points ([x1,x2,x3,...], [y1,y2,y3,...])
+then the cloud returns a function f(x, y) = expression of x, y
+this can be represented as a 3d surface (a scalar field of 2D can be represented as a surface in 3D)
+
+i might be wrong in calling it a new dimension. i am not quite sure
+nor am i sure what it mathematically conceptually does
+i mean, i can imagine it being a hazy cloud around any dense set of points
+but i cant imagine why its treating [y1,y2,y3,...] as input. 
+usually, the other components treat inputs (like x) and outputs (like y) as separate
+but this one does not discriminate between input and output
+
+one use i can see for this is seeing wherever the output surface is higher than a certain threshold. then the parts above will be considered the apprxoimation of the points.
+more rigorously, imagine a horizontal plane on the global maximum of the surface
+slowly lower the plane. as you lower it, you will find that the intersection of the two surfaces moves faster at some points, and slower at some points
+for every infinitessimally small distance you lower the plane, the point that expanded radially outward the least will be chosen as the next point of maximum
+keep doing this until the plane is down to 0. the locus of all the chosen maxima is the approximation of the points
