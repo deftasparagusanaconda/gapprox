@@ -1,0 +1,20 @@
+there is a grey line between an interpolator and an approximator
+
+an approximator is just an analyzer (generates parameters) and an expression combined
+an interpolator also generates parameters and applies it to an expression
+
+approximator roughly goes through all the points, but not directly
+interpolator directly goes through all the points
+
+they are technically two sides of the same coin
+they both draw an approximate graph through points
+the difference between them is the tradeoff:
+an interpolator trades smoothness for accuracy
+an approximator balances smoothness and accuracy
+
+this exposes an important aspect about graphapproximator. in the future, there will be many approximation methods. some of them will be more complex but more accurate. some of them will be smoother but less accurate. how will the program decide which is best? 
+
+the answer is: the program will have a default best tradeoff, probably 0.5 (in the middle. balanced) and pick the solution closest to that tradeoff
+this problem is similar to picking the best point along the pareto front of a set of points <https://en.wikipedia.org/wiki/Pareto_front>
+the points along the pareto front are the solutions, with different tradeoffs of accuracy and smoothness (and others too, in the future)
+perhaps the program can also instead calculate many approximations, and show the user the solutions along the pareto front, and let them pick from it
