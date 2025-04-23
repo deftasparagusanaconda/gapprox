@@ -1,0 +1,32 @@
+the pipeline should be as follows:
+
+1 - input 
+2 - converter (if needed)
+3 - paramgen
+4 - structgen
+5 - regressor
+6 - converter (if needed)
+7 - output
+
+the program will apply 2 only if the user sets it
+if 3,4,5 need input conversion, the program will warn the user, but not automatically convert
+the program will apply 6 because the native language of the program (DAGs) is not easily understood
+
+the program will allow 3,4,5 to be enabled or disabled:
+paramgen structgen regressor behaviour
+disabled disabled  disabled  return input as output
+disabled enabled   disabled  return approximation structure only
+enabled  disabled  disabled  return approximation parameters only
+enabled  enabled   disabled  return approximation (single evaluation mode)
+disabled disabled  params    ERROR
+disabled enabled   params    do parameter regression from scratch
+enabled  disabled  params    ERROR
+enabled  enabled   params    do parameter regression with given params as starting point
+disabled disabled  struct    ERROR
+disabled enabled   struct    ERROR
+enabled  disabled  struct    do structure regression from scratch
+enabled  enabled   struct    do structure regression with given structure as starting point
+disabled disabled  symbol    do symbolic regression from scratch
+disabled enabled   symbol    do symbolic regression with given struct as starting point
+enabled  disabled  symbol    do symbolic regression with given params as starting point
+enabled  enabled   symbol    do symbolic regression with given approximation as starting point

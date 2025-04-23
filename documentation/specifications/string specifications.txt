@@ -1,4 +1,9 @@
 expressions can be stored as strings
+program will have its own string convention
+translators will convert the strings to desmos/geogebra-compatible strings
+
+# storage conventions ----------------------------------------------------------
+
 strings should follow academic mathematical conventional notation as much as possible:
 - ^ instead of **
 - 1/2x is interpreted as 1/2*x (although implied multiplication should be avoided)

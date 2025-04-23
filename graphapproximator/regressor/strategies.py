@@ -1,4 +1,4 @@
-# this module contains things specific to optimizer.py
+# this module contains things specific to regressor.py
 """
 # one thread works iteratively
 class _SingleThread:
@@ -26,18 +26,18 @@ competition_parallel = _CompetitionParallel()
 """
 
 # one thread works iteratively
-def single_thread(optimizer, input_params, input_actual, expression):	
+def single_thread(regressor, input_params, input_actual, expression):	
 	iter_limit = 100	# magic number, for testing for now...
 	for _ in range(iter_limit):
 		self.iterate(ga)
 
 # multiple threads compute one iteration, then compare each other
-def competition_serial(optimizer, input_params, input_actual, expression):
+def competition_serial(regressor, input_params, input_actual, expression):
 	print("not made yet! lol")
 
 # multiple threads compute a few iterations, then compare each other
 # a "census" is called to compare the threads
-def competition_parallel(optimizer, input_params, input_actual, expression):
+def competition_parallel(regressor, input_params, input_actual, expression):
 	print("not made yet! come back later!")
 	#census_modes = ["iter","time"]
 	#census_mode = "iter"

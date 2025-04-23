@@ -1,4 +1,7 @@
-# optimizer takes parameters and outputs parameters
+# NOTE: regressor is only a parameter regressor for now
+# in the future this should be upgraded to a symbolic regressor
+
+# regressor takes parameters and outputs parameters
 # it has to know the original input and expression to optimize for
 
 # optimizer is an instance of Optimizer
@@ -42,7 +45,7 @@ class EndConditions:
 #			print("i havent implemented this yet")
 #		return False
 
-class Optimizer:
+class Regressor:
 	_stateful_components = ["predictor", "error", "strategy"]
 	# expose modules
 	predictors = predictors
@@ -78,7 +81,7 @@ class Optimizer:
 			super().__setattr__(name, value)
 	
 	def iterate(self, input_params, input_actual, expression):
-		"""run one iteration of the optimizer"""
+		"""run one iteration of the regressor"""
 		if len(self.error_history) != len(self.parameters_history):
 			raise ValueError(f"history length mismatch: len(error_history)={len(self.error_history)}, len(parameters_history)={len(self.parameters_history)}")
 		
@@ -105,10 +108,10 @@ class Optimizer:
 
 		return new_output
 	
-	def optimize(self, input_params, input_actual, expression):
+	def regress(self, input_params, input_actual, expression):
 		return self.strategy(self, input_params, input_actual, expression)
 #	optimize = self.strategy
-	__call__ = optimize	# optimizer.optimize() and optimizer() are same
+	__call__ = regress	# regressor.regress() and regressor() are same
 	
 	def show(self):
 		print("strategy =", self.strategy)
@@ -130,16 +133,16 @@ class Optimizer:
 		print("end_conditions:")
 		self.end_conditions.show()
 	
-	# basically what you see when you do `print(optimizer)` in the python interpreter
+	# basically what you see when you do `print(regressor)` in the python interpreter
 	def __repr__(self):
-		return f"<Optimizer instance & module 'optimizer' at {hex(id(self))}>"
+		return f"<Regressor instance & module 'regressor' at {hex(id(self))}>"
 	
-	def new(self):                  # foo = optimizer.new() creates new instance
-		"""return a new instance of Optimizer"""
+	def new(self):                  # foo = regressor.new() creates new instance
+		"""return a new instance of Regressor"""
 		return type(self)()
 
-	def copy(self):                 # foo = optimizer.copy() creates a copy
-		"""returns a copy of the current Optimizer instance"""
+	def copy(self):                 # foo = regressor.copy() creates a copy
+		"""returns a copy of the current Regressor instance"""
 		from copy import deepcopy
 		return deepcopy(self)
 
@@ -148,7 +151,7 @@ class Optimizer:
 linear competition: threads compete for the next best iteration
 parallel competition: threads go off on their own for a few iterations. then come back and compare against each other. parallel competition mode will take a variable that determines how often they come together again to choose a new alpha of the pack! hehehehe"""
 
-# Optimizer uses a predictor -> objective model
+# Regressor uses a predictor -> objective model
 # the convention in ML (machine learning) is objective -> predictor
 
 # need to add debugging prints

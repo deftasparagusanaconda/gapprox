@@ -1,6 +1,8 @@
 #Author : T.Jeffrin Santon
 #Date : 27.02.2025
-def linear_regression(xpoints,ypoints, output_type:str|list[str]="params"):
+def linear_regression(data, output_type:str|list[str]="params"):
+    xpoints = data[0]
+    ypoints = data[1]
     summation_x ,summation_xy , summation_sqx ,summation_y = 0 , 0 , 0 , 0
     no_of_points = len(xpoints)
     slope = 0.0

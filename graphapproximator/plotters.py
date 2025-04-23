@@ -14,7 +14,8 @@ def plotter(function ,start_range , end_range , resolution : int = 400):
     plt.grid(True)
     plt.show()
 
-def plotter2(x_values, y_values):
+def plotter2(original, approximation):
 	import matplotlib.pyplot as plt
-	plt.plot(x_values, y_values)
+	plt.plot(original[0], original[1])
+	plt.plot(approximation[0], approximation[1])
 	plt.show()

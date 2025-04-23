@@ -1,0 +1,11 @@
+what should i name the components that generate parameters for the leaves of an expression tree?
+what about the components that generate the expression structure of a tree?
+
+cant name it parameters and structure. those are nouns. not verbs.
+parameterizer and structurizer
+
+perhaps parameter_generator and structure_generator
+
+
+
+... theory: can a structurizer alone be an approximation

@@ -4,12 +4,12 @@
 # each generator naturally links to a mathematical expression
 # so this is a registry for those links
 
-from . import analyzers as a
-from . import expressions as e
+from . import paramgens as p
+from . import structgens as s
 
-parameterizer_links = {
-	a.dft: e.fourier_series,
-	a.dct: e.idct,
-	a.dst: e.idst
+approximator_links = {
+	p.dft: s.fourier_series,
+	p.dct: s.idct,
+	p.dst: s.idst
 }
 
