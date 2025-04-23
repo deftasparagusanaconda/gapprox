@@ -1,27 +1,31 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=75.8"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "graphapproximator"
 version = "0.1.0"
-description = "approximate the graph of a function"
+description = "approximate the graph of any function/expression"
 readme = "README.md"
-requires-python = ">=3.8"
-license = {text = "GPL-3.0-or-later"}
+requires-python = ">=3.13.2"
+license = "GPL-3.0-or-later"
 #package-dir = {"" = "."}
-
+#dependencies = []
 authors = [
 	{ name="deftasparagusanaconda", email="deftasparagusanaconda@gmail.com" },
 	{ name="Jeffrin Santon", email="jeffrinsanton0909@gmail.com"}
 ]
+keywords = ["graph", "expression", "approximation", "symbolic", "regression", "optimization", "plot"]
+classifiers = ["Programming Language :: Python :: 3.9"]
 
-dependencies = [
-	# put any actual dependencies here, or leave empty
-]
+[project.optional-dependencies]
+fft = ["scipy"]
 
 [project.urls]
-"Homepage" = "https://github.com/deftasparagusanaconda/graphapproximator"
-"Bug Tracker" = "https://github.com/deftasparagusanaconda/graphapproximator/issues"
+Homepage = "https://github.com/deftasparagusanaconda/graphapproximator"
+Issues = "https://github.com/deftasparagusanaconda/graphapproximator/issues"
+Documentation = "https://github.com/deftasparagusanaconda/graphapproximator/documentation"
+Repository = "https://github.com/deftasparagusanaconda/graphapproximator"
+
 [tool.setuptools]
 packages = ["graphapproximator"]

@@ -1,8 +1,6 @@
-from .dct import dct
-from .dft import dft
-from .dst import dst
-from .taylor_series import taylor_series
+from .interpolators import *
 from . import line
+from .zeroes import zeroes
 
 """
 from importlib import import_module as _import_module

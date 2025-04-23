@@ -25,10 +25,6 @@ def polynomial_regression(data_points , degree:int = 3):
         res += str(round(coefficients[i],3)) + "*x**" + str(i) + "+ "
     return res
     """
-<<<<<<< HEAD:graphapproximator/generators/polynomial_regression.py
-
-=======
->>>>>>> 71349b6f9b020725c3bd76be6f9980b757bcb81b:graphapproximator/analyzers/polynomial_regression.py
 
 #points = [[12, 34], [7, 19], [25, 5], [3, 14], [18, 29], [11, 8], [30, 21], [4, 27], [22, 17], [15, 2]]
 #print(polynomial_regression(points ,8))
