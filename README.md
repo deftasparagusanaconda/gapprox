@@ -1,8 +1,8 @@
 [🔍 examples][examples] | [📖 documentation][documentation] | [📜 license][license] | [💡suggest silly ideas!][contact]  
 
 # graphapproximator
-a python toolkit to help you find the approximate equation of any [graph][graph]  
-instead of "find the graph of the equation", youre flipping it: "find the equation of the graph"
+a python toolkit to find the approximate function of any [graph][graph]  
+instead of "find the graph of the function", youre flipping it: "find the function of the graph"
 
 --- 
 ## 💾 installation
@@ -11,7 +11,12 @@ from PyPI:
 ```shell
 pip install graphapproximator
 ```
-from github:
+or:
+```shell
+python -m pip install graphapproximator
+```
+
+get the source:
 ```shell
 git clone https://github.com/deftasparagusanaconda/graphapproximator
 ```
@@ -41,10 +46,9 @@ print(approx)
 ```python
 import graphapproximator.api as ga
 
-ga.input = [2,3,6,5,4]
-ga.generator = ga.generators.parabola.least_squares
-ga.expression = ga.expressions.polynomial
-ga.approximate()  # also the same as ga()
+ga.paramgen = ga.paramgens.parabola.least_squares
+ga.structgen = ga.structgens.polynomial
+ga([2,3,6,5,4])
 
 print(ga.output)  # 
 ga.plot()
@@ -152,4 +156,5 @@ with love, and a passion for maths ~
 [error analysis]: https://en.wikipedia.org/wiki/Error_analysis_(mathematics)
 [relation types]: https://en.wikipedia.org/wiki/Relation_(mathematics)#Combinations_of_properties
 [object in cs]: https://en.wikipedia.org/wiki/Object_(computer_science)
+
 

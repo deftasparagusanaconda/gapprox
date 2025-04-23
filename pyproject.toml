@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "graphapproximator"
 version = "0.1.0"
-description = "approximate the graph of any function/expression"
+description = "toolkit to find the approximate function of a graph"
 readme = "README.md"
 requires-python = ">=3.13.2"
 license = "GPL-3.0-or-later"
@@ -16,10 +16,11 @@ authors = [
 	{ name="Jeffrin Santon", email="jeffrinsanton0909@gmail.com"}
 ]
 keywords = ["graph", "expression", "approximation", "symbolic", "regression", "optimization", "plot"]
-classifiers = ["Programming Language :: Python :: 3.9"]
+classifiers = ["Programming Language :: Python :: 3.13"]
 
 [project.optional-dependencies]
 fft = ["scipy"]
+plot = ["matplotlib"]
 
 [project.urls]
 Homepage = "https://github.com/deftasparagusanaconda/graphapproximator"
