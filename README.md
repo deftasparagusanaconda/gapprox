@@ -7,32 +7,32 @@ instead of "find the graph of the function", youre flipping it: "find the functi
 --- 
 ## 💾 installation
 
-from PyPI:
+in your terminal:  
 ```shell
 pip install graphapproximator
 ```
 or:
 ```shell
 python -m pip install graphapproximator
-```
-
-get the source:
+```  
+or get the source code:
 ```shell
 git clone https://github.com/deftasparagusanaconda/graphapproximator
 ```
-
 ---
 ## 🔧 how to use
-<!-- run it as an app:
-```bash
-./launcher.sh
+
+type `ga` in your terminal to launch the command tool  
+if that dont work, get the source code, go to the project directory and run the launcher:
+```shell
+python launcher.py
 ```
 or:
-```python
-python3 launcher.py
-# "python3 launcher.py --headless" to launch the CLI!
+```shell
+./launcher.sh
 ```
-or -->try the python API ^-^
+
+or do it manually in the python console:
 ```python
 import graphapproximator.api as ga
 
@@ -53,7 +53,7 @@ ga([2,3,6,5,4])
 print(ga.output)  # 
 ga.plot()
 ```
-check out more [examples!][examples]
+check out more examples [here!][examples]
 
 ---
 ## ⚙️ how it works
@@ -108,9 +108,7 @@ it is also capable of multithreading/parallel processing
 ---
 ## ⏳ coming soon ~
 - file IO support  
-- PyPI support  
-- CLI
-- [unix pipeline](https://en.wikipedia.org/wiki/Pipeline_(Unix)) support
+- [unix pipeline](https://en.wikipedia.org/wiki/Pipeline_(Unix)) support  
 - webUI  
 - GUI  
 - symbolic regression (automatic expression selector)  
@@ -156,5 +154,3 @@ with love, and a passion for maths ~
 [error analysis]: https://en.wikipedia.org/wiki/Error_analysis_(mathematics)
 [relation types]: https://en.wikipedia.org/wiki/Relation_(mathematics)#Combinations_of_properties
 [object in cs]: https://en.wikipedia.org/wiki/Object_(computer_science)
-
-

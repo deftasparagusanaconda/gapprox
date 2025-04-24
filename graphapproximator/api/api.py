@@ -6,6 +6,7 @@
 #from . import utils
 #from .check_input import check_input
 from graphapproximator import paramgens, structgens
+from graphapproximator import __version__
 #from .. import outliers, plotters
 #from ..regressor import Optimizer, strategies
 
@@ -20,6 +21,38 @@ from graphapproximator import paramgens, structgens
 # youll also have to capture the `ga.generator = something` assignment to change the ComponentWrapper's component
 # i think that has to be implemented *inside* API
 	
+class HelpMessage:
+	help_message = """graphapproximator is a toolkit for approximating the function of a graph
+graphapproximator.api (ga) is its native interface
+
+commands:
+    ga()                run an approximation using the configuration
+    ga.approximate()    same as ga()
+    ga.show()           display your current configuration
+    ga.reset()          "scratch that. start over.."
+    ... = ga.new()      make a brand new session
+    ... = ga.copy()     clone this session (like a checkpoint!)
+
+configuration:
+    ga.input = ...      what you give it
+    ga.output = ...     what it gives you back
+    ga.paramgen = ...   how we generate the parameters
+    ga.structgen = ...  how we build the structure of the function
+				
+extras:
+    ga.line(...)        do a quick line approximation
+    ga.__version__      check the version youre using
+    ga.help             (this help message)
+
+for more, see https://github.com/deftasparagusanaconda/graphapproximator/"""
+
+	def __str__(self):		# str(ga.help) or print(ga.help) or 
+		return self.help_message
+	def __call__(self):		# ga.help()
+		print(self.help_message)
+	def __repr__(self):		# ga.help
+		return self.help_message
+
 class API():
 	#_stateful_components:list[str] = ["interpolator", "paramgen", "structgen"]
 
@@ -27,8 +60,11 @@ class API():
 #	_assume_last_one_output = staticmethod(utils.assume_last_one_output)
 #	_assume_x_array = staticmethod(utils.assume_x_array)
 #	_transpose = staticmethod(utils.transpose)
+
+	help = HelpMessage()
 	
 	# expose modules through the class instance
+	__version__ = __version__
 	paramgens = paramgens
 #	regressors = strategies
 	structgens = structgens
@@ -58,7 +94,6 @@ class API():
 		
 		super().__setattr__("input", None)		# to bypass input check
 		self.output = None
-	
 	reset = __init__	# ga.reset() now resets the instance
 	
 #	def __setattr__(self, name, value):
@@ -111,7 +146,17 @@ class API():
 		return temp
 
 	# the end ~w~ ----------------------------------------------------------
-
+	
+#	@staticmethod
+#	def help(self):
+#		"""this function prints the docstring of graphapproximator.api, which also doubles as its help message
+#if you see this, you probably did something wrong. perhaps try one of the following:
+#ga.help, ga.help(), help(ga), print(ga.help), print(ga.help()), ga.__doc__, print(ga.__doc__)
+#if the prompt shows "NameError: name 'ga' is not defined", try `import graphapproximator.api as ga` and try again
+#otherwise, go to https://github.com/deftasparagusanaconda/graphapproximator"""
+#		print(self.__doc__, end='')
+#		return self.__doc__
+	
 	__call__ = approximate	# ga() and ga.approximate() are now same
 	
 	# provided for convenience, so you can do ga.line(something)
@@ -152,5 +197,3 @@ provided for convenience"""
 		"""returns a copy of the API instance"""
 		from copy import deepcopy
 		return deepcopy(self)
-
-# ideally, API should not have any static methods

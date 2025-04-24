@@ -4,7 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "graphapproximator"
-version = "0.1.0"
+#version = "dynamic"
+dynamic = ["version"]
 description = "toolkit to find the approximate function of a graph"
 readme = "README.md"
 requires-python = ">=3.13.2"
@@ -18,9 +19,12 @@ authors = [
 keywords = ["graph", "model", "curve", "line", "parabola", "expression", "approximation", "symbolic", "regression", "regress", "optimization", "optimize", "iterative", "plot"]
 classifiers = ["Programming Language :: Python :: 3.13"]
 
+[project.scripts]
+ga = "graphapproximator.__main__:main"
+graphapproximator = "graphapproximator.__main__:main"
+
 [project.optional-dependencies]
 fft = ["scipy"]
-plot = ["matplotlib"]
 
 [project.urls]
 Homepage = "https://github.com/deftasparagusanaconda/graphapproximator"
@@ -31,3 +35,6 @@ Repository = "https://github.com/deftasparagusanaconda/graphapproximator"
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["graphapproximator*"]
+
+[tool.setuptools.dynamic]
+version = {attr = "graphapproximator.__version__"}
