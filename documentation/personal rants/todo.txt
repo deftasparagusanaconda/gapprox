@@ -1,0 +1,11 @@
+- make a roadmap of features to implement for each new release
+- fix imports
+- start work on CONTRIBUTING.md
+- 
+
+
+
+
+
+to use absolute imports:
+pip install .

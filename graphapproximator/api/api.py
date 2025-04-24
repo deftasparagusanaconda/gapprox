@@ -5,7 +5,7 @@
 
 #from . import utils
 #from .check_input import check_input
-from .. import paramgens, structgens
+from graphapproximator import paramgens, structgens
 #from .. import outliers, plotters
 #from ..regressor import Optimizer, strategies
 

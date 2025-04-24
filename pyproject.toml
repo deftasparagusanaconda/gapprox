@@ -10,12 +10,12 @@ readme = "README.md"
 requires-python = ">=3.13.2"
 license = "GPL-3.0-or-later"
 #package-dir = {"" = "."}
-#dependencies = []
+dependencies = ["numpy", "matplotlib"]
 authors = [
 	{ name="deftasparagusanaconda", email="deftasparagusanaconda@gmail.com" },
 	{ name="Jeffrin Santon", email="jeffrinsanton0909@gmail.com"}
 ]
-keywords = ["graph", "expression", "approximation", "symbolic", "regression", "optimization", "plot"]
+keywords = ["graph", "model", "curve", "line", "parabola", "expression", "approximation", "symbolic", "regression", "regress", "optimization", "optimize", "iterative", "plot"]
 classifiers = ["Programming Language :: Python :: 3.13"]
 
 [project.optional-dependencies]
@@ -28,5 +28,6 @@ Issues = "https://github.com/deftasparagusanaconda/graphapproximator/issues"
 Documentation = "https://github.com/deftasparagusanaconda/graphapproximator/documentation"
 Repository = "https://github.com/deftasparagusanaconda/graphapproximator"
 
-[tool.setuptools]
-packages = ["graphapproximator"]
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["graphapproximator*"]

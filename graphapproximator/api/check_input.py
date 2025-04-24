@@ -1,4 +1,4 @@
-from utils import Colours
+from .utils import Colours
 
 MAX_PRINTED_ARRAY_DIM = 3
 MAX_PRINTED_ARRAY_DEPTH = 3
