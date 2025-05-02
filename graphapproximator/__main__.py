@@ -28,7 +28,7 @@ do ga.help or help(ga)"""
 def main():
     import sys
     import argparse
-    parser = argparse.ArgumentParser(prog='ga', description='toolkit/interactive application for approximating the function of a graph')
+    parser = argparse.ArgumentParser(prog='ga', description='toolkit/interactive python application for approximating the function of a graph')
 
 	# mutually exclusive interface modes
     mode_group = parser.add_mutually_exclusive_group()
@@ -37,8 +37,6 @@ def main():
     mode_group.add_argument('--web', action='store_true', help='launch web interface (coming soon!)')
 
     parser.add_argument('-v', '--version', action='store_true', help='show version and exit')
-    parser.add_argument('-i', '--input', type=str, help='set input file')
-    parser.add_argument('-o', '--output', type=str, help='set output file')
 
     args = parser.parse_args()
 

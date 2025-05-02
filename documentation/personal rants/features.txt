@@ -1,0 +1,36 @@
+what new things does hana bring to the table?
+
+hana:
+- high-schooler-level intuitive API
+- brings together single evaluation, iterative regression, symbolic regression (and also structure regression)
+- not a black-box machine (its clear how it works)
+- mathematically grounded
+- plugin architecture (users can easily make their own number set, paramgen, ...)
+- esoteric objective function support (beyond accuracy and simplicity)
+
+hana.approximator:
+- supports input as string, DAG, callable, iterable (points)
+- automatic best approximation chooser
+
+hana.regressor:
+- custom multithreading strategy
+- objective-aware pareto front
+
+hana.DAG:
+- custom esoteric functions (if(a,b,c), lerp(a,b,c), variadic, power mean, ...)
+- double-stored edges (allows back & front propagation)
+- DAG to tree, tree to DAG conversion
+- CISC to RISC, RISC to CISC conversion (canonicalization & decanonicalization)
+- number set preservation (boolean, whole, rational, complex, ...)
+- vector support
+- custom number sets
+- custom functions, names, anything can be made into a node
+- arbitrary precision support
+- (in the future) hypercomplex support
+- inf, -inf, 0.0, -0.0, nan support
+
+hana.visualizer:
+- supports n dimensions
+- can visualize both DAGs and plots
+- interactive DAG manipulation
+- live updates

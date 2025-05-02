@@ -5,9 +5,7 @@
 
 #from . import utils
 #from .check_input import check_input
-from graphapproximator import paramgens, structgens
-from graphapproximator import __version__
-#from .. import outliers, plotters
+from graphapproximator import __version__, paramgens, structgens, plotters, sampler
 #from ..regressor import Optimizer, strategies
 
 # ga.generator = ga.generators.dct already works
@@ -69,28 +67,24 @@ class API():
 #	regressors = strategies
 	structgens = structgens
 #	outliers = outliers
-#	plotters = plotters
+	sampler = sampler.sampler
+	plotters = plotters
 	"""
 	# store configuration
 	def __init__(self):
-		_warn:bool = True		# show warnings
-		_multithread:bool = True	# use n threads for n outputs
 		super().__setattr__("regressor", Regressor())	# because its checked by __setattr__
 		super().__setattr__("interpolator", None)
-		super().__setattr__("paramgen", None)
-		super().__setattr__("structgen", None)
-
-		self.input = None
-		self.output = None
-	"""	
+	"""
 
 	def __init__(self):
+		_warn:bool = True		# show warnings
+		_multithread:bool = True	# use n threads for n outputs
+		
 		super().__setattr__("_check_input", True)	# check input signature
 		super().__setattr__("_multithread", True)	# use n threads for n outputs
-
 		self.paramgen = None
 		self.structgen = None
-#		self.plotter = plotters.plotter2
+		self.plotter = plotters.plotter2
 		
 		super().__setattr__("input", None)		# to bypass input check
 		self.output = None
@@ -166,8 +160,8 @@ class API():
 provided for convenience"""
 		return structgens.polynomial(paramgens.line.linear_regression(input), number_of_points=len(input), output_type=output_type)
 	
-#	def plot(self):
-#		plotters.plotter2(self.input, self.output)
+	def plot(self):
+		self.plotter(self.input, self.output)
 
 	def show(self):
 		"""print current configuration"""

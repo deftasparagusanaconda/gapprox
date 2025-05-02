@@ -107,28 +107,28 @@ it is also capable of multithreading/parallel processing
 
 ---
 ## ⏳ coming soon ~
-- file IO support  
-- [unix pipeline](https://en.wikipedia.org/wiki/Pipeline_(Unix)) support  
+- DAG/expression trees  
+- multi-objective analysis (and [pareto front](https://en.wikipedia.org/wiki/Pareto_front) presentation)
 - webUI  
-- GUI  
-- symbolic regression (automatic expression selector)  
-- customizable api pipeline  
+- GUI
+- symbolic regression  
+- complex numbers
 - parametric function support  
+- multiple-input multiple-output
 - n-dimensional plotters  
 - surface approximation  
 - [many-to-many][relation types] relation approximation  
 - point density evaluators  
-- hypersonic blasters 🚀  
+- hypersonic blasters 🚀
 
 in the far far future, ga will support multiple-input multiple-output approximation. for m inputs and n outputs, it runs n approximations of m-dimensional [manifolds][manifold] separately  
-effectively, this turns it into a general-purpose prediction library, analogous to AI but modular, intuitive, open (not a black-box approximator), mathematically grounded, and intuitive  
+effectively, this turns it into a general-purpose prediction library, analogous to AI  
 currently, ga only supports single-input single-output [many-to-one][relation types] functions. see [roadmap][roadmap] for details  
-the project is feature-oriented, not performance-oriented. if performance is required, you are free to fork it ☺️  
 
 ---
 ## 📔 you read all that?!?
 
-this project is still blooming ✨ if you'd like to change something, add something, or suggest ideas—[come say hi!][contact]
+this project is still budding 🌱 if you'd like to change something, add something, or suggest ideas—[come say hi!][contact]
 
 with love, and a passion for maths ~  
 \- [daa][contact] 🌸
