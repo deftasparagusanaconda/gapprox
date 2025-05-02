@@ -1,0 +1,114 @@
+equations are functions
+
+# analytic perspective ---------------------------------------------------------
+
+# take an equation y = x². this represents a parabola in 2D space. quite simple.
+take the inequation y < x². its an area outlining the graph under the parabola
+how are these two related?
+
+the original equation y = x² can be rewritten as 0 = x² - y, and we can replace the LHS with z
+so, z = x² - y
+
+wherever z is 0 represents the equation y = x²
+wherever z is -ve represents the inequation y < x²
+wherever z is +ve represents the inequation y > x²
+
+thus the equation is converted to a function. the inputs are x and y, and the output is z. therefore we get a surface.
+
+in general, for an equation with n inputs, we can construct a manifold of n dimension in n+1 space. the projection/intersection of that manifold on the input axes is the graph of the equation.
+
+# DAG perspective --------------------------------------------------------------
+
+consider two expressions 2 + x and 3 * y. they are expression trees like:
+      +             *
+     / \    and    / \
+    2   x         3   y
+
+now, consider the equation 2 + x = 3 * y. this is two expression trees connected together through an = 
+
+2             3
+ \           /
+  + -- = -- *
+ /           \
+x             y
+
+this is two DAGs facing each other with opposing directions, and their roots connecting to each other through the = operator
+this graph can be changed to create a normal tree:
+
+      =
+     / \
+    /   \
+   /     \  
+  +       *
+ / \     / \
+2   x   3   y
+
+and now the equation is represented as an expression tree, the same format as a function. 
+
+the equation is a function because the comparison operator (=, <, >, ...) is just an operator like +, -, *, ... but unlike the others, it returns a boolean, not a real. in the results section, the functionality of the comparison operator is extended to output reals
+
+# results ----------------------------------------------------------------------
+
+the comparison operators are just like any other normal operators like +, -, *, and, or, ...
+thus equations are just functions. furthermore, to prove that equations do not represent many-many relations, but are actually projections of higher-dimensional manifolds which look like many-many, let us take the equation of a circle:
+
+x² + y² = 1
+
+this can be rewritten as:
+
+0 = 1 - x² - y²
+z = 1 - x² - y² or f(x, y) = 1 - x² - y³
+
+thus, wherever z = 0 is the circle
+the equation form of a circle is actually a surface in 3D, whose intersection with the z = 0 plane represents a circle
+
+an analogy is how the parametric form of a circle is often taken to be 
+(cos t, sin t) 
+
+but the full form is:
+(cos t, sin t, t)
+
+the full form represents a path in 3D space, which when projected onto the 2D x-y plane creates a circle, which is a many-many relation
+similarly, equations have one hidden output variable and when projected onto only the input variables, it creates a many-many relation 
+
+this result can be used to plot equations like functions. for example, finding points that exactly satisfy the equation of a circle x² + y² = 1 is incredibly hard for limited-precision computers. the limited precision of the calculations prevents perfect equality. instead, the height map z = f(x, y) = 1 - x² - y² is taken and herever the surface is in -0.1 < z < 0.1 is taken as the approximation
+
+# things that i have discovered ------------------------------------------------
+
+- comparison operators are the same as any other, like +, -, *, and, or, ...
+- equations are functions that include one comparison operator
+- thus comparison operators can be used more than once in a statement (like (x=y)=True) although this involves mixing the boolean and real sets of numbers
+- functions are one conventional "expression", and are already implied to have an output like y = or f(x) =
+- equations are not commonly implied to have an output. but like functions, they always have one output extra
+- extension of an equation of n inputs to an n-dimensional manifold in n+1 space
+
+# conclusion -------------------------------------------------------------------
+
+relational symbols are comparison operators, which operate the same as other operators
+equations/inequations are functions with at least one comparison operator
+thus, like functions, an equation with n inputs can be represented by an n-dimensional manifold in n+1 space
+
+# rant ------------------------------------------------------------------------
+
+this result also kind of proves why x = y = z represents a line. or does it?
+
+why does x = y = z represent a line? its three inputs. so it should be a 3D manifold (volume) in 4D space, right?
+perhaps equations are not functions, but equations can be *extended* into functions?
+
+first, reduce to smaller dimensions. why does y = x represent a line? this is an equation. an equation can be extended to a function like so:
+0 = x - y
+z = x - y
+
+and wherever z = 0 is the line. so the line is a projection 
+
+hmm... i realized... x = y = z is shorthand for x = y, y = z which is a system of equations
+(then what is something like (1+x=y) = 2? anyway...)
+
+how does a system of equations/inequations turn into a line? a system of m equations of n inputs has m manifolds of n dimension in n+1 space
+in the case of x = y = z, the intersection of the two manifolds is considered, and i think that is probably projected onto 
+
+in x = y = z, we have a system of 2 equations, each of 2 inputs, so we have 2 surfaces in 3D. the intersection of 2 surfaces is a line (at least by the m+n-k rule of manifold intersection. here, m=n=2 and k=3 since its a 3D space). and we still operate in a 3D space. so we get a line in 3D space. it is the result of the intersection of two manifolds in 3D, where were the result of extending two equations to functions.
+
+# for graphapproximator --------------------------------------------------------
+
+graphapproximator can now understand equations as functions. and it is already familiar with functions

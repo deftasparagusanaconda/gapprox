@@ -1,3 +1,7 @@
+
+
+alternative wording ------------------------------------------------------------
+
 there is no "best approximation" 
 
 say you had a bunch of points [1,2,4,5,8,9,10], [1,5,3,6,9,7,4]
@@ -14,3 +18,19 @@ it is analogous to letting users choose the quality of compression of a JPEG ima
 ga will be slightly more advanced that that, allowing more than just a complexity/accuracy tradeoff. there must be multiple metrics (higher is always good):
 accuracy, simplicity, smoothness, symmetry, consistency, periodicity, extrapolaticty, invertibility, compressibility, size,
 these are just some buzz words im throwing around. i probably wont want all of these. only some. and maybe some others more instead.
+
+possible objectives: (objectives should always be maximized)
+
+- accuracy               how well it approximates the input
+- robustness             how well it handles outliers
+- simplicity             
+- speed
+- smoothness
+- symmetry
+- compactness
+- consistency
+- periodicity
+- generalizabilty        how well it works outside the input region
+- invertibility          
+
+- compressibility        how much it can be compressed

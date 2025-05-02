@@ -1,0 +1,48 @@
+B - boolean    (bool)
+N - natural    (int)
+W - whole      (int)
+Z - integer    (int)
+Q - rational   (float)
+R - real       (float)
+C - complex    (complex)
+V - vector     (list)
+
+hypercomplex:
+https://en.wikipedia.org/wiki/Hypercomplex
+https://github.com/discretegames/hypercomplex
+
+  - dual       (ε² = 0, ε ≠ 0)
+D - hyberbolic (j² = 1, j ≠ ±1)
+H - quaternion
+O - octonion
+S - sedenion
+P - pathion
+. - ...ion
+. - ...ion
+. - ...ion
+
+# ------------------------------------------------------------------------------
+
+homogeneous functions preserve the number set. input type = output type
+heterogeneous functions dont preserve the number set. input type != output type
+converters are heterogeneous operators that take one input, one output
+
+ga shall also follow a CISC ideology, where complex high-level functions are allowed to exist
+for example, having a NAND gate instead of making the user compose one from AND->NOT
+
+ga will store the following defaults:
+number_set_implicit_promotion = False
+number_set_implicit_demotion = False
+number_set_explicit_promotion = False
+number_set_explicit_demotion = False
+data_type_implicit_promotion = False
+data_type_implicit_demotion = False
+data_type_explicit_promotion = False
+data_type_explicit_demotion = False
+
+# --------------------------
+
+if you need arbitrary precision use the fraction or decimal modules, or mpmath (external)
+if you need infinity, use float('inf') and float('-inf')
+if you need signed zeroes, use 0. and -0. 
+if you need nan, use float('nan')
