@@ -5,7 +5,7 @@
 
 #from . import utils
 #from .check_input import check_input
-from graphapproximator import __version__, paramgens, structgens, plotters, sampler
+from hana import __version__, paramgens, structgens, plotters, sampler
 #from ..regressor import Optimizer, strategies
 
 # ga.generator = ga.generators.dct already works
@@ -20,35 +20,35 @@ from graphapproximator import __version__, paramgens, structgens, plotters, samp
 # i think that has to be implemented *inside* API
 	
 class HelpMessage:
-	help_message = """graphapproximator is a toolkit for approximating the function of a graph
-graphapproximator.api (ga) is its native interface
+	help_message = """hana is a python toolkit for approximating the function of a graph
+doing `import hana` makes hana an instance of API
 
 commands:
-    ga()                run an approximation using the configuration
-    ga.approximate()    same as ga()
-    ga.show()           display your current configuration
-    ga.reset()          "scratch that. start over.."
-    ... = ga.new()      make a brand new session
-    ... = ga.copy()     clone this session (like a checkpoint!)
-
+    hana()                  run an approximation using the configuration
+    hana.approximate()      same as hana()
+    hana.show()             display your current configuration
+    hana.reset()            "scratch that. start over.."
+    ... = hana.new()        make a brand new session
+    ... = hana.copy()       clone this session (like a checkpoint!)
+						
 configuration:
-    ga.input = ...      what you give it
-    ga.output = ...     what it gives you back
-    ga.paramgen = ...   how we generate the parameters
-    ga.structgen = ...  how we build the structure of the function
+    hana.input = ...        what you give it
+    hana.output = ...       what it gives you back
+    hana.paramgen = ...     how we generate the parameters
+    hana.structgen = ...    how we build the structure of the function
 				
 extras:
-    ga.line(...)        do a quick line approximation
-    ga.__version__      check the version youre using
-    ga.help             (this help message)
+    hana.line(...)          do a quick line approximation
+    hana.__version__        check the version youre using
+    hana.help               (this help message)
 
-for more, see https://github.com/deftasparagusanaconda/graphapproximator/"""
+for more, see https://github.com/deftasparagusanaconda/hana/"""
 
-	def __str__(self):		# str(ga.help) or print(ga.help) or 
+	def __str__(self):		# str(hana.help) or print(hana.help) or 
 		return self.help_message
-	def __call__(self):		# ga.help()
+	def __call__(self):		# hana.help()
 		print(self.help_message)
-	def __repr__(self):		# ga.help
+	def __repr__(self):		# hana.help
 		return self.help_message
 
 class API():
@@ -67,7 +67,7 @@ class API():
 #	regressors = strategies
 	structgens = structgens
 #	outliers = outliers
-	sampler = sampler.sampler
+	sampler = sampler
 	plotters = plotters
 	"""
 	# store configuration
@@ -88,7 +88,7 @@ class API():
 		
 		super().__setattr__("input", None)		# to bypass input check
 		self.output = None
-	reset = __init__	# ga.reset() now resets the instance
+	reset = __init__	# hana.reset() now resets the instance
 	
 #	def __setattr__(self, name, value):
 		#if name in self._stateful_components:
@@ -102,7 +102,7 @@ class API():
 #		elif name == "input" and self._check_input:
 #			super().__setattr__(name, value)
 #			if check_input(self.input):
-#				print(f"disable check\t: ga._check_input = False")
+#				print(f"disable check\t: hana._check_input = False")
 
 #		else:
 #			super().__setattr__(name, value)
@@ -156,8 +156,7 @@ class API():
 	# provided for convenience, so you can do ga.line(something)
 	@staticmethod
 	def line(input, output_type="string"):
-		"""least squares line approximation (https://en.wikipedia.org/wiki/Linear_least_squares)
-provided for convenience"""
+		"""find line of least squares (https://en.wikipedia.org/wiki/Linear_least_squares)"""
 		return structgens.polynomial(paramgens.line.linear_regression(input), number_of_points=len(input), output_type=output_type)
 	
 	def plot(self):
@@ -179,15 +178,15 @@ provided for convenience"""
 	#	print("regressor:")
 	#	self.regressor.show_full()
 	
-	# basically what you see when you do `print(ga)` in the python interpreter
+	# basically what you see when you do print(hana) in the python interpreter
 	def __repr__(self):
-		return f"<API instance & module 'graphapproximator' at {hex(id(self))}>"
+		return f"<API instance & module 'hana' at {hex(id(self))}>"
 		
-	def new(self):			# foo = ga.new() creates new instance
+	def new(self):			# thing = hana.new() creates new instance
 		"""return a new API instance"""
 		return type(self)()
 	
-	def copy(self):			# foo = ga.copy() creates a copy
+	def copy(self):			# thing = hana.copy() creates a copy
 		"""returns a copy of the API instance"""
 		from copy import deepcopy
 		return deepcopy(self)
