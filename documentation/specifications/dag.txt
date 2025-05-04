@@ -27,10 +27,10 @@ homogeneous functions preserve the number set. input type = output type
 heterogeneous functions dont preserve the number set. input type != output type
 converters are heterogeneous operators that take one input, one output
 
-hana shall also follow a CISC ideology, where complex high-level functions are allowed to exist
+ga shall also follow a CISC ideology, where complex high-level functions are allowed to exist
 for example, having a NAND gate instead of making the user compose one from AND->NOT
 
-hana shall store the following defaults:
+ga will store the following defaults:
 number_set_implicit_promotion = False
 number_set_implicit_demotion = False
 number_set_explicit_promotion = False

@@ -5,24 +5,25 @@
 
 # dependencies -----------------------------------------------------------------
 
-hana shall not require any external dependencies
-it can use libraries like matplotlib, numpy, scipy, sympy, pandas, etc but it will not require them
-if the corresponding library is not installed, it shall use a pure-python alternative
+GA shall not require any external dependencies
+it can use libraries like matplotlib, numpy, scipy, sympy, pandas, etc
+but it will not require them. if the corresponding library is not installed, it shall use a pure-python alternative. slower but still works.
+this is for portability.
 
 # expression representations ---------------------------------------------------
 
 a 2D graph (technically, a path on a 2D surface) can be represented in the following ways:
 
-graph: directed acyclic graph (https://en.wikipedia.org/wiki/Directed_acyclic_graph)
+DAG: directed acyclic graph (https://en.wikipedia.org/wiki/Directed_acyclic_graph)
 string: "2 + x + x^2"
 function: def func(x): return 2+x+x**2
 points: [x1, x2, x3, ...], [y1, y2, y3, y4]
 
-graph and string are best. they both preserve an expression in analytic form
+DAG and string are best. they both preserve an expression in analytic form
 function is worse. it is no longer analytic
 points is worst. it is discrete and sparse
 
-graph and string should be interchangeable, but graph is preferred for internal use, and string for the user
+DAG and string should be interchangeable, but DAG is preferred for internal use, and string for the user
 
 # input shape ------------------------------------------------------------------
 

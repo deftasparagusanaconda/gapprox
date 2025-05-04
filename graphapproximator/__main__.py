@@ -3,7 +3,7 @@
 def launch_api():
     try:
         from os import execlp
-        execlp('python', 'python', '-i', '-c', 'import hana; from sys import version; print(f"python {version.split()[0]}, hana {hana.__version__}"); print("do hana.help or help(hana)")')
+        execlp('python', 'python', '-i', '-c', 'from graphapproximator import api as ga; from sys import version; print(f"python {version.split()[0]}, graphapproximator (ga) {ga.__version__}"); print("do ga.help or help(ga)")')
     except Exception as e:
         print(e)
         print("could not open default python interactive interpreter")
@@ -12,13 +12,13 @@ def launch_api():
     try:
         from sys import version
         from code import interact
-        import hana
+        import graphapproximator.api as ga
     
         banner = f"""(using fallback console. autocomplete may not be available)
-python {version.split()[0]}, hana {hana.__version__}
-do hana.help or help(hana)"""
+python {version.split()[0]}, graphapproximator (ga) {ga.__version__}
+do ga.help or help(ga)"""
 
-        interact(banner=banner, local={'hana': hana})
+        interact(banner=banner, local={'ga': ga})
 	
     except Exception as e:
         print(e)
@@ -28,7 +28,7 @@ do hana.help or help(hana)"""
 def main():
     import sys
     import argparse
-    parser = argparse.ArgumentParser(prog='hana', description='toolkit/interactive python application for approximating the function of a graph')
+    parser = argparse.ArgumentParser(prog='ga', description='toolkit/interactive python application for approximating the function of a graph')
 
 	# mutually exclusive interface modes
     mode_group = parser.add_mutually_exclusive_group()

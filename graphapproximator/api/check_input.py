@@ -39,7 +39,7 @@ def warn_input_type_outliers(data, most_common_type):
 		if type(element) != most_common_type:
 			print(f"type outlier\t: data[{index}] {type(data[index])}: {data[index]}")
 	print(f"did you mean\t:")
-	print(f"if yes, try\t: hana.input = hana._autotype(hana.input)")
+	print(f"if yes, try\t: ga.input = ga._autotype(ga.input)")
 
 def warn_input_iter_outliers(data, most_common_iter):
 	print(f"{Colours.BRIGHT_RED}input warning{Colours.RESET}\t: found iter outliers in data[x]")
@@ -48,22 +48,22 @@ def warn_input_iter_outliers(data, most_common_iter):
 		if hasattr(element, "__iter__") != most_common_iter:
 			print(f"type outlier\t: data[{index}] {type(data[index])}: {data[index]}")
 	print(f"did you mean\t:")
-	print(f"if yes, try\t: hana.input = hana._pad_zero_arrays(hana.input)")
+	print(f"if yes, try\t: ga.input = ga._pad_zero_arrays(ga.input)")
 	print(f"did you mean\t:")
-	print(f"if yet, try\t: hana.input = hana._truncate_arrays(hana.input)")
+	print(f"if yet, try\t: ga.input = ga._truncate_arrays(ga.input)")
 
 def warn_input_1D(data):
 	recommendation = range(min(MAX_PRINTED_ARRAY_DIM+1,len(data)))
 	print(f"{Colours.BRIGHT_RED}input warning{Colours.RESET}\t: program takes at least two arrays")
 	print(f"did you mean\t: [{short_repr(recommendation)}], [{short_repr(data)}]")
-	print(f"if yes, try\t: hana.input = hana._assume_x_array(hana.input)")
+	print(f"if yes, try\t: ga.input = ga._assume_x_array(ga.input)")
 
 def warn_input_more_than_2_arrays(data):
 	print(f"{Colours.BRIGHT_RED}input warning{Colours.RESET}\t: program takes (input arrays), (output arrays)")
 	print(f"did you mean\t: {short_repr(data[0])}, ({short_repr(data[1:])[1:-1]})")
-	print(f"if yes, try\t: hana.input = hana._assume_first_one_input(hana.input)")
+	print(f"if yes, try\t: ga.input = ga._assume_first_one_input(ga.input)")
 	print(f"did you mean\t: ({short_repr(data[:-1])[1:-1]}), {short_repr(data[-1])}")
-	print(f"if yes, try\t: hana.input = hana._assume_last_one_output(hana.input)")
+	print(f"if yes, try\t: ga.input = ga._assume_last_one_output(ga.input)")
 
 def warn_input_shape(data):
 	"""warns if the input is likely a list of coordinate pairs, e.g., (x1, y1), (x2, y2), (x3, y3), ...
@@ -73,7 +73,7 @@ recommends transpose() if the number of rows >= the number of columns"""
 
 	print(f"{Colours.BRIGHT_RED}input warning{Colours.RESET}\t: program takes at least [x1, x2, x3, ...], [y1, y2, y3, ...]")
 	print(f"did you mean\t: {short_repr(transposed)[1:-1]}")
-	print(f"if yes, try\t: hana.input = hana._transpose(hana.input)")
+	print(f"if yes, try\t: ga.input = ga._transpose(ga.input)")
 
 def check_input_iterable(data) -> int:
 	"""check input by various tests to guarantee compatibility and to help user
@@ -153,7 +153,7 @@ warnings must show verbose warnings and suggest commands to fix the problems"""
 	
 def check_input(data):	# True is warning, False is no warning
 	if data is None:
-		print(f"{Colours.BRIGHT_RED}input warning{Colours.RESET}\t: hana got empty input")
+		print(f"{Colours.BRIGHT_RED}input warning{Colours.RESET}\t: program got empty input")
 		return 1
 	#elif isinstance(data, str):
 		#return check_input_string(data)
@@ -161,5 +161,5 @@ def check_input(data):	# True is warning, False is no warning
 	elif hasattr(data, "__iter__"):
 		return check_input_iterable(data)
 	else:
-		print(f"{Colours.BRIGHT_RED}input warning{Colours.RESET}\t: hana currently supports only array input")
+		print(f"{Colours.BRIGHT_RED}input warning{Colours.RESET}\t: program currently supports only array input")
 		return 1

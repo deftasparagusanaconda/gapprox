@@ -3,7 +3,7 @@ requires = ["setuptools>=75.8"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "hana"
+name = "graphapproximator"
 #version = "dynamic"
 dynamic = ["version"]
 description = "toolkit to find the approximate function of a graph"
@@ -20,20 +20,21 @@ keywords = ["graph", "model", "curve", "line", "parabola", "expression", "approx
 classifiers = ["Programming Language :: Python :: 3.13"]
 
 [project.scripts]
-hana = "hana.__main__:main"
+ga = "graphapproximator.__main__:main"
+graphapproximator = "graphapproximator.__main__:main"
 
 [project.optional-dependencies]
 fft = ["scipy"]
 
 [project.urls]
-Homepage = "https://github.com/deftasparagusanaconda/hana"
-Issues = "https://github.com/deftasparagusanaconda/hana/issues"
-Documentation = "https://github.com/deftasparagusanaconda/hana/documentation"
-Repository = "https://github.com/deftasparagusanaconda/hana"
+Homepage = "https://github.com/deftasparagusanaconda/graphapproximator"
+Issues = "https://github.com/deftasparagusanaconda/graphapproximator/issues"
+Documentation = "https://github.com/deftasparagusanaconda/graphapproximator/documentation"
+Repository = "https://github.com/deftasparagusanaconda/graphapproximator"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["hana*"]
+include = ["graphapproximator*"]
 
 [tool.setuptools.dynamic]
-version = {attr = "hana.__version__"}
+version = {attr = "graphapproximator.__version__"}
