@@ -1,57 +1,47 @@
 [🔍 examples][examples] | [📖 documentation][documentation] | [📜 license][license] | [💡suggest silly ideas!][contact]  
 
-# graphapproximator
+# gapprox
 a python toolkit to find the approximate function of any [graph][graph]  
 instead of "find the graph of the function", youre flipping it: "find the function of the graph"
 
 --- 
 ## 💾 installation
-
-in your terminal:  
 ```shell
-pip install graphapproximator
+pip install gapprox
 ```
-or:
 ```shell
-python -m pip install graphapproximator
+python -m pip install gapprox
 ```  
 or get the source code:
 ```shell
-git clone https://github.com/deftasparagusanaconda/graphapproximator
+git clone https://github.com/deftasparagusanaconda/gapprox
 ```
 ---
 ## 🔧 how to use
 
-type `ga` in your terminal to launch the command tool  
-if that dont work, get the source code, go to the project directory and run the launcher:
-```shell
-python launcher.py
-```
-or:
-```shell
-./launcher.sh
-```
-
+type `gapprox` in your terminal to launch a python interpreter with gapprox imported  
 or do it manually in the python console:
 ```python
-import graphapproximator.api as ga
+import gapprox as ga
 
 mypoints = [1, 2, 4, -2, -4, 5], [1, 3, 3, -1, -5, 7]
-approx = ga.line(mypoints)
+line = ga.line(mypoints)
 
-print(approx)
+print(line)
 
 # f(x) = 0.2 + 1.1333333333*x
 ```
 ```python
-import graphapproximator.api as ga
+import gapprox as ga
 
-ga.paramgen = ga.paramgens.parabola.least_squares
-ga.structgen = ga.structgens.polynomial
-ga([2,3,6,5,4])
+mygraph = ga.API()
 
-print(ga.output)  # 
-ga.plot()
+mygraph.paramgem = ga.paramgens.parabola.least_squares
+mygraph.structgen = ga.structgens.polynomial
+mygraph([2,3,6,5,4])
+
+print(mygraph)
+mygraph.plot()
 ```
 check out more examples [here!][examples]
 
@@ -60,7 +50,7 @@ check out more examples [here!][examples]
 
 ### api
 <p align="center">
-        <img src="https://github.com/deftasparagusanaconda/graphapproximator/blob/main/documentation/diagrams/api.webp">
+        <img src="https://github.com/deftasparagusanaconda/gapprox/blob/main/documentation/diagrams/api.webp">
 </p>
 
 [converter](#converter) converts an expression from one form to another  
@@ -75,7 +65,7 @@ input and output are handled differently, depending on the interface
 ### converter
 
 <p align="center">
-        <img height="250" src="https://github.com/deftasparagusanaconda/graphapproximator/blob/main/documentation/diagrams/converter.webp">
+        <img height="250" src="https://github.com/deftasparagusanaconda/gapprox/blob/main/documentation/diagrams/converter.webp">
 </p>
 
 [parser][parsing] decodes string input into a callable function  
@@ -93,7 +83,7 @@ string is the most favourable representation, so the api will try to preserve it
 ### optimizer
 
 <p align="center">
-        <img height="250" src="https://github.com/deftasparagusanaconda/graphapproximator/blob/main/documentation/diagrams/optimizer.webp">
+        <img height="250" src="https://github.com/deftasparagusanaconda/gapprox/blob/main/documentation/diagrams/optimizer.webp">
 </p>
 
 [predictor][iterative method] finds the next best set of parameters to minimize error  
@@ -133,11 +123,11 @@ this project is still budding 🌱 if you'd like to change something, add someth
 with love, and a passion for maths ~  
 \- [daa][contact] 🌸
 
-[examples]: https://github.com/deftasparagusanaconda/graphapproximator/tree/main/examples/  
-[documentation]: https://github.com/deftasparagusanaconda/graphapproximator/tree/main/documentation/  
-[license]: https://github.com/deftasparagusanaconda/graphapproximator/tree/main/LICENSE  
+[examples]: https://github.com/deftasparagusanaconda/gapprox/tree/main/examples/  
+[documentation]: https://github.com/deftasparagusanaconda/gapprox/tree/main/documentation/  
+[license]: https://github.com/deftasparagusanaconda/gapprox/tree/main/LICENSE  
 [contact]: https://discordapp.com/users/608255432859058177
-[roadmap]: <https://github.com/deftasparagusanaconda/graphapproximator/tree/main/documentation/personal rants/roadmap MIMO.txt>
+[roadmap]: <https://github.com/deftasparagusanaconda/gapprox/tree/main/documentation/personal rants/roadmap MIMO.txt>
 
 [graph]: https://en.wikipedia.org/wiki/Graph_of_a_function  
 [function]: https://en.wikipedia.org/wiki/Function_(mathematics)

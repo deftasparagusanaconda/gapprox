@@ -3,7 +3,7 @@
 def launch_api():
     try:
         from os import execlp
-        execlp('python', 'python', '-i', '-c', 'from graphapproximator import api as ga; from sys import version; print(f"python {version.split()[0]}, graphapproximator (ga) {ga.__version__}"); print("do ga.help or help(ga)")')
+        execlp('python', 'python', '-i', '-c', 'import gapprox; from sys import version; print(f"python {version.split()[0]}, gapprox {gapprox._version}"); print("do gapprox.help or help(gapprox)")')
     except Exception as e:
         print(e)
         print("could not open default python interactive interpreter")
@@ -12,13 +12,13 @@ def launch_api():
     try:
         from sys import version
         from code import interact
-        import graphapproximator.api as ga
+        import gapprox
     
         banner = f"""(using fallback console. autocomplete may not be available)
-python {version.split()[0]}, graphapproximator (ga) {ga.__version__}
-do ga.help or help(ga)"""
+python {version.split()[0]}, gapprox {gapprox._version}
+do gapprox.help or help(gapprox)"""
 
-        interact(banner=banner, local={'ga': ga})
+        interact(banner=banner, local={'gapprox': gapprox})
 	
     except Exception as e:
         print(e)
@@ -28,7 +28,7 @@ do ga.help or help(ga)"""
 def main():
     import sys
     import argparse
-    parser = argparse.ArgumentParser(prog='ga', description='toolkit/interactive python application for approximating the function of a graph')
+    parser = argparse.ArgumentParser(prog='gapprox', description='toolkit/interactive python application for approximating the function of a graph')
 
 	# mutually exclusive interface modes
     mode_group = parser.add_mutually_exclusive_group()
@@ -41,8 +41,8 @@ def main():
     args = parser.parse_args()
 
     if args.version:
-        from graphapproximator import __version__
-        print(__version__)
+        from gapprox import _version
+        print(_version)
         return
 
     if args.gui:

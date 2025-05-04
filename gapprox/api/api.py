@@ -5,7 +5,7 @@
 
 #from . import utils
 #from .check_input import check_input
-from graphapproximator import __version__, paramgens, structgens, plotters, sampler
+from gapprox import _version, paramgens, structgens, plotters, sampler
 #from ..regressor import Optimizer, strategies
 
 # ga.generator = ga.generators.dct already works
@@ -62,13 +62,13 @@ class API():
 	help = HelpMessage()
 	
 	# expose modules through the class instance
-	__version__ = __version__
-	paramgens = paramgens
+#	__version__ = __version__
+#	paramgens = paramgens
 #	regressors = strategies
-	structgens = structgens
+#	structgens = structgens
 #	outliers = outliers
-	sampler = sampler.sampler
-	plotters = plotters
+#	sampler = sampler.sampler
+#	plotters = plotters
 	"""
 	# store configuration
 	def __init__(self):
@@ -180,13 +180,16 @@ provided for convenience"""
 	#	self.regressor.show_full()
 	
 	# basically what you see when you do `print(ga)` in the python interpreter
-	def __repr__(self):
-		return f"<API instance & module 'graphapproximator' at {hex(id(self))}>"
+	#def __repr__(self):
+	#	return f"<API instance & module 'gapproximator' at {hex(id(self))}>"
 		
-	def new(self):			# foo = ga.new() creates new instance
-		"""return a new API instance"""
-		return type(self)()
-	
+	#def new(self):			# foo = ga.new() creates new instance
+	#	"""return a new API instance"""
+	#	return type(self)()
+
+	def __str__(self):		# print(ga.output) and print(ga) are now same
+		return self.output
+
 	def copy(self):			# foo = ga.copy() creates a copy
 		"""returns a copy of the API instance"""
 		from copy import deepcopy
