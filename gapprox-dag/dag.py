@@ -3,6 +3,7 @@
 
 # nodes store inputs in a list, outputs in a set. thus, edges are stored twice
 # each node is capable of evaluation, which recursively calls its inputs
+# multiple-output functions like divmod (return quotient & remainder) are not allowed
 
 #boolean    = bool
 #natural    = int
@@ -50,7 +51,7 @@ class DAG:
 		self.nodes.remove(node)
 	
 	@staticmethod
-	def connect(input, index=None, output):
+	def connect(input, output, match=None):
 		input.add_output(output)
 		output.add_input(input, index)
 	
@@ -64,10 +65,10 @@ class DAG:
 		# return a list of all edges enclosed by the DAG
 		# edges that point to nodes outside the list are ignored
 
-class NodeInput():
+class NodeInput:
 	"""holds a parameter (variable/constant/nullary function...) of a DAG
 NodeInput has no inputs, but multiple outputs"""
-
+	
 	def __init__(self, value:any):
 		self.outputs = set()
 		self.value = value
@@ -85,7 +86,7 @@ NodeInput has no inputs, but multiple outputs"""
 			return substitutions[self.value]
 		return self.value
 
-class NodeFunction():
+class NodeFunction:
 	"""a function/operator node of a DAG
 NodeFunction has inputs and outputs"""
 
@@ -94,25 +95,42 @@ NodeFunction has inputs and outputs"""
 		if not callable(function):
 			raise TypeError(f"{function} is not callable")
 
-		self.function = function
+		self.function:callable = function
+		self.variadic:bool = False
+		self.arity:int = 0
 
-		from inspect import signature, Parameter
+		self.args_POSITIONAL_ONLY:list = []
+		self.args_POSITIONAL_OR_KEYWORD:list = []
+		self.args_VAR_POSITIONAL:list = []
+		self.args_KEYWORD_ONLY:dict = {}
+		self.args_VAR_KEYWORD:dict = {}
+
+		from inspect import signature
 		params = signature(function).parameters.values()
 
 		# check if it has *args
-		for param in params:
-			if param.kind == Parameter.VAR_POSITIONAL:
-				self.variadic = True
-			elif param.kind in (inspect.Parameter.POSITIONAL_ONLY, inspect.Parameter.POSITIONAL_OR_KEYWORD):
-				self.arity
-			else:
-				self.variadic = False
+		for param in params if param.default is not param.empty:
+			match param.kind:
+				case param.POSITIONAL_ONLY:
+					self.POSITIONAL_ONLY.append(param)
+				case param.POSITIONAL_OR_KEYWORD:
+					self.POSITIONAL_ONLY.append(param)
+				case param.VAR_POSITIONAL:
+					pass
+				case param.KEYWORD_ONLY:
+					self.KEYWORD_ONLY.append(param)
+				case param.VAR_KEYWORD:
+					pass
+				case _:
+					raise ValueError(f"NodeFunction constructor found strange parameter kind: {param.kind]")
+
+			self.arity += 1
 
 		if self.arity == 0 and self.variadic is False:
-			raise ValueError(f"zero input functions not allowed. implement {function} as NodeInput instead")
+			raise ValueError(f"no-input functions not allowed. implement {function} as NodeInput instead")
 
 		# count required positional args
-		self.arity = len(p for p in params if p.kind is Parameter.POSITIONAL_ONLY)
+		self.arity = len(p for p in params if p.kind is p.POSITIONAL_ONLY)
 
 		self.inputs = [None]*self.arity
 		self.outputs = set()
@@ -131,22 +149,13 @@ NodeFunction has inputs and outputs"""
 	
 	def evaluate(self, substitutions:dict=None):
 		if self.inputs:
-			return self.function(tuple(input.evaluate(substitutions) for input in self.inputs))
+			args = 
+			return self.function()
 		else:
 			raise ValueError("FunctionNode has no inputs")
 # the grapher shall not show arguments that already had defaults
-"""
-a			POSITIONAL_ONLY
-b=1			POSITIONAL_ONLY
-/			(positional marker)
-d=2			POSITIONAL_OR_KEYWORD
-*args		VAR_POSITIONAL
-e			KEYWORD_ONLY
-f=3			KEYWORD_ONLY
-**kwargs	VAR_KEYWORD
-"""
 
-class NodeOutput():
+class NodeOutput:
 	"""the root node of an expression. the grandpa of all nodes in an expression
 NodeOutput has 1 input, no outputs"""
 

@@ -87,3 +87,5 @@ print(error_power_mean(myarr1, myarr2))
 # implement Pearson correlation coefficient (PCC), Spearman rank correlation
 # implement cosine similarity (from dot product)
 # implement hellinger distance, KL divergence, Wasserstein distance
+
+# implement symmetric 
