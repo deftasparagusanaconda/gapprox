@@ -24,7 +24,7 @@ DEFAULT_POLICY = CoercionPolicy()
 
 def addition(a, b, coercion_policy:CoercionPolicy=DEFAULT_POLICY):
 	"a + b"
-	_check_type(a, b):
+	_check_type(a, b)
 
 	if isinstance(a, Natural):
 		return Natural(a.value+b.value)
@@ -85,7 +85,7 @@ def exponentiation(a, b):
 def equal_to(a, b):
 	"a == b"
 	_check_type(a, b)
-
+	
 def not_equal_to(a, b):
 	"a != b"
 	_check_type(a, b)
@@ -129,10 +129,14 @@ def ceiling(a):
 def round(a):
 	_check_type(a)
 
+# ternary operators -------------------------------
 
-
+#def hyperoperation(a, b, n):
+	
+# 
 
 # miscellaneous -----------------------------------
+
 """
 def or
 
