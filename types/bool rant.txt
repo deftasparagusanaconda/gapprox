@@ -1,5 +1,0 @@
-one of the most disgusting things to come out of CS is the casting of booleans to integers; namely False as 0 and True as 1. this implies that the booleans are a subset of the whole numbers. There is no such defined property in mathematics. boolean algebra has its own operations (for example: conjunction/and, disjunction/or, negation/not). 
-
-computers treating 
-
-what is even more disgusting is that they are not even modelled as a mod 2 arithmetic system. they are stored as plain unashamed integers. that means something like True+True returns 2. ignoring the fact that boolean algebra defines no such addition operation, even still, this creates a new value outside of the Boolean {True, False} domain.

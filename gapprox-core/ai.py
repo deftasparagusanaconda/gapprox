@@ -1,3 +1,4 @@
+
 import numpy as np
 import math
 from sklearn.metrics import mean_squared_error, r2_score
@@ -5,10 +6,10 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from scipy.stats import kurtosis, skew
 
-from paramgens.interpolators import dft
-from paramgens.interpolators import dct
-from paramgens.interpolators import dst
-from paramgens.interpolators import polynomial_regression
+from generators.dft import dft
+from generators.dct import dct
+from generators.dst import dst
+from generators.polynomial_regression import polynomial_regression
 
 def extract_features(x, y):
     try:

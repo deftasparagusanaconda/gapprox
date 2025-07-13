@@ -1,9 +1,0 @@
-- prepare each sub-package to be individually importable/pip installable
-
-i want pip install gapprox to install all subpackages
-i want pip install gapprox_component to install gapprox_component so only certain components can be upgraded
-i want only import gapprox to be available and to import all components
-i want from gapprox import component to be available
-i want separate versioning for components
-
-its kinda like how installing plasma installs many packages that are related and updated independently but they still work together as one coherent piece
