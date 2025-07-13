@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gapprox"
-#version = "dynamic"
-dynamic = ["version"]
+version = "0.2.0"
+#dynamic = ["version"]
 description = "toolkit to find the approximate function of a graph"
 readme = "README.md"
 requires-python = ">=3.13.2"
@@ -19,11 +19,11 @@ authors = [
 keywords = ["graph", "model", "curve", "line", "parabola", "expression", "approximation", "symbolic", "regression", "regress", "optimization", "optimize", "iterative", "plot"]
 classifiers = ["Programming Language :: Python :: 3.13"]
 
-[project.scripts]
-gapprox = "gapprox.__main__:main"
+#[project.scripts]
+#gapprox = "gapprox.__main__:main"
 
-[project.optional-dependencies]
-fft = ["scipy"]
+#[project.optional-dependencies]
+#fft = ["scipy"]
 
 [project.urls]
 Homepage = "https://github.com/deftasparagusanaconda/gapprox"
@@ -32,8 +32,8 @@ Documentation = "https://github.com/deftasparagusanaconda/gapprox/documentation"
 Repository = "https://github.com/deftasparagusanaconda/gapprox"
 
 [tool.setuptools.packages.find]
-where = ["."]
-include = ["gapprox*"]
+where = ["src"]
+include = ["gapprox"]
 
-[tool.setuptools.dynamic]
-version = {attr = "gapprox.__version__"}
+#[tool.setuptools.dynamic]
+#version = {attr = "src.__version__"}

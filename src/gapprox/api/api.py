@@ -5,7 +5,7 @@
 
 #from . import utils
 #from .check_input import check_input
-from gapprox import _version, paramgens, structgens, plotters, sampler
+from gapprox import paramgens, structgens, plotters, sampler
 #from ..regressor import Optimizer, strategies
 
 # ga.generator = ga.generators.dct already works
@@ -39,7 +39,6 @@ configuration:
 				
 extras:
     ga.line(...)        do a quick line approximation
-    ga.__version__      check the version youre using
     ga.help             (this help message)
 
 for more, see https://github.com/deftasparagusanaconda/graphapproximator/"""
