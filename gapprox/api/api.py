@@ -5,7 +5,7 @@
 
 #from . import utils
 #from .check_input import check_input
-#from gapprox import _version, paramgens, structgens, plotters, sampler
+from gapprox import _version, paramgens, structgens, plotters, sampler
 #from ..regressor import Optimizer, strategies
 
 # ga.generator = ga.generators.dct already works
@@ -51,7 +51,7 @@ for more, see https://github.com/deftasparagusanaconda/graphapproximator/"""
 	def __repr__(self):		# ga.help
 		return self.help_message
 
-class Engine():
+class API():
 	#_stateful_components:list[str] = ["interpolator", "paramgen", "structgen"]
 
 #	_assume_first_one_input = staticmethod(utils.assume_first_one_input)
@@ -59,6 +59,8 @@ class Engine():
 #	_assume_x_array = staticmethod(utils.assume_x_array)
 #	_transpose = staticmethod(utils.transpose)
 
+	help = HelpMessage()
+	
 	# expose modules through the class instance
 #	__version__ = __version__
 #	paramgens = paramgens
@@ -67,21 +69,25 @@ class Engine():
 #	outliers = outliers
 #	sampler = sampler.sampler
 #	plotters = plotters
-	
-#	# store configuration
-#	def __init__(self):
-#		super().__setattr__("regressor", Regressor())	# because its checked by __setattr__
-#		super().__setattr__("interpolator", None)
-	
+	"""
+	# store configuration
+	def __init__(self):
+		super().__setattr__("regressor", Regressor())	# because its checked by __setattr__
+		super().__setattr__("interpolator", None)
+	"""
 
 	def __init__(self):
-		self._check_input:bool = True # check input compatiblily when users do mygraph.input = something
+		_warn:bool = True		# show warnings
+		_multithread:bool = True	# use n threads for n outputs
+		
+		super().__setattr__("_check_input", True)	# check input signature
+		super().__setattr__("_multithread", True)	# use n threads for n outputs
 		self.paramgen = None
 		self.structgen = None
+		self.plotter = plotters.plotter2
 		
 		super().__setattr__("input", None)		# to bypass input check
 		self.output = None
-	
 	reset = __init__	# ga.reset() now resets the instance
 	
 #	def __setattr__(self, name, value):
@@ -122,10 +128,9 @@ class Engine():
 		if input is not None:
 			self.input = input
 		temp = self.input
-		
+
 		if self.paramgen:
 			temp = self.paramgen(temp)
-			
 		#if self.regressor.strategy:
 		#	temp = self.regressor(self, temp, self.input, self.structgen)
 		if self.structgen:	# params to any
@@ -149,14 +154,14 @@ class Engine():
 	__call__ = approximate	# ga() and ga.approximate() are now same
 	
 	# provided for convenience, so you can do ga.line(something)
-#	@staticmethod
-#	def line(input, output_type="string"):
-#		"""least squares line approximation (https://en.wikipedia.org/wiki/Linear_least_squares)
-#provided for convenience"""
-#		return structgens.polynomial(paramgens.line.linear_regression(input), number_of_points=len(input), output_type=output_type)
+	@staticmethod
+	def line(input, output_type="string"):
+		"""least squares line approximation (https://en.wikipedia.org/wiki/Linear_least_squares)
+provided for convenience"""
+		return structgens.polynomial(paramgens.line.linear_regression(input), number_of_points=len(input), output_type=output_type)
 	
-#	def plot(self):
-#		self.plotter(self.input, self.output)
+	def plot(self):
+		self.plotter(self.input, self.output)
 
 	def show(self):
 		"""print current configuration"""
@@ -182,11 +187,10 @@ class Engine():
 	#	"""return a new API instance"""
 	#	return type(self)()
 
-	def __str__(self):
-		"""allows users to do print(mygraph) instead of print(mygraph.output)"""
-		return str(self.output)
+	def __str__(self):		# print(ga.output) and print(ga) are now same
+		return self.output
 
-	def copy(self):
-		"""returns a copy of the API instance: graph2 = graph1.copy()"""
+	def copy(self):			# foo = ga.copy() creates a copy
+		"""returns a copy of the API instance"""
 		from copy import deepcopy
 		return deepcopy(self)

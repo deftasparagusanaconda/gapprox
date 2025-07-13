@@ -1,7 +1,3 @@
-# use warnings module for API
-
-import warnings
-
 from .utils import Colours
 
 MAX_PRINTED_ARRAY_DIM = 3
