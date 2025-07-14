@@ -45,7 +45,7 @@ class EndConditions:
 #			print("i havent implemented this yet")
 #		return False
 
-class Regressor:
+class Optimizer:
 	_stateful_components = ["predictor", "error", "strategy"]
 	# expose modules
 	predictors = predictors
@@ -108,7 +108,7 @@ class Regressor:
 
 		return new_output
 	
-	def regress(self, input_params, input_actual, expression):
+	def optimize(self, input_params, input_actual, expression):
 		return self.strategy(self, input_params, input_actual, expression)
 #	optimize = self.strategy
 	__call__ = regress	# regressor.regress() and regressor() are same

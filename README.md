@@ -6,12 +6,10 @@ instead of "find the graph of the function", youre flipping it: "find the functi
 
 --- 
 ## 💾 installation
+get it from pip:
 ```shell
 pip install gapprox
 ```
-```shell
-python -m pip install gapprox
-```  
 or get the source code:
 ```shell
 git clone https://github.com/deftasparagusanaconda/gapprox
@@ -19,43 +17,46 @@ git clone https://github.com/deftasparagusanaconda/gapprox
 ---
 ## 🔧 how to use
 
-type `gapprox` in your terminal to launch a python interpreter with gapprox imported  
-or do it manually in the python console:
 ```python
 import gapprox as ga
 
-mypoints = [1, 2, 4, -2, -4, 5], [1, 3, 3, -1, -5, 7]
-line = ga.line(mypoints)
+graph = ga.Approximate(
+    input = [[1, 2, 4, -2, -4, 5], [1, 3, 3, -1, -5, 7]],
+    paramgen = ga.paramgens.line,
+    structgen = ga.structgens.polynomial
+)
 
-print(line)
+graph.approximate()
+print(graph.output)
 
 # f(x) = 0.2 + 1.1333333333*x
 ```
 ```python
 import gapprox as ga
 
-mygraph = ga.API()
+graph = ga.Approximate(
+	input = [2,3,6,5,4],
+	paramgen=ga.paramgens.parabola.least_squares,
+	structgen=ga.structgens.polynomial
+)
 
-mygraph.paramgem = ga.paramgens.parabola.least_squares
-mygraph.structgen = ga.structgens.polynomial
-mygraph([2,3,6,5,4])
-
-print(mygraph)
-mygraph.plot()
+graph.approximate()
+print(graph.output)
 ```
+
 check out more examples [here!][examples]
 
 ---
 ## ⚙️ how it works
 
-### api
+### Approximation
 <p align="center">
         <img src="https://github.com/deftasparagusanaconda/gapprox/blob/main/documentation/diagrams/api.webp">
 </p>
 
 [converter](#converter) converts an expression from one form to another  
 [analyzer][functional analysis] analyzes the input to generate parameters for an expression  
-[optimizer](#optimizer) improves parameters by iterative [optimization][optimization]
+[optimizer](#optimizer) improves parameters by iterative [optimization][optimization]  
 [expression][expression] turns parameters into a math expression  
 [converter](#converter) converts an expression from one form to another  
 
@@ -80,7 +81,7 @@ as you sample function to points, you lose the [smoothness][smoothness] of the f
 as you interpolate points to string, you add "fake" data which was not originally there  
 string is the most favourable representation, so the api will try to preserve it
 
-### optimizer
+### Optimizer
 
 <p align="center">
         <img height="250" src="https://github.com/deftasparagusanaconda/gapprox/blob/main/documentation/diagrams/optimizer.webp">
@@ -98,11 +99,10 @@ it is also capable of multithreading/parallel processing
 ---
 ## ⏳ coming soon ~
 - DAG/expression trees  
-- multi-objective analysis (and [pareto front](https://en.wikipedia.org/wiki/Pareto_front) presentation)
-- webUI  
-- GUI
+- multi-objective analysis (and [pareto front](https://en.wikipedia.org/wiki/Pareto_front) presentation)  
+- web app  
 - symbolic regression  
-- complex numbers
+- complex numbers  
 - parametric function support  
 - multiple-input multiple-output
 - n-dimensional plotters  

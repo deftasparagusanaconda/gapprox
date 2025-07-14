@@ -1,8 +1,10 @@
-import graphapproximator.api as ga
+import gapprox as ga
 
-ga.input = [1,2,3,5,4]
-ga.analyzer = ga.analyzers.dct
-ga.expression = ga.expressions.idct
+graph = ga.Approximation(
+	input = [1,2,3,5,4],
+	paramgen = ga.paramgens.dct,
+	structgen = ga.structgens.idct
+)
 
-ga.approximate()
-ga.show()
+graph.evaluate()
+graph.summary()
