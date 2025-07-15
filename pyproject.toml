@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gapprox"
-version = "0.2.0"
+version = "0.3.0"
 #dynamic = ["version"]
 description = "toolkit to find the approximate function of a graph"
 readme = "README.md"

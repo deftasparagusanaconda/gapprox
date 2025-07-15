@@ -12,4 +12,3 @@ approximator_links = {
 	p.dct: s.idct,
 	p.dst: s.idst
 }
-
