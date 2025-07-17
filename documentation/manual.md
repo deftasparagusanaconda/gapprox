@@ -41,7 +41,7 @@ print(function(2.5))
 ```
 
 `import gapprox` loads the gapprox package into python  
-`.fit()` selects the best approximation method and returns an [Expression](#expression)  
+`gapprox.fit()` uses an AI model to select the best approximation method and returns an [Expression](#expression)  
 you can print the Expression `print(function)` or call it like a function `function(2.5)`  
 
 </details><details><summary>  
@@ -82,7 +82,7 @@ this is for users who want to understand how gapprox works. you are not expected
 
 <details><summary>
 
-## Expression </summary>
+## gapprox.Expression </summary>
 an [object template][class]. it represents a mathematical expression like `2*x + 3` or `sin(x)`  
 it is [callable][callable], meaning you can evaluate it if you substitute the variables. it is also printable. the syntax is similar to sympy:
 
@@ -120,17 +120,17 @@ it uses one of any three internal systems, morphing on-the-fly as appropriate:
 
 </details></details><details><summary>
 
-## paramgen </summary>
-a [callable][callable] function. it generates a list of parameters
+## gapprox.paramgens </summary>
+[callable][callable] functions. a paramgen generates a list of parameters
 
 </details><details><summary>
 
-## structgen </summary>
-a [callable][callable] function. it generates the structure of Expression
+## gapprox.structgens </summary>
+[callable][callable] functions. a structgen generates the structure of Expression
 
 </details><details><summary>
 
-## Optimizer </summary>
+## gapprox.Optimizer </summary>
 an [object template][class]. it is a stateful component that improves 
 
 [binary function]: https://en.wikipedia.org/wiki/Binary_function
@@ -144,9 +144,9 @@ an [object template][class]. it is a stateful component that improves
 
 </details><details><summary>
 
-## fit() </summary>
+## gapprox.fit() </summary>
 
-a [callable][callable] function. it takes an array as input and returns an [Expression](#expression)
+a [callable][callable] function. it uses an AI model to run the most appropriate approximation model, and returns an [Expression](#expression)
 
 
 </details></details><details><summary>  
@@ -156,6 +156,18 @@ a [callable][callable] function. it takes an array as input and returns an [Expr
 this section is for me and contributors to understand how the implementation works, and why some choices were made. not meant for users (but you're welcome to peek too ^ʷ^)
 
 <details><summary>
+
+## versioning </summary>
+
+gapprox follows [semantic versioning][semver] as `major`.`minor`.`patch`  
+
+`major` - backward-incompatible API changes  
+`minor` - backward-compatible features  
+`patch` - backward-compatible bug fixes  
+
+[semver]: https://semver.org/
+
+</details><details><summary>
 
 ## Dag </summary>
 an [object template][class]. it represents a [directed acyclic graph][DAG] by storing a collection of nodes
@@ -172,7 +184,7 @@ an [object template][class]. it represents a [binary expression tree][BET] by st
 
 </details><details><summary>
 
-### polynomials </summary>
+## polynomials </summary>
 
 polynomials are stored as an array of terms. each term is stored as [coefficient, [exponent1, exponent2, exponent3, ...]] this is better than a tensor representation because:
 1. if there are only a few terms, the tensor becomes a sparse tensor, wasting a lot of reserved memory
@@ -236,12 +248,7 @@ currently, ga only supports single-input single-output [many-to-one][relation ty
 
 gapprox is currently not looking for contributors. solo dev work is required to get a good structure going. "if you want something done right, you gotta do it yourself"  
 
-anyway, gapprox follows semantic versioning as `major`.`minor`.`bugfix`  
-`X.0.0` - big overhaul | non-backwards compatible  
-`X.Y.0` - new features | backwards compatible  
-`X.Y.Z` - bug fixes | minor features  
 </details><details><summary>
-        
 
 # 🧶 tidbits & trinkets </summary>
 
