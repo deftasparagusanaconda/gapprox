@@ -120,7 +120,7 @@ a [callable][callable] function. it uses an AI model to run the most appropriate
 
 ## gapprox.Expression
 </summary>  
-an [object template][class]. it represents a mathematical expression like `2*x + 3` or `sin(x)`  
+an [object template][class]. it represents a mathematical expression like `2*x + 3` or `sin(x)` by storing it as [Nodes](#node) in a [DAG][DAG]
 it is [callable][callable], meaning you can evaluate it if you substitute the variables. it is also printable. the syntax is similar to sympy:
 
 ```python
@@ -129,12 +129,10 @@ import gapprox as ga
 x = ga.symbol("x")
 
 expr = ga.Expression("2*x + 3")
-print(expr(x=2))    # same as print(expr.subs(x=2))
+print(expr(x=2))
 
 # 7
 ```
-
-if the variables are not completely substituted, it returns a simplified Expression:
 ```python
 import gapprox as ga
 
@@ -146,14 +144,9 @@ print(expr(x=2))    # same as print(expr.subs(x=2))
 # 3*y + 7
 ```
 
-it uses one of any three internal systems, morphing on-the-fly as appropriate:
-
-- directed acyclic graph ([gapprox.Dag](#dag))
-- binary expression tree ([gapprox.Tree](#tree))
-- [sympy expression][sympy expression] (used only if specified in the [constructor][constructor] arguments as `Expression(force_sympy=True)`
+(not implemented yet) it may also store an expression as a [sympy expression][sympy expression] if `Expression(force_sympy=True)` is passed in its [constructor][constructor] arguments
 
 <details><summary>.subs()</summary>
-
 
 </details></details><details><summary>
 
@@ -175,7 +168,6 @@ an [object template][class]. it is a stateful component that improves
 [constructor]: https://en.wikipedia.org/wiki/Constructor_(object-oriented_programming)
 [class]: https://en.wikipedia.org/wiki/Class_(computer_programming)
 [DAG]: https://en.wikipedia.org/wiki/Directed_acyclic_graph
-[BET]: https://en.wikipedia.org/wiki/Binary_expression_tree
 [sympy expression]: https://docs.sympy.org/latest/tutorials/intro-tutorial/manipulation.html
 [method]: https://en.wikipedia.org/wiki/Method_(computer_programming)
 
@@ -190,21 +182,68 @@ this section is for me and contributors to understand how the implementation wor
 
 
 <details><summary>
+        
+## Node </summary>
 
-## Dag </summary>
-an [object template][class]. it represents a [directed acyclic graph][DAG] by storing a collection of nodes
+a single node of a [DAG][DAG]. it is not typically visible to the user, but is very useful nontheless. it stores a list inputs, a payload (can be literally anything), and a set of outputs. it has one method `evaluate` and two static methods to `connect` and `disconnect` two Nodes. upon construction/instantiation, it requires a payload, which can be either a callable or anything else
 
-it uses one of any three internal systems, morphing on-the-fly as appropriate
+<details><summary>.evaluate()</summary>
 
-- adjacency list
-- adjacency matrix
-- edges list
-</details><details><summary>
+`ga._Node().evaluate(self, substitutions:dict=None)`
 
-## Tree </summary>
-an [object template][class]. it represents a [binary expression tree][BET] by storing a collection of nodes. it is very similar to [gapprox.Dag](#dag) except it allows only [binary functions][binary function]
+if the node's payload is not a callable function, it returns its own payload. otherwise, it returns the output of the payload. `.evaluate` is also called on each of the inputs, which is then passed as an argument to the payload. thus evaluation is a recursive operation.
 
-</details><details><summary>
+if say we had a graph that stores x+2 (say x is stored as 'x') and we want to substitute 'x' with 3, a simple substitution can be called with `.evaluate({'x': 2})` for example. 
+
+i am not yet sure if evaluation fully leverages the property that certain nodes need not be reevaluated. something like (x+2)*(x+2) still might act more like a tree than a DAG. i am not sure. as it stands now, it works, at least.
+
+</details><details><summary>.connect()</summary>
+
+`ga._Node.connect(source:Node, target:Node, index:int)`
+
+connects source Node to target Node at target's index-th input slot
+
+</details><details><summary>.disconnect()</summary>
+
+`ga._Node.disconnect(source:Node, target:Node, index:int)`
+
+disconnects source Node from target Node at target's index-th input slot
+
+</details>
+
+[DAG]: https://en.wikipedia.org/wiki/Directed_acyclic_graph
+<details><summary>FAQ </summary>
+
+why store edges in Node? why not store edges separately?
+- graph traversal may be faster when they store their connections instead of having to do a lookup on an adjacency list or matrix everytime. i think
+
+why store edges bi-directionally?
+- this may allow forward traversal, if its ever required. 
+
+why are `.connect(` and `.disconnect(` static methods?
+- when we create an edge, a node should not handle that connection. that connection belongs to neither or both of the nodes. if `.connect` and `.disconnect` are instance methods, it may force the logic to belong to one node, which violates the symmetry of the edge. 
+
+why is there no separate NodeRoot?
+
+why does Expression not store a Dag instead?
+
+why is there no `Dag` class?
+
+why not use a binary expression tree instead?
+- a DAG is a superset of a binary expression tree, and also reduces computation upon evaluation, by storing duplicates as one thing. 
+
+why not have just `Expression` like sympy? why have `Expression` and `Node` separately?
+
+why have an Expression be mutable?
+
+why not have a centralized object to store Nodes in?
+
+why not have NodeInput, NodeFunction, NodeOutput?
+
+is evaluation breadth-first or depth-first?
+- im not sure. its most probably breadth-first.
+
+</details></details><details><summary>
 
 ## polynomials </summary>
 
