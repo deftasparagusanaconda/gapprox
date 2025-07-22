@@ -184,13 +184,13 @@ this section is for me and contributors to understand how the implementation wor
 
 ## ga._Dag </summary>
 
-a seperate [object template][class] which represents three nodes of a [DAG][DAG] is created?
+a seperate [object template][class] which represents three nodes of a [DAG][DAG] is created? it has one method `.evaluate(` and two static methods to `.connect(` and `.disconnect(` two Nodes. upon construction/instantiation, it requires a payload, which can be either a callable or anything else. this payload is immutable.
 
-<details><summary>.evaluate()</summary>
+<details><summary>
         
 ## ga._Node </summary>
 
-an [object template][class] which represents a single node of a [DAG][DAG]. it is not typically visible to the user, but is very useful nontheless. it stores a list inputs, a payload (can be literally anything), and a set of outputs. it has one method `.evaluate(` and two static methods to `.connect(` and `.disconnect(` two Nodes. upon construction/instantiation, it requires a payload, which can be either a callable or anything else. this payload is immutable.
+an [object template][class] which represents a single node of a [DAG][DAG]. it is not typically visible to the user, but is very useful nontheless. it stores a list inputs, a payload (can be literally anything), and a set of outputs.
 
 <details><summary>.evaluate()</summary>
 
