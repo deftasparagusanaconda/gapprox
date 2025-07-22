@@ -180,22 +180,31 @@ an [object template][class]. it is a stateful component that improves
 ---
 this section is for me and contributors to understand how the implementation works, and why some choices were made. not meant for users (but you're welcome to peek too ^ʷ^)
 
-
 <details><summary>
-        
-## Node </summary>
 
-a single node of a [DAG][DAG]. it is not typically visible to the user, but is very useful nontheless. it stores a list inputs, a payload (can be literally anything), and a set of outputs. it has one method `evaluate` and two static methods to `connect` and `disconnect` two Nodes. upon construction/instantiation, it requires a payload, which can be either a callable or anything else
+## ga._Dag </summary>
+
+a seperate [object template][class] which represents three nodes of a [DAG][DAG] is created?
+
+<details><summary>.evaluate()</summary>
+        
+## ga._Node </summary>
+
+an [object template][class] which represents a single node of a [DAG][DAG]. it is not typically visible to the user, but is very useful nontheless. it stores a list inputs, a payload (can be literally anything), and a set of outputs. it has one method `.evaluate(` and two static methods to `.connect(` and `.disconnect(` two Nodes. upon construction/instantiation, it requires a payload, which can be either a callable or anything else. this payload is immutable.
 
 <details><summary>.evaluate()</summary>
 
-`ga._Node().evaluate(self, substitutions:dict=None)`
+`ga._Node().evaluate(self, substitutions:dict={})`
+
+evaluates or collapses the graph into one value by a recursive memoized [DFS][DFS]. the substitutions dict allows replacing leaves like variable strings with values or also allows replacing a Node with another thing (done by a dict lookup). the substitutions dict also holds Nodes that were already computed so they are not recomputed (not fully tested yet)
 
 if the node's payload is not a callable function, it returns its own payload. otherwise, it returns the output of the payload. `.evaluate` is also called on each of the inputs, which is then passed as an argument to the payload. thus evaluation is a recursive operation.
 
 if say we had a graph that stores x+2 (say x is stored as 'x') and we want to substitute 'x' with 3, a simple substitution can be called with `.evaluate({'x': 2})` for example. 
 
-i am not yet sure if evaluation fully leverages the property that certain nodes need not be reevaluated. something like (x+2)*(x+2) still might act more like a tree than a DAG. i am not sure. as it stands now, it works, at least.
+there is an alternative way to evaluate, by performing a topological sort first and then evaluating, instead of a recursive DFS evaluation. i think. i have not tested this either
+
+[DFS]: https://en.wikipedia.org/wiki/Depth-first_search
 
 </details><details><summary>.connect()</summary>
 
@@ -214,11 +223,15 @@ disconnects source Node from target Node at target's index-th input slot
 [DAG]: https://en.wikipedia.org/wiki/Directed_acyclic_graph
 <details><summary>FAQ </summary>
 
-why store edges in Node? why not store edges separately?
-- graph traversal may be faster when they store their connections instead of having to do a lookup on an adjacency list or matrix everytime. i think
+why store edges in Node? ~~why not store edges separately?~~ why store edges in Dag?
+- graph traversal may be faster when they store their own connections instead of having to do a lookup on an adjacency list or matrix everytime. i think. only storing edges separately causes the need for a lookup for every node-to-node traversal.
+
+~~furthermore, if the nodes already store edges in them, storing edges separately requires synchronizing it with the nodes. (the current implementation with only `.connect(` and `.disconnect(` being able to create and delete edges allows us to handle that synchronization though)~~
+
+technically, storing edges in just the nodes or just the Dag is sufficient, but edges are stored in both. thus edges are stored *thrice*. the
 
 why store edges bi-directionally?
-- this may allow forward traversal, if its ever required. 
+- this is for extensibility. technically the DAG system works perfectly fine with storing just inputs in the nodes, but storing outputs allows us to do things like reverse-mode autodiff (backpropagation), dependency checks, slightly easier cyclicity checks, 
 
 why are `.connect(` and `.disconnect(` static methods?
 - when we create an edge, a node should not handle that connection. that connection belongs to neither or both of the nodes. if `.connect` and `.disconnect` are instance methods, it may force the logic to belong to one node, which violates the symmetry of the edge. 
