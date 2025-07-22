@@ -232,9 +232,22 @@ technically, storing edges in just the nodes or just the Dag is sufficient, but 
 
 why store edges bi-directionally?
 - this is for extensibility. technically the DAG system works perfectly fine with storing just inputs in the nodes, but storing outputs allows us to do things like reverse-mode autodiff (backpropagation), dependency checks, slightly easier cyclicity checks, 
+<details><summary>
+        
+## FAQ: Expression, Dag, Node</summary>
 
 why are `.connect(` and `.disconnect(` static methods?
-- when we create an edge, a node should not handle that connection. that connection belongs to neither or both of the nodes. if `.connect` and `.disconnect` are instance methods, it may force the logic to belong to one node, which violates the symmetry of the edge. 
+- when we create an edge, a node should not handle that connection. that connection belongs to neither or both of the nodes. if `.connect` and `.disconnect` are instance methods, it may force the logic to belong to one node, which violates the symmetry of the edge.
+
+why store edges in Node? ~~why not store edges separately?~~ why store edges in Dag?
+- graph traversal may be faster when they store their own connections instead of having to do a lookup on an adjacency list or matrix everytime. i think. only storing edges separately causes the need for a lookup for every node-to-node traversal.
+
+~~furthermore, if the nodes already store edges in them, storing edges separately requires synchronizing it with the nodes. (the current implementation with only `.connect(` and `.disconnect(` being able to create and delete edges allows us to handle that synchronization though)~~
+
+technically, storing edges in just the nodes or just the Dag is sufficient, but edges are stored in both. thus edges are stored *thrice*. the
+
+why store edges bi-directionally?
+- this is for extensibility. technically the DAG system works perfectly fine with storing just inputs in the nodes, but storing outputs allows us to do things like reverse-mode autodiff (backpropagation), dependency checks, slightly easier cyclicity checks, 
 
 why is there no separate NodeRoot?
 
@@ -255,6 +268,45 @@ why not have NodeInput, NodeFunction, NodeOutput?
 
 is evaluation breadth-first or depth-first?
 - im not sure. its most probably breadth-first.
+
+</details><details><summary>
+
+## ga.Dag </summary>
+
+a seperate [object template][class] which represents three nodes of a [DAG][DAG] is created? it has one method `.evaluate(` and two static methods to `.connect(` and `.disconnect(` two Nodes. upon construction/instantiation, it requires a payload, which can be either a callable or anything else. this payload is immutable.
+
+<details><summary>.connect()</summary>
+
+`ga._Dag.connect(source:Node, target:Node, index:int)`
+
+connects source Node to target Node at target's index-th input slot
+
+</details><details><summary>.disconnect()</summary>
+
+`ga._Dag.disconnect(source:Node, target:Node, index:int)`
+
+disconnects source Node from target Node at target's index-th input slot
+
+</details></details><details><summary>
+        
+## ga.Node </summary>
+
+an [object template][class] which represents a single node of a [DAG][DAG]. it is not typically visible to the user, but is very useful nontheless. it stores a list inputs, a payload (can be literally anything), and a set of outputs. 
+
+<details><summary>.evaluate()</summary>
+
+`ga._Node().evaluate(self, substitutions:dict={})`
+
+evaluates or collapses the graph into one value by a recursive memoized [DFS][DFS]. the substitutions dict allows replacing leaves like variable strings with values or also allows replacing a Node with another thing (done by a dict lookup). the substitutions dict also holds Nodes that were already computed so they are not recomputed (not fully tested yet)
+
+if the node's payload is not a callable function, it returns its own payload. otherwise, it returns the output of the payload. `.evaluate` is also called on each of the inputs, which is then passed as an argument to the payload. thus evaluation is a recursive operation.
+
+if say we had a graph that stores x+2 (say x is stored as 'x') and we want to substitute 'x' with 3, a simple substitution can be called with `.evaluate({'x': 2})` for example. 
+
+there is an alternative way to evaluate, by performing a topological sort first and then evaluating, instead of a recursive DFS evaluation. i think. i have not tested this either
+
+[DFS]: https://en.wikipedia.org/wiki/Depth-first_search
+[DAG]: https://en.wikipedia.org/wiki/Directed_acyclic_graph
 
 </details></details><details><summary>
 
@@ -333,6 +385,7 @@ furthermore, certain critical parts of gapprox may be directly compiled to C usi
 - DAG/expression trees  
 - multi-objective analysis (and [pareto front](https://en.wikipedia.org/wiki/Pareto_front) presentation)  
 - web app  
+- DAG node & edge weighting
 - symbolic regression  
 - complex numbers  
 - parametric function support  
