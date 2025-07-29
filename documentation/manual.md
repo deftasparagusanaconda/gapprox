@@ -152,9 +152,7 @@ print(expr(x=2))    # same as print(expr.subs(x=2))
 
 (not implemented yet) it may also store an expression as a [sympy expression][sympy expression] if `Expression(force_sympy=True)` is passed in its [constructor][constructor] arguments
 
-<details><summary>.subs()</summary>
-
-</details></details><details><summary>
+gapprox uses a customizable set of operators. unlike PySR or sympy or ..., it does not restrict the user to its own custom-defined operators. it uses pure-python defaults as much as possible, and also defines some extensions such as `sumtorial`, `root`, `ifelse`, `SigmaSummation`. if desired, it can be modified to use sympy's set of operators, or PySR's, or a custom set; for example, redefining `ga.op.tan = math.tan2`. the functions in `gapprox.op.` are editable to allow this
 
 ## gapprox.paramgens </summary>
 [callable][callable] functions. a paramgen generates a list of parameters
