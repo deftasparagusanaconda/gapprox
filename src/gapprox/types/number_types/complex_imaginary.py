@@ -2,50 +2,53 @@ from .number_types import ScalarNumber, CompositeNumber
 from ..truth_types.boolean import Boolean
 from .irrational import Irrational
 
-class Imaginary(CompositeNumber):
-	"a Number multiplied with i such that i**2 = -1"
+class ComplexImaginary(CompositeNumber):
+	"a Number multiplied with i, where i² = -1"
 	def __init__(self, value:ScalarNumber):
 		self.value = value
 
+	def __pos__(self):
+		'+ai'
+		return self
+
+	def __neg__(self):
+		'-ai'
+		return ComplexImaginary(-self.value)
+
+	def __add__(self, other):
+		if not isinstance(other, ComplexImaginary):
+			return NotImplemented
+		return ComplexImaginary(self.value + other.value)
+
 	def __lt__(self, other):
-		if not isinstance(other, Imaginary):
+		if not isinstance(other, ComplexImaginary):
 			return NotImplemented
 		return Boolean(self.value < other.value)
 
 	def __le__(self, other):
-		if not isinstance(other, Imaginary):
+		if not isinstance(other, ComplexImaginary):
 			return NotImplemented
 		return Boolean(self.value <= other.value)
 
 	def __eq__(self, other):
-		if not isinstance(other, Imaginary):
+		if not isinstance(other, ComplexImaginary):
 			return NotImplemented
 		return Boolean(self.value == other.value)
 
 	def __ne__(self, other):
-		if not isinstance(other, Imaginary):
+		if not isinstance(other, ComplexImaginary):
 			return NotImplemented
 		return Boolean(self.value != other.value)
 
 	def __ge__(self, other):
-		if not isinstance(other, Imaginary):
+		if not isinstance(other, ComplexImaginary):
 			return NotImplemented
 		return Boolean(self.value >= other.value)
 
 	def __gt__(self, other):
-		if not isinstance(other, Imaginary):
+		if not isinstance(other, ComplexImaginary):
 			return NotImplemented
 		return Boolean(self.value > other.value)
-
-	def __add__(self, other):
-		if not isinstance(other, Imaginary):
-			return NotImplemented
-		elif type(self.value) != type(other.value):
-			return NotImplemented
-		elif isinstance(self.value, Irrational):
-			return NotImplemented
-		else:
-			return Imaginary(self.value + other.value)
 
 	def __complex__(self):
 		return complex(0, float(self.value))
@@ -54,7 +57,7 @@ class Imaginary(CompositeNumber):
 		return f"{self.value}i"
 	
 	def __repr__(self):
-		return f"<gapprox.Imaginary({self.value!r})>"
+		return f"<gapprox.ComplexImaginary({self.value!r})>"
 
 	def __hash__(self):
 		return hash(self.value)

@@ -332,11 +332,19 @@ if youre reallly into it though, you can do the following:
 
 ```shell
 git clone https://github.com/deftasparagusanaconda/gapprox/
-cd gapprox
+cd gapprox/src/gapprox
 pip install -e .    # -e means editable
 ```
 
 and whatever changes you make will be reflected in your installed version of gapprox
+
+if you are on linux, you may need to activate a virtual python environment before installing, since your package manager may manage python packages. in case youre too lazy to look up how to do that:
+
+```shell
+python -m venv myenv
+source myenv/bin/activate # or source myenv/bin/activate.fish if you use fish like me :)
+
+```
 
 ---
 </details><details><summary>
@@ -344,6 +352,8 @@ and whatever changes you make will be reflected in your installed version of gap
 # 🧶 tidbits & trinkets </summary>
 ---
 - see [disciplines](https://github.com/deftasparagusanaconda/gapprox/tree/main/documentation/disciplines.md) for which disciplines this project intersects with
+
+- there is a peculiarity in the custom number system, where abs(Integer) is not defined. there is no consensus whether abs(Integer) is Integer or Whole. by definition, abs(Real) is Real. even though the range of values is restricted, the number set is unchanged so it is still considered Real. but the Integer and Whole are indeed differentiated by the range of values. furthermore, a Whole is also technically an Integer.
 
 ---
 </details>

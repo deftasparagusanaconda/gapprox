@@ -1,7 +1,7 @@
 from .number_types import ScalarNumber, Hypercomplex
 from ..truth_types.poly_boolean import PolyBoolean
 from .irrational import Irrational
-from .complex_imaginary import ComplexImaginary
+from .imaginary import Imaginary
 
 class Complex(Hypercomplex):
 	"a + bi where a and b are Real and i² is -1"
@@ -10,16 +10,16 @@ class Complex(Hypercomplex):
 			self.value1 = arg1
 			self.value2 = arg2
 
-		elif isinstance(arg1, ScalarNumber) and isinstance(arg2, ComplexImaginary):
+		elif isinstance(arg1, ScalarNumber) and isinstance(arg2, Imaginary):
 			self.value1 = arg1
 			self.value2 = arg2.value
 
-		elif isinstance(arg1, ComplexImaginary) and isinstance(arg2, ScalarNumber):
+		elif isinstance(arg1, Imaginary) and isinstance(arg2, ScalarNumber):
 			self.value1 = arg2
 			self.value2 = arg1.value
 
 		else:
-			raise TypeError("expected two ScalarNumber or one ScalarNumber and one ComplexImaginary")
+			raise TypeError("expected two ScalarNumber or one ScalarNumber and one Imaginary")
 
 	def __pos__(self):
 		return self

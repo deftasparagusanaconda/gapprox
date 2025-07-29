@@ -9,7 +9,23 @@ class Natural(ScalarNumber):
 		if int(value) != value:
 			raise ValueError(f"{value} has fractional component")
 		self.value = value
+
+	def __abs__(self):
+		return self
 	
+	def __pos__(self):
+		return self
+
+	def __add__(self, other):
+		if not isinstance(other, Natural):
+			return NotImplemented
+		return Natural(self.value + other.value)
+
+	def __mul__(self, other):
+		if not isinstance(other, Natural):
+			return NotImplemented
+		return Natural(self.value * other.value)
+
 	def __lt__(self, other):
 		if not isinstance(other, Natural):
 			return NotImplemented
@@ -40,19 +56,6 @@ class Natural(ScalarNumber):
 			return NotImplemented
 		return Boolean(self.value > other.value)
 
-	def __add__(self, other):
-		if not isinstance(other, Natural):
-			return NotImplemented
-		return Natural(self.value + other.value)
-
-	def __mul__(self, other):
-		if not isinstance(other, Natural):
-			return NotImplemented
-		return Natural(self.value * other.value)
-
-#	def __abs__(self):
-#		return self
-
 	def __int__(self):
 		return int(self.value)
 
@@ -70,4 +73,3 @@ class Natural(ScalarNumber):
 
 	def __hash__(self):
 		return hash(self.value)
-

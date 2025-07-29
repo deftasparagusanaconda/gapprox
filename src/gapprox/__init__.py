@@ -7,7 +7,8 @@ from .parser import parser
 from .sampler import sampler
 from .approximation.approximation import Approximation
 from .expression.expression import Node, Edge, Dag, Expression
-from .types.number_types import *
+from .types.number_types.natural import Natural
+from .types.number_types.whole import Whole
 from .types.truth_types import *
 
 # monkeypatch the __dir__ to clean up the module's autocomplete

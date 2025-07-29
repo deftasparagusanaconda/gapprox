@@ -1,63 +1,63 @@
-from .number_types import ScalarNumber
+from .number_types import ScalarNumber, CompositeNumber
 from ..truth_types.boolean import Boolean
+from .irrational import Irrational
 
-class Irrational(ScalarNumber):
-	"a Number that cannot be represented by a division of two Integers. it is not closed under any operation"
-	def __init__(self, value):
+class Imaginary(CompositeNumber):
+	"a Number multiplied with i, where i² = -1"
+	def __init__(self, value:ScalarNumber):
 		self.value = value
 
-	def __abs__(self):
-		return Irrational(abs(self.value))
-
 	def __pos__(self):
-		'+a'
+		'+ai'
 		return self
 
 	def __neg__(self):
-		'-a'
-		return Irrational(-self.value)
+		'-ai'
+		return Imaginary(-self.value)
+
+	def __add__(self, other):
+		if not isinstance(other, Imaginary):
+			return NotImplemented
+		return Imaginary(self.value + other.value)
 
 	def __lt__(self, other):
-		if not isinstance(other, Irrational):
+		if not isinstance(other, Imaginary):
 			return NotImplemented
 		return Boolean(self.value < other.value)
 
 	def __le__(self, other):
-		if not isinstance(other, Irrational):
+		if not isinstance(other, Imaginary):
 			return NotImplemented
 		return Boolean(self.value <= other.value)
 
 	def __eq__(self, other):
-		if not isinstance(other, Irrational):
+		if not isinstance(other, Imaginary):
 			return NotImplemented
 		return Boolean(self.value == other.value)
 
 	def __ne__(self, other):
-		if not isinstance(other, Irrational):
+		if not isinstance(other, Imaginary):
 			return NotImplemented
 		return Boolean(self.value != other.value)
 
 	def __ge__(self, other):
-		if not isinstance(other, Irrational):
+		if not isinstance(other, Imaginary):
 			return NotImplemented
 		return Boolean(self.value >= other.value)
 
 	def __gt__(self, other):
-		if not isinstance(other, Irrational):
+		if not isinstance(other, Imaginary):
 			return NotImplemented
 		return Boolean(self.value > other.value)
 
-	def __float__(self):
-		return float(self.value)
-
 	def __complex__(self):
-		return complex(self.value)
+		return complex(0, float(self.value))
 
 	def __str__(self):
-		return str(self.value)
+		return f"{self.value}i"
 	
 	def __repr__(self):
-		return f"<gapprox.Irrational({self.value!r})>"
+		return f"<gapprox.Imaginary({self.value!r})>"
 
 	def __hash__(self):
 		return hash(self.value)
