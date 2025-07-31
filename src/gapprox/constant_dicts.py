@@ -1,4 +1,4 @@
-from .dot_dict import DotDict as _DotDict
+from .miscellaneous.dot_dict import DotDict as _DotDict
 
 import math as _math
 

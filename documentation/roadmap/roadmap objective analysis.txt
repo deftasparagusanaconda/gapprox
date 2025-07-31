@@ -19,11 +19,11 @@ ga will be slightly more advanced that that, allowing more than just a complexit
 accuracy, simplicity, smoothness, symmetry, consistency, periodicity, extrapolaticty, invertibility, compressibility, size,
 these are just some buzz words im throwing around. i probably wont want all of these. only some. and maybe some others more instead.
 
-possible objectives: (objectives should always be maximized)
+possible objectives:
 
 - accuracy               how well it approximates the input
-- robustness             how well it handles outliers
 - simplicity             
+- robustness             how well it handles outliers
 - speed
 - smoothness
 - symmetry
@@ -32,5 +32,17 @@ possible objectives: (objectives should always be maximized)
 - periodicity
 - generalizabilty        how well it works outside the input region
 - invertibility          
-
+- monotonicity
+- curvature
+- dimensionality (how many independent inputs)
+- orthogonality of inputs
+- locality
+- interpretability
+- reusability
+- generalization
+- domain fidelity (how well it respects the domain, like the reals)
+- consistency (during optimization)
+- stability (during optimization)
+- elegance
+- entropy
 - compressibility        how much it can be compressed

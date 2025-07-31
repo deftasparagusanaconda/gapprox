@@ -1,7 +1,7 @@
 # "why is there a '_' everywhere?!?"
 # because this file is directly exposed in the module's namespace, and we want only the operator_dicts to be visible; not anything else
 
-from .dot_dict import DotDict as _DotDict
+from .miscellaneous.dot_dict import DotDict as _DotDict
 import math as _math
 import cmath as _cmath
 import operator as _operator

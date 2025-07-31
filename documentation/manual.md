@@ -1,4 +1,4 @@
-<h1 style="color: red">WARNING</h1>
+<h1 style="color: red"> WARNING </h1>
 
 neither gapprox nor its manual are reliable for `0.x.y` versions. this manual is effectively a placeholder. many features may be rewritten and obsoleted
 
@@ -122,10 +122,11 @@ this is for users who want to understand how gapprox works. you are not expected
 ## gapprox.fit() </summary>
 
 a [callable][callable] function. it uses an AI model to run the most appropriate approximation model, and returns an [Expression](#expression)
+
 </details><details><summary>
 
-## gapprox.Expression
-</summary>  
+## gapprox.Expression </summary>  
+
 an [object template][class]. it represents a mathematical expression like `2*x + 3` or `sin(x)` by storing it as [Nodes](#gapprox-node) in a [DAG][#gapprox-dag]
 it is [callable][callable], meaning you can evaluate it if you substitute the variables. it is also printable. the syntax is similar to sympy:
 
@@ -154,17 +155,52 @@ print(expr(x=2))    # same as print(expr.subs(x=2))
 
 gapprox uses a customizable set of operators. unlike PySR or sympy or ..., it does not restrict the user to its own custom-defined operators. it uses pure-python defaults as much as possible, and also defines some extensions such as `sumtorial`, `root`, `ifelse`, `SigmaSummation`. if desired, it can be modified to use sympy's set of operators, or PySR's, or a custom set; for example, redefining `ga.op.tan = math.tan2`. the functions in `gapprox.op.` are editable to allow this
 
+</details><details><summary>
+
+## gapprox.measures </summary>
+
+a collection of functions that measure different things about an `Expression`. there are two types:
+
+### gapprox.measures.absolute
+
+a collection of functions that measure an `Expression`
+
+### gapprox.measures.relative
+
+a collection of functions that compare multiple `Expression`
+
+</details><details><summary>
+
+## gapprox.operator_dicts </summary>
+
+a collection of dicts that define operator definitions. a bit of a mouthful but, when an `Expression` wants to create a new `Node` of, say, multiplication, it will not simply use python's `operator.mul`. it will refer to the operator_dict it was assigned to, and then use its definition, i.e., `operator_dict['mul']`. this allows gapprox to change out the set of operators, or even add custom ones
+
+`gapprox.operator_dicts.default` is the default one used, obviously
+
+the current implementation uses a handy dandy [DotDict](#gapprox-dotdict) for convenience but a plain old python dict is fine too!
+
+</details><details><summary>
+
+## gapprox.constant_dicts </summary>
+
+like [operator_dict](#gapproxoperator-dicts) but for constants
+
+</details><details><summary>
+
 ## gapprox.paramgens </summary>
+
 [callable][callable] functions. a paramgen generates a list of parameters
 
 </details><details><summary>
 
 ## gapprox.structgens </summary>
+
 [callable][callable] functions. a structgen generates the structure of Expression
 
 </details><details><summary>
 
 ## gapprox.Optimizer </summary>
+
 an [object template][class]. it is a stateful component that improves 
 
 [binary function]: https://en.wikipedia.org/wiki/Binary_function
@@ -178,6 +214,7 @@ an [object template][class]. it is a stateful component that improves
 </details>
 
 ---
+
 </details><details><summary>  
 
 # 📚 dev notes </summary>
