@@ -1,4 +1,6 @@
-from .dag import Node, Edge, Dag
+from .dag.node import Node
+from .dag.edge import Edge
+from .dag.dag import Dag
 
 class Expression:
 	'store a mathematical expression. also handles mathematical operations on an expression'

@@ -8,10 +8,10 @@ class Edge:
 		self.index = index
 
 	def __repr__(self):
-		return f"<Edge(source={self.source}, target={self.target}, index={self.index})>"
+		return f"<Edge(source={self.source!r}, target={self.target!r}, index={self.index!r})>"
 
 	def __str__(self):
-		return f"{self.source} to {self.target} at {self.index}"
+		return f"{self.source} -> {self.target} @ [{self.index}]"
 
 	def __hash__(self):
 		return id(self)
@@ -19,3 +19,7 @@ class Edge:
 	def __eq__(self, other):
 		return other is self
 
+	def debug_summary(self):
+		print(f"source: {self.source}")
+		print(f"target: {self.target}")
+		print(f"index : {self.index}")
