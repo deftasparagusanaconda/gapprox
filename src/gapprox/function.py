@@ -1,16 +1,17 @@
-from .dag.node import Node
-from .dag.edge import Edge
-from .dag.dag import Dag
+from .node import Node
+from .edge import Edge
+from .dag import Dag
 
-class Expression:
-	'store a mathematical expression. also handles mathematical operations on an expression'
+class Function:
+	"""represents a mathematical function. it can take m inputs and 1 output (scalar function) or take m inputs and n outputs (vector function). it expects an ordering of inputs and outputs"""
 
 	def __init__(self, input:str|Dag=None):
 		if isinstance(input, str):
 			from ast import parse
-			self.dag = Expression.ast_to_node(parse(expr, mode='eval').body)
+			self.dag = Function.ast_to_node(parse(input, mode='eval').body)
 			# USES AI-GENERATED CODE. ONLY MEANT FOR EARLY TESTING
-		self.dag = input
+		else:
+			self.dag = input
 
 	"""
 	def __add__(self):
@@ -24,7 +25,7 @@ class Expression:
 		return self.root.evaluate(substitutions)
 		
 	def to_callable(self):
-		'convert the heavy Expression to a fast python function'
+		'convert the heavy Function to a fast python function'
 		
 	__call__ = evaluate
 
@@ -32,7 +33,7 @@ class Expression:
 		return "haha i didnt implement this yet!!"
 
 	def __repr__(self):
-		return f"<Expression(dag={self.dag!r})>"
+		return f"<gapprox.Function(dag={self.dag!r})>"
 
 	__str__ = __repr__
 
@@ -42,8 +43,8 @@ class Expression:
 		import ast
 
 		if isinstance(node, ast.BinOp):
-			left = Expression.ast_to_node(node.left)
-			right = Expression.ast_to_node(node.right)
+			left = Function.ast_to_node(node.left)
+			right = Function.ast_to_node(node.right)
 
 			if isinstance(node.op, ast.Add):
 				payload = lambda a, b: a + b
