@@ -1,7 +1,7 @@
 # "why is there a '_' everywhere?!?"
 # because this file is directly exposed in the module's namespace, and we want only the operator_dicts to be visible; not anything else
 
-from .miscellaneous.dot_dict import DotDict as _DotDict
+#from .miscellaneous.dot_dict import DotDict as _DotDict
 import math as _math
 import cmath as _cmath
 import operator as _operator
@@ -259,65 +259,71 @@ def _acsch_cmath(x):
 	'inverse hyperbolic cosecant (using cmath)'
 	return _cmath.asinh(1/x)
 
-default = _DotDict()
+def _dist(*args):
+	'euclidean distance in n dimensions'
+	from math import sqrt
+	return sqrt(sum(arg**2 for arg in args))
 
-default.update({
+#default = _DotDict()
+
+default = {
 # arithmetic
-'add'   : _operator.add,
-'sub'   : _operator.sub,
-'mul'   : _operator.mul,
-'div'   : _operator.truediv,
+'add'     : _operator.add,
+'sub'     : _operator.sub,
+'mul'     : _operator.mul,
+'div'     : _operator.truediv,
 
 # numeric
-'mod'   : _operator.mod,
-'quot'  : _operator.floordiv,
-'abs'   : _operator.abs,
-'neg'   : _operator.neg,
-'inv'   : _reciprocal,
-'square': _square,
-'cube'  : _cube,
-'pow'   : _operator.pow,
-'floor' : _math.floor,
-'round' : _builtins.round,
-'ceil'  : _math.ceil,
-'ipart' : _math.trunc,
-'fpart' : _fractional_part,
-'exp'   : _math.exp,
-'exp2'  : _math.exp2,
-'log10' : _math.log10,
-'log2'  : _math.log2,
-'log'   : _math.log,
-'sqrt'  : _math.sqrt,
-'cbrt'  : _math.cbrt,
-'root'  : _root,
+'pos'     : _operator.pos,	  # unary plus, positive
+'neg'     : _operator.neg,    # unary minus, negative, additive inverse
+'mod'     : _operator.mod,
+'floordiv': _operator.floordiv,
+'abs'     : _operator.abs,
+'inv'     : _reciprocal,      # multiplicative inverse
+'square'  : _square,
+'cube'    : _cube,
+'pow'     : _builtins.pow,
+'floor'   : _math.floor,
+'round'   : _builtins.round,
+'ceil'    : _math.ceil,
+'ipart'   : _math.trunc,
+'fpart'   : _fractional_part,
+'exp'     : _math.exp,
+'exp2'    : _math.exp2,
+'log10'   : _math.log10,
+'log2'    : _math.log2,
+'log'     : _math.log,
+'sqrt'    : _math.sqrt,
+'cbrt'    : _math.cbrt,
+'root'    : _root,
 
 # trigonometric
-'sin'   : _math.sin,
-'cos'   : _math.cos,
-'tan'   : _math.tan,
-'cot'   : _cot,
-'sec'   : _sec,
-'csc'   : _csc,
-'asin'  : _math.asin,
-'acos'  : _math.acos,
-'atan'  : _math.atan,
-'acot'  : _acot,
-'asec'  : _asec,
-'acsc'  : _acsc,
+'sin'     : _math.sin,
+'cos'     : _math.cos,
+'tan'     : _math.tan,
+'cot'     : _cot,
+'sec'     : _sec,
+'csc'     : _csc,
+'asin'    : _math.asin,
+'acos'    : _math.acos,
+'atan'    : _math.atan,
+'acot'    : _acot,
+'asec'    : _asec,
+'acsc'    : _acsc,
 
 # hyperbolic
-'sinh'  : _math.sinh,
-'cosh'  : _math.cosh,
-'tanh'  : _math.tanh,
-'coth'  : _coth,
-'sech'  : _sech,
-'csch'  : _csch,
-'asinh' : _math.asinh,
-'acosh' : _math.acosh,
-'atanh' : _math.atanh,
-'acoth' : _acoth,
-'asech' : _asech,
-'acsch' : _acsch,
+'sinh'    : _math.sinh,
+'cosh'    : _math.cosh,
+'tanh'    : _math.tanh,
+'coth'    : _coth,
+'sech'    : _sech,
+'csch'    : _csch,
+'asinh'   : _math.asinh,
+'acosh'   : _math.acosh,
+'atanh'   : _math.atanh,
+'acoth'   : _acoth,
+'asech'   : _asech,
+'acsch'   : _acsch,
 
 # left out due to obscurity. also probably mostly wrong :P
 #'versin'    : lambda a: 1 - math.cos(a)
@@ -333,60 +339,93 @@ default.update({
 #'hacovercos': lambda a: 0.5 + math.sin(a)/2
 
 # complex
-'real'  : _get_real,
-'imag'  : _get_imag,
-'arg'   : _cmath.phase,
-'conj'  : _call_conjugate,
+'real'    : _get_real, # get real lmao
+'imag'    : _get_imag,
+'phase'   : _cmath.phase,
+'conj'    : _call_conjugate,
 
 # boolean
-'not_'  : _operator.not_,        # 10
-'and_'  : _operator.and_,        # 0001
-'or_'   : _operator.or_,         # 0111
-'nand'  : _nand,                 # 1110
-'nor'   : _nor,                  # 1000
-'xor'   : _operator.xor,         # 0110
-'xnor'  : _operator.eq,          # 1001
-'imp'   : _implication,          # 1101
-'con'   : _converse_implication, # 1011
-'nimp'  : _nimp,                 # 0010
-'ncon'  : _ncon,                 # 0100
+'truth'   : _operator.truth,       # 01
+'not'     : _operator.not_,        # 10
+'and'     : _operator.and_,        # 0001
+'nimp'    : _nimp,                 # 0010
+'ncon'    : _ncon,                 # 0100
+'xor'     : _operator.xor,         # 0110
+'or'      : _operator.or_,         # 0111
+'nor'     : _nor,                  # 1000
+'xnor'    : _operator.eq,          # 1001
+'con'     : _converse_implication, # 1011
+'imp'     : _implication,          # 1101
+'nand'    : _nand,                 # 1110
 
 # comparative
-'lt'    : _operator.lt,
-'le'    : _operator.le,
-'eq'    : _operator.eq,
-'ne'    : _operator.ne,
-'ge'    : _operator.ge,
-'gt'    : _operator.gt,
+'lt'      : _operator.lt,
+'le'      : _operator.le,
+'eq'      : _operator.eq,
+'ne'      : _operator.ne,
+'ge'      : _operator.ge,
+'gt'      : _operator.gt,
 
 # statistical
-'mean'  : _mean,
-'median': _median,
-'mode'  : _mode,
-'pmean' : _generalized_mean,
+'mean'    : _mean,
+'median'  : _median,
+'mode'    : _mode,
+'pmean'   : _generalized_mean,
 
 # combinatorial
-'comb'  : _math.comb,
-'perm'  : _math.perm,
+'comb'    : _math.comb,
+'perm'    : _math.perm,
 
 # hello there! lol
 
+# bitwise
+'bittruth': lambda a: a,
+'bitnot'  : _operator.invert,      # 10
+'bitand'  : _operator.and_,        # 0001
+'bitor'   : _operator.or_,         # 0111
+'bitnand' : _nand,                 # 1110
+'bitnor'  : _nor,                  # 1000
+'bitxor'  : _operator.xor,         # 0110
+'bitxnor' : _operator.eq,          # 1001
+'bitimp'  : _implication,          # 1101
+'bitcon'  : _converse_implication, # 1011
+'bitnimp' : _nimp,                 # 0010
+'bitncon' : _ncon,                 # 0100
+'lshift'  : _operator.lshift,
+'rshift'  : _operator.rshift,
+
 # miscellaneous
-'lshift': _operator.lshift,
-'rshift': _operator.rshift,
-'sign'  : _signum,
-'ifelse': _ifelse,
-'fact'  : _math.factorial,
-'gamma' : _math.gamma,
-'sumt'  : _sumtorial,
-'gcd'   : _math.gcd,
-'lcm'   : _math.lcm,
-'clamp' : _clamp,
-'lerp'  : _lerp,
-'unlerp': _unlerp,
-'min'   : _builtins.min,
-'max'   : _builtins.max,
-})
+'dist'    : _dist,
+'any'     : _builtins.any,
+'all'     : _builtins.all,
+'len'     : _builtins.len,
+'range'   : _builtins.range,
+'reversed': _builtins.reversed,
+'sorted'  : _builtins.sorted,
+'divmod'  : _builtins.divmod,
+'call'    : _operator.call,
+'matmul'  : _operator.matmul,
+'concat'  : _operator.concat,
+'sign'    : _signum,
+'ifelse'  : _ifelse,
+'fact'    : _math.factorial,
+'gamma'   : _math.gamma,
+'sumt'    : _sumtorial,
+'gcd'     : _math.gcd,
+'lcm'     : _math.lcm,
+'clamp'   : _clamp,
+'lerp'    : _lerp,
+'unlerp'  : _unlerp,
+'min'     : _builtins.min,
+'max'     : _builtins.max,
+'is'      : _operator.is_,
+'isnot'   : _operator.is_not,
+#'erf'     : _math.erf
+#'erfc'    : _math.erfc
+#'in'      : 
+#'notin'   : 
+}
+
 
 complex = default.copy()
 
@@ -419,4 +458,3 @@ complex.update({
 'asech' : _asech_cmath,
 'acsch' : _acsch_cmath
 })
-

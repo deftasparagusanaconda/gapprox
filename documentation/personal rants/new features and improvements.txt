@@ -1,0 +1,86 @@
+in CS and math, we think of functions as taking a linear 1D array of variables, and outputting a single value. this is simple. but it is flawed in that it is only a scalar function. a vector function is an apt upgrade but it only takes us from 1D input to 1D output. instead, a tensorial function can take us from p-dimensional input to q-dimensional output. it is not just how many inputs anad outputs it can handle. it is also important how it structures them. Here is the hierarchy:
+
+scalar function: m inputs      | 1 output
+                 1-dimensional | 0-dimensional
+
+vector function: m inputs      | n outputs
+                 1-dimensional | 1-dimensional
+
+tensor function: m inputs      | n outputs
+                 p-dimensional | q-dimensional
+
+gapprox supports tensor functions natively. it can create a Function that takes a tensor of variables and outputs a tensor of outputs. a Function can be constructed from either a tensor of Expressions or a single Expression that describes a tensor. it can even be a tensor of expressions each describing a tensor themselves. thus the tensorialness can live in the Dag as either one Node or across multiple nodes. the former is more suited to functions that need tensor operations. the latter is more suited to functions that just need to hold outputs in a structured way, although both are usable anyway.
+
+gapprox can construct a Function from an Expression describing a tensor of formulae, or from a tensor of Expression, each describing one formula. the former packs the whole tensor into one Node in the Dag. the latter unpacks the whole tensor onto multiple Node in the Dag.
+
+ fig. 1: "|x+2 x+3|" | fig. 2: |"x+2" "x+3"|
+          |y+2 y+3|  |         |"y+2" "y+3"|
+                     |
+        ┏---┓        |    ┏---┓ ┏---┓ ┏---┓ ┏---┓ 
+        |ex1|        |    |ex1| |ex2| |ex3| |ex4|
+        ┗---┛        |    ┗---┛ ┗---┛ ┗---┛ ┗---┛
+          ↑          |      ↑     ↑     ↑     ↑
+    ┏-----------┓    |    ┏---┓ ┏---┓ ┏---┓ ┏---┓
+    |           |    |    | + | | + | | + | | + |
+    | |x+2 x+3| |    |    ┗---┛ ┗---┛ ┗---┛ ┗---┛         
+    | |y+2 y+3| |    |     ↗ ↖   ↗ ↖   ↗ ↖   ↗ ↖
+    |           |    | ┏---┓ ┏---┓ ┏---┓ ┏---┓ ┏---┓
+    ┗-----------┛    | | 2 | | x | | 3 | | y | | 2 |
+                     | ┗---┛ ┗---┛ ┗---┛ ┗---┛ ┗---┛
+
+fig. 1: the whole tensor is considered "one number" and is stored in one node. this one tensor can then be manipulated as a whole
+
+fig. 2: the tensor is spread out across the tensor and is also optimized. the Function can rewrap ex1, ex2, ex3, ex4 into a matrix because it stores a collection of expression nodes in a tensor
+
+the two ways are just essentially the same but they allow the user to specify the abstraction level of the tensor,  i.e, "should the tensorialness live in one Node or across Nodes?
+
+thus gapprox supports not just m inputs and n outputs but als op input dimensionality and q output dimensionality. this is all very impressive-sounding but the shortest description of this behaviour is that it supports tensorial functions.
+
+unlike vectorial functions which support 1D vector of m inputs and 1D vector of n outputs, tensorial functions support p-dimensional tensor of m inputs and q-dimensional tensor of n outputs.
+
+--------
+
+i get why we structure outputs but why do we structure inputs?
+i dont know. but add the abstraction anyway.
+
+--------
+
+i could subclass Node into:
+
+class Node                            base class
+- - - - - - - - - - - - - - - - - - 
+class InputNode(Node)
+class FunctionNode(Node)              structure abstraction
+class OutputNode(Node)
+- - - - - - - - - - - - - - - - - -
+class ConstantNode(InputNode)
+class VariableNode(InputNode)         mathematical abstraction
+class ExpressionNode(OutputNode)
+
+but for now, i am keeping it as simple as possible
+
+furthermore, Dag should not specialize its methods to the math-specific subclasses. at most it should specialize to InputNode, FunctionNode, OutputNode, if at all. AS OF NOW... it does not yet subclass into any of those. but when it does, it should store the following new things:
+input_nodes
+function_nodes
+output_nodes
+total_nodes
+nodes_without_inputs
+nodes_without_outputs
+
+thus the Dag becomes much richer
+
+-----------------------------------
+
+updating input_nodes and output_nodes whenever nodes are added/removed is ridiculous. let the two attributes become methods:
+find_nodes_without_inputs()
+find_nodes_without_outputs()
+which both return a set
+
+
+------------------
+
+is it possible for a subclass to exclude one of the attributes of the superclass?
+
+------------
+
+for consistency across languages, numrepr should only support the default data types of the language. any further extensions should be implemented by the extension-makers, not me

@@ -1,268 +1,116 @@
-from .node import Node
-from .edge import Edge
+from .operator_dicts import default as operator_dict_default
 from .dag import Dag
+from .node import Node
+from .variable import Variable
+from .constant import Constant
+from .expression import Expression
+from .add_ast_to_dag import AddAstToDag
+from .misc.ast_op_to_op_dict_key import ast_op_to_op_dict_key
 
 class Function:
-	"""represents a mathematical function. it can take m inputs and 1 output (scalar function) or take m inputs and n outputs (vector function). it expects an ordering of inputs and outputs"""
+	"""represents a mathematical function. it can take m inputs for m variables and give n outputs for n expressions"""
 
-	def __init__(self, input:str|Dag=None):
-		if isinstance(input, str):
-			from ast import parse
-			self.dag = Function.ast_to_node(parse(input, mode='eval').body)
-			# USES AI-GENERATED CODE. ONLY MEANT FOR EARLY TESTING
-		else:
-			self.dag = input
+	def __init__(
+			self, 
+			*args, 
+			operator_dict:dict = operator_dict_default, 
+			ast_op_to_op_dict_key:dict = ast_op_to_op_dict_key
+			):
+		self.operator_dict:dict = operator_dict
+		self.variables:list[Variable] = list()
+		self.constants:set[Constant] = set()
+		self.dag:Dag = None
+		self.output_nodes:list[Node] = list()
 
-	"""
-	def __add__(self):
-	def __radd__(self):
-	def __mul__(self):
-	def __pow__(self):
-	def __neg__(self):
-	"""
+		expressions:list[Expressioon] = list()
 
-	def evaluate(self, substitutions:dict=None):
-		return self.root.evaluate(substitutions)
+		# populate collections
+		for arg in args:
+			if isinstance(arg, Constant):
+				self.constants.add(arg)
+			elif isinstance(arg, Variable):
+				self.variables.append(arg)
+			elif isinstance(arg, Expression):
+				self.expressions.append(arg)
+			elif isinstance(arg, Dag):
+				if self.dag is not None:
+					raise ValueError("only one Dag allowed for Function constructor")
+				self.dag = arg
+			elif isinstance(arg, str):
+				raise TypeError(f"cannot take string as direct argument. try passing gapprox.Expression({arg}) instead")
+			else:
+				raise TypeError(f"unrecognized argument {type(arg)}. must be Constant, Variable, Expression, or Dag. ")
+
+		# check clashing variable/constant names
+		names = list(var.name for var in self.variables) + list(const.name for const in self.constants)
+		if len(names) != len(set(names)):
+			from collections import Counter
+			var_names = list(var.name for var in self.variables)
+			const_names = list(const.name for const in self.constants)
+
+			counts = Counter(var_names)
+			duplicates = [item for item, count in counts.items() if count > 1]
+			if len(duplicates) != 0:
+				raise ValueError(f"duplicate variable names: {duplicates}")
+
+			counts = Counter(const_names)
+			duplicates = [item for item, count in counts.items() if count > 1]
+			if len(duplicates) != 0:
+				raise ValueError(f"duplicate constant names: {duplicates}")
+
+			duplicates = set(var_names) & set(const_names)
+			if len(duplicates) != 0:
+				raise ValueError(f"clashing variable and constant names: {duplicates}")
+
+			raise ValueError(f"found clashing variable/constant names but could not identify which")
+
+		# create dag if not given
+		if self.dag is None:
+			import ast
+
+			self.dag = Dag()
+			add_ast_to_dag = AddAstToDag(self.dag, self.variables, self.constants, ast_op_to_op_dict_key=ast_op_to_op_dict_key)
+
+			for expr in self.expressions:
+				tree = ast.parse(expr.value, mode='eval').body
+				latest_node = add_ast_to_dag.visit(tree)
+				expr_node = self.dag.new_node(expr)
+				self.dag.new_edge(latest_node, expr_node, 0)
+				self.output_nodes.append(expr_node)
+			
+	def evaluate(self, substitutions:dict=dict()):
+		"""performs a recursive cached/memoized DFS evaluation with a substitution dict. even if there are repeated nodes, this allows it to avoid those. for example, computing x+2 only once in (x+2)*(x+2). this substitution dict is also shared between expressions. so (x+2)/3 and (x+2)/4 would have to compute (x+2) only once and then reuse it.
+
+		if you need to use the substitutions dict it used during evaluation, you can initialize your own dict instance outside the function and then pass it to the arguments. any substitutions it made will be reflected in that instance you passed because dicts are passed by reference :) have fun with that!"""
+		return list(node.inputs[0].source.substitute(substitutions) for node in self.output_nodes)
+	
+	__call__ = evaluate
 		
 	def to_callable(self):
 		'convert the heavy Function to a fast python function'
-		
-	__call__ = evaluate
-
+		# return compile(self.dag)
+		raise NotImplementedError("this is pretty hard to do sry come back later")
+	
 	def topological_sort(self):
-		return "haha i didnt implement this yet!!"
-
+		raise NotImplementedError("will use python's graphlib. soon!")
+	
 	def __repr__(self):
 		return f"<gapprox.Function(dag={self.dag!r})>"
 
 	__str__ = __repr__
 
-	@staticmethod
-	def ast_to_node(node):
-		'THIS METHOD IS AI-GENERATED AND IS ONLY FOR EARLY TESTING'
-		import ast
+	def pretty_print(self):
+		from os import get_terminal_size
 
-		if isinstance(node, ast.BinOp):
-			left = Function.ast_to_node(node.left)
-			right = Function.ast_to_node(node.right)
+		rows, cols = get_terminal_size()
 
-			if isinstance(node.op, ast.Add):
-				payload = lambda a, b: a + b
-			elif isinstance(node.op, ast.Sub):
-				payload = lambda a, b: a - b
-			elif isinstance(node.op, ast.Mult):
-				payload = lambda a, b: a * b
-			elif isinstance(node.op, ast.Div):
-				payload = lambda a, b: a / b
-			elif isinstance(node.op, ast.Pow):
-				payload = lambda a, b: a ** b
-			else:
-				raise NotImplementedError(f"Operator {node.op} not supported")
-
-			node_obj = Node(payload)
-			node_obj.inputs.extend([left, right])
-			left.outputs.add(node_obj)
-			right.outputs.add(node_obj)
-			return node_obj
-
-		elif isinstance(node, ast.UnaryOp):
-			operand = Expression.ast_to_node(node.operand)
-
-			if isinstance(node.op, ast.USub):
-				payload = lambda a: -a
-			elif isinstance(node.op, ast.UAdd):
-				payload = lambda a: +a
-			else:
-				raise NotImplementedError(f"Unary operator {node.op} not supported")
-
-			node_obj = Node(payload)
-			node_obj.inputs.append(operand)
-			operand.outputs.add(node_obj)
-			return node_obj
-
-		elif isinstance(node, ast.Constant):
-			return Node(node.value)
-
-		elif isinstance(node, ast.Name):
-			return Node(node.id)  # variable leaf node
-
-		else:
-			raise NotImplementedError(f"AST node type {type(node)} not supported")
-
-"""
-
-class Dag:
-	"holds a set of nodes, which represent one graph"
-
-	def __init__(self, nodes=set()):
-		self.nodes = nodes
-
-	def add_node(self, node):
-		self.nodes.add(node)
-
-	def remove_node(self, node):
-		self.nodes.remove(node)
-
-	@staticmethod
-	def connect(input, output, index=None):
-		input.add_output(output)
-		output.add_input(input, index)
-
-	@staticmethod
-	def disconnect(input, output, index=None):
-		input.remove_output(output)
-		output.remove_input(index)
-
-	#def check_cyclicity(something):
-	#def get_edge_list(self):
-		# return a list of all edges enclosed by the DAG
-		# edges that point to nodes outside the list are ignored
-"""
-"""
-def toggle_edge(source:Node, target:Node, index:int):
-	while len(target.inputs) <= index:
-		target.inputs.append(None)
-
-	if target.inputs[index] is source:  # currently connected, so disconnect
-		target.inputs[index] = None
-		source.outputs.remove(target)
-
-	elif target.inputs[index] is None:  # currently disconnected, so connect
-		target.inputs[index] = source
-		source.outputs.add(target)
-
-    else:
-		raise Exception(f"target.inputs[{index}] is already connected to {target.inputs[index]}, cannot toggle edge with {source}")
-"""
-
-"""
-from abc import ABC, abstractmethod
-
-class _Node(ABC):
-	"arbitrary base class for NodeInput, NodeFunction, NodeOutput"
-
-	@abstractmethod
-	def evaluate(self, substitutions:dict=None):
-		...
-
-class _NodeInput(Node):
-	"holds a parameter (variable/constant/nullary function...) of a DAG. NodeInput has no inputs, but multiple outputs"
-
-	def __init__(self, value:any):
-		self.outputs = set()
-		self.value = value
-
-	def add_output(self, output):
-		self.outputs.add(output)
-
-	def remove_output(self, output):
-		self.outputs.remove(output)
-
-	def evaluate(self, substitutions:dict=None):
-		if callable(self.value):
-			return self.value()
-		elif self.value in substitutions:
-			return substitutions[self.value]
-		return self.value
-
-class _NodeFunction(Node):
-	"a function/operator node of a DAG. NodeFunction has inputs and outputs"
-
-	def __init__(self, function:callable):
-
-		if not callable(function):
-			raise TypeError(f"{function} is not callable")
-
-		self.function = function
-
-		from inspect import signature, Parameter
-		params = signature(function).parameters.values()
-
-		# check if it has *args
-		for param in params:
-			if param.kind == Parameter.VAR_POSITIONAL:
-				self.variadic = True
-			elif param.kind in (inspect.Parameter.POSITIONAL_ONLY, inspect.Parameter.POSITIONAL_OR_KEYWORD):
-				self.arity
-			else:
-				self.variadic = False
-
-		if self.arity == 0 and self.variadic is False:
-			raise ValueError(f"zero input functions not allowed. implement {function} as NodeInput instead")
-
-		# count required positional args
-		self.arity = len(p for p in params if p.kind is Parameter.POSITIONAL_ONLY)
-
-		self.inputs = [None]*self.arity
-		self.outputs = set()
-
-	def add_input(self, input, index):
-		self.inputs[index] = input
-
-	def add_output(self, output):
-		self.outputs.add(output)
-
-	def remove_input(self, index):
-		self.inputs[index] = None
-
-	def remove_output(self, output):
-		self.outputs.remove(output)
-
-	def evaluate(self, substitutions:dict=None):
-		if self.inputs:
-			return self.function(tuple(input.evaluate(substitutions) for input in self.inputs))
-		else:
-			raise ValueError("FunctionNode has no inputs")
-
-# a        POSITIONAL_ONLY
-# b=1      POSITIONAL_ONLY
-# /        (positional marker)
-# d=2      POSITIONAL_OR_KEYWORD
-# *args    VAR_POSITIONAL
-# e        KEYWORD_ONLY
-# f=3      KEYWORD_ONLY
-# **kwargs VAR_KEYWORD
-
-class _NodeOutput(Node):
-	"the root node of an expression. the grandpa of all nodes in an expression. NodeOutput has 1 input, no outputs"
-
-	def __init__(self, input=None):
-		self.input = None
-
-	def add_input(self, input):
-		if self.input is None:
-			self.input = input
-		else:
-			raise ValueError(f"OutputNode {self.__name__} already holds {self.input}")
-		#should this allow setting if self.input is already set?
-
-	def remove_input(self):
-		if self.input is None:
-			raise ValueError(f"OutputNode {self.__name__} has no input set")
-		else:
-			self.input = None
-		# should this allow unsetting if self.input is already None?
-
-	def evaluate(self, substitutions:dict=None):
-		if self.input is None:
-			raise ValueError(f"OutputNode {self.__name__} has no input set")
-		else:
-			return self.input.evaluate(substitutions)
-
-# need to find a way to represent variables in the system
-"""
-"""
-import operator
-
-a = Node(2)
-b = Node(3)
-c = Node('x')
-plus = Node(operator.add)
-Node.connect(a, plus, 0)
-Node.connect(b, plus, 1)
-print(plus.evaluate())          # 5
-print(plus.evaluate({2: 3}))    # 6
-Node.disconnect(b, plus, 1)
-Node.connect(c, plus, 1)
-print(plus.evaluate({'x': 10})) # 12
-"""
+		print(' gapprox.Function().pretty_print() '.center(rows, '-'))
+		print()
+		print('operator_dict:', self.operator_dict)
+		print('expressions  :', self.expressions)
+		print('variables    :', self.variables)
+		print('constants    :', self.constants)
+		print('dag          :', self.dag)
+		print('output_nodes :', self.output_nodes)
+		print()
+		print(' hope everything is okay... '.center(rows, '-'))

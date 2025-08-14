@@ -1,1 +1,0 @@
-these number_types have methods that preserve their own type. native overloaded python operators called on them will not change type. thus, for example, subtraction is not defined for Natural. comparison operators are also not defined.

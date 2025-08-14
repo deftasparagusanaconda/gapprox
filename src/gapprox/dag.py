@@ -4,13 +4,20 @@ from .edge import Edge
 class Dag:
 	'handles all DAG-related operations. it handles Nodes and Edges. you may create new ones with new_node and new_edge, add with add_node and add_edge, remove with remove_node and remove_edge'
 
-	def __init__(self, nodes:set[Node]=None, edges:set[Edge]=None, input_nodes:set[Node]=None, output_nodes:set[Node]=None, *, strict:bool=True):
+	def __init__(
+			self, 
+			nodes:set[Node]=None, 
+			edges:set[Edge]=None, 
+			input_nodes:set[Node]=None, 
+			output_nodes:set[Node]=None, 
+			*, 
+			strict:bool=True):
 		self.nodes:set[Node] = nodes or set()
 		self.edges:set[Edge] = edges or set()
 		self.input_nodes:set[Node] = input_nodes or set()      # nodes without inputs
 		self.output_nodes:set[Node] = output_nodes or set()    # nodes without outputs
 		self.strict:bool = strict
-	
+
 	@property
 	def lonely_nodes(self)->set[Node]:
 		'get a set of nodes which have neither inputs nor outputs. poor nodes :('
@@ -101,9 +108,13 @@ class Dag:
 		for edge in node.inputs:
 			Dag.tree_view(edge.source, prefix + "|-")
 	
-	def debug_summary(self):
+	def pretty_print(self):
 		'print a summary of all nodes, edges, and structure of the DAG'
-		print('gapprox.Dag().debug_summary() ' + '-'*50)
+		from os import get_terminal_size
+
+		rows, cols = get_terminal_size()
+
+		print(' gapprox.Dag().pretty_print() '.center(rows, '-'))
 		print()
 		print(f"nodes       : {len(self.nodes)}")
 		print(f"edges       : {len(self.edges)}")
@@ -112,22 +123,21 @@ class Dag:
 		print(f"lonely nodes: {len(self.lonely_nodes)}")
 		print(f"strict      : {self.strict}")
 		print()
-		print('tree view ' + '-'*30)
+		print('tree view '.ljust(rows//2, '-'))
 		print()
 		for output_node in self.output_nodes:
 			self.tree_view(output_node)
 			print()
-		print('nodes ' + '-'*34)
+		print('nodes '.ljust(rows//2, '-'))
 		print()
 		for node in self.nodes:
-			node.debug_summary()
+			node.pretty_print()
 			print()
-		print('edges ' + '-'*34)
+		print('edges '.ljust(rows//2, '-'))
 		print()
 		for edge in self.edges:
-			edge.debug_summary()
+			edge.pretty_print()
 			print()
-		print('-'*80)
+		print(' have a nice day :) '.center(rows, '-'))
 	
-	def __repr__(self): return f"<gapprox.Dag object at {hex(id(self))}"
-	
+	def __repr__(self): return f"<gapprox.Dag() at {hex(id(self))}>"

@@ -221,6 +221,7 @@ an [object template][class]. it is a stateful component that improves
 ---
 this section is for me and contributors to understand how the implementation works, and why some choices were made. not meant for users (but you're welcome to peek too ^ʷ^)
 
+
 <details><summary>
 
 ## gapprox.Dag </summary>
@@ -300,7 +301,7 @@ gapprox is feature-oriented and is not particularly focused on performance (down
 
 to enhance performance, certain functions or parts of gapprox may use external libraries if they are present, such as `scipy.fft` instead of a custom FFT implementation
 
-furthermore, certain critical parts of gapprox may be directly compiled to C using Cython. it might yield a performance increase of 2x at not much inconvenience (although this is not done in the official gapprox implementation for simplicity reasons)
+furthermore, certain critical parts of gapprox may be directly compiled to C using Cython at not much inconvenience (although this is not done in the official gapprox implementation for simplicity reasons)
 
 </details>
 
@@ -312,6 +313,8 @@ furthermore, certain critical parts of gapprox may be directly compiled to C usi
 ---
 0.3.0
 ---
++ 
++ DAG system
 + extensive documentation ([manual.md](#https://github.com/deftasparagusanaconda/gapprox/blob/main/documentation/manual.md))
 + re-release as `gapprox` on PyPI
 + clean up module namespace
