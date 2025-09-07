@@ -31,7 +31,7 @@ class Function:
 			elif isinstance(arg, Variable):
 				self.variables.append(arg)
 			elif isinstance(arg, Expression):
-				self.expressions.append(arg)
+				expressions.append(arg)
 			elif isinstance(arg, Dag):
 				if self.dag is not None:
 					raise ValueError("only one Dag allowed for Function constructor")
@@ -71,7 +71,7 @@ class Function:
 			self.dag = Dag()
 			add_ast_to_dag = AddAstToDag(self.dag, self.variables, self.constants, ast_op_to_op_dict_key=ast_op_to_op_dict_key)
 
-			for expr in self.expressions:
+			for expr in expressions:
 				tree = ast.parse(expr.value, mode='eval').body
 				latest_node = add_ast_to_dag.visit(tree)
 				expr_node = self.dag.new_node(expr)
@@ -106,11 +106,11 @@ class Function:
 
 		print(' gapprox.Function().pretty_print() '.center(rows, '-'))
 		print()
-		print('operator_dict:', self.operator_dict)
-		print('expressions  :', self.expressions)
-		print('variables    :', self.variables)
-		print('constants    :', self.constants)
-		print('dag          :', self.dag)
-		print('output_nodes :', self.output_nodes)
+		print('operator_dict   :', self.operator_dict)
+		print('expression_nodes:', self.output_nodes)
+		print('variables       :', self.variables)
+		print('constants       :', self.constants)
+		print('dag             :', self.dag)
+		print('output_nodes    :', self.output_nodes)
 		print()
 		print(' hope everything is okay... '.center(rows, '-'))

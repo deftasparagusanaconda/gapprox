@@ -426,7 +426,6 @@ default = {
 #'notin'   : 
 }
 
-
 complex = default.copy()
 
 complex.update({
@@ -458,3 +457,36 @@ complex.update({
 'asech' : _asech_cmath,
 'acsch' : _acsch_cmath
 })
+"""
+# operators and their arity
+default2 = {
+# arithmetic
+
+'pos'     : (_operator.pos,     1) # unary plus, positive
+'neg'     : (_operator.neg,     1) # unary minus, negative, additive inverse
+'mod'     : (_operator.mod,     1)
+'abs'     : (_operator.abs,     1)
+'inv'     : (_reciprocal,       1) # multiplicative inverse
+'square'  : (_square,           1)
+'cube'    : (_cube,             1)
+'floor'   : (_math.floor,       1)
+'ceil'    : (_math.ceil,        1)
+'ipart'   : (_math.trunc,       1)
+'fpart'   : (_fractional_part,  1)
+'exp2'    : (_math.exp2,        1)
+'log10'   : (_math.log10,       1)
+'log2'    : (_math.log2,        1)
+'sqrt'    : (_math.sqrt,        1)
+'cbrt'    : (_math.cbrt,        1)
+'add'     : (_operator.add,     2)
+'sub'     : (_operator.sub,     2)
+'mul'     : (_operator.mul,     2)
+'div'     : (_operator.truediv, 2)
+'floordiv': (_operator.floordiv,2)
+'pow'     : (_builtins.pow,     2)
+'round'   : (_builtins.round,   2)
+'exp'     : (_math.exp,         2)
+'log'     : (_math.log,         2)
+'root'    : (_root,             2)
+}
+"""

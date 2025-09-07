@@ -7,13 +7,14 @@ from .parser import parser
 from .sampler import sampler
 from .approximation.approximation import Approximation
 from .expression import Expression
+#from .dag import Dag
+#from .edge import Edge
+#from .node import Node
 from .dag import Dag
-from .edge import Edge
-from .node import Node
-from .function import Function
-from .variable import Variable, variables
-from .constant import Constant, constants
-from .add_ast_to_dag import AddAstToDag
+#from .function import Function
+#from .variable import Variable, variables
+#from .constant import Constant, constants
+#from .add_ast_to_dag import AddAstToDag
 
 # monkeypatch the __dir__ to clean up the module's autocomplete
 from sys import modules
