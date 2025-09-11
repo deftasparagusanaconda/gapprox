@@ -1,0 +1,97 @@
+objective functions find how well something approximates something. as in the name, they are functions, so we should make them as functions here. gapprox is mainly a program to find a function that fits a bunch of criteria best. so it is function approximation, in a way. 
+
+here are the objectives available, and what they should mean. 'it' refers to the function that gapprox generated which it thinks is best.
+ 
+accuracy            | how accurately it follows another function in a given domain/interval
+simplicity          | how easy it is to understand
+speed               | how fast it is to compute
+time complexity     | how the time used scales with input (big o notation)
+space complexity    | how the memory used scales with input (big o notation)
+interpretability    | how interpretable it is
+smoothness          | how smooth it looks when graphed
+periodicity         | how much the codomain tends to repeat
+extrapolatability   | how well it behaves beyond a given interval/domain
+compactness         | how compact the string form of the function is
+compressibility     | how much the string form of the function can be compressed
+input orthogonality | how independent inputs are in determining the output
+elegance            | how elegant it feels to a mathematician
+invertibility       | whether or not an inverse of the function exists
+domain fidelity     | how well the co-domain adheres with the domain
+continuity          | 
+differentiability   | 
+analyticity         | 
+linearity           | 
+boundedness         | 
+numerical stability | how robust it is to floating point error
+harmonicity         | how well it satisfies Laplace's equation
+parsimony           | how few repeated subexpressions it has
+efficiency          | 
+conciseness         | 
+minimality          | 
+symmetry            | how symmetric it is (??? vague)
+curvature           | 
+dimensionality      | 
+reusability         | 
+monotonicity        | 
+robustness          | 
+consistency         | 
+entropy             | 
+locality            | 
+generalizability    | 
+compactness         | 
+reusability         | 
+stability           | 
+canonicality        | how canonical it is
+
+many of these are quite vague and should really be called "subjective" functions not objective functions xd
+
+from the Dag representation of the expression:
+inputnode count      | how many inputnode
+functionnode count   | how many functionnode
+outputnode count     | how many outputnode
+node count           | how many nodes
+edge count           | how many edges
+total count          | how many nodes and edges
+inputnode weight     | sum of weights of inputnodes
+functionnode weight  | sum of weights of functionnodes
+outputnode weight    | sum of weights of outputnodes
+node weight          | sum of weights of all nodes
+edge weight          | sum of weights of edges
+total weight         | sum of weights of all nodes and edges
+average in degree    | how many inputs nodes have on average
+average out degree   | how many outupts nodes have on average
+average total degree | how many inputs and outputs nodes have on average
+tree depth           | the length of the longest path from an outputnode to an inputnode
+average arity        | how many inputs the functionnodes have on average
+
+and from the Function representation of the expression:
+variable count      | 
+constant count      | 
+output count        | 
+trigonometric count | 
+hyperbolic count    | 
+arithmetic count    | 
+comparative count   | 
+boolean count       | 
+
+as for how the program actually handles these objectives, it should let the user choose their set of preferred objective score tuples. instead of "simplest is best", sometimes the user might want something that is moderately simple. sometimes the user might want something that is *roughly* moderately simple. the user should be able to define their preference for an objective. how much they reward the program when it achieves a certain objective. to do this, the user defines a reward function, which can take on any shape. lets discuss this with one objective, and then with three objectives:
+
+imagine a line, along which we have a bunch of approximations, ordered by how simple they are. when the user says "i want something moderately simple", they should define the reward function as a single point on this line. if the user says "i want something roughly moderately simple", they should define the reward function as a plateau on this line. if the user says "i want something moderately simple but occasionally simple or complex is fine too", they should define the reward function as a gaussian distribution. if they say "i want something that is either simple or complex", the reward function should be a bimodal distribution. 
+
+thus we see that for each objective axis, the user should define a distrubition function that determines how much the program is rewarded when it hits the corresponding objective score. the reward function should ideally always have a gradient, because otherwise the program will not be able to compare two rewards effectively, and not know which direction to move in, and how far. thus when the user says "i want something exactly 50% simple", they should actually define a reward function that, from -∞ to 50%, increases and, from 50% to +∞, decreases. 
+
+thus gapprox doesn’t just maximise or minimise objectives. it lets the user specify exact target scores, preferred ranges, or even arbitrary distributions for each objective, guiding the search toward what the user truly wants. gapprox only maximizes one thing: reward. the hierarchy is like this:
+
+data: approximation
+      
+transformer: objective functions
+
+data: objectives (multiple)
+
+transformer: reward functions
+
+data: rewards (multiple)
+
+transformer: combiner function
+
+data: reward

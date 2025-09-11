@@ -10,7 +10,7 @@ from .expression import Expression
 #from .dag import Dag
 #from .edge import Edge
 #from .node import Node
-from .dag import Dag
+from .dag import InputNode, FunctionNode, OutputNode, Edge, Dag
 #from .function import Function
 #from .variable import Variable, variables
 #from .constant import Constant, constants
@@ -18,4 +18,4 @@ from .dag import Dag
 
 # monkeypatch the __dir__ to clean up the module's autocomplete
 from sys import modules
-modules[__name__].__dir__ = lambda: ['Approximation', 'Function', 'Expression', 'Constant', 'Variable', 'Dag', 'Edge', 'Node', 'paramgens', 'structgens', 'outliers', 'plotters', 'operator_dicts', 'constant_dicts', 'constants', 'variables']
+modules[__name__].__dir__ = lambda: ['Approximation', 'Function', 'Expression', 'InputNode', 'FunctionNode', 'OutputNode', 'Edge', 'Dag', 'paramgens', 'structgens', 'outliers', 'plotters', 'operator_dicts', 'constant_dicts']

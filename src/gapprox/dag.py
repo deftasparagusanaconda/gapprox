@@ -18,7 +18,7 @@
 
 # for finding how many valid inputs or outputs a node has
 from typing import Iterable
-def count_excl(stuff:Iterable, something:any=None) -> int:
+def count(stuff:Iterable, something:any=None) -> int:
 	'count how many things are in stuff, excluding something'
 	return sum(thing!=something for thing in stuff)
 
@@ -86,8 +86,8 @@ class InputNode(Node):
 
 	def __repr__(self):
 		id_str = f"ID={int_to_str.int_to_str(id(self), int_to_str.KATAKANA)}"
-		outputs_str = f"{count_excl(self.outputs)} outputs"
-		payload_str = f"payload={self.payload}"
+		outputs_str = f"{count(self.outputs)} outputs"
+		payload_str = f"payload={self.payload!r}"
 		return f"<InputNode: {id_str}, {outputs_str}, {payload_str}>"
 
 	def __str__(self):
@@ -97,7 +97,7 @@ class InputNode(Node):
 		max_key_len = max(len(repr(key)) for key in self.metadata.keys())
 		for key, value in self.metadata.items():
 			output += f"\n    {repr(key).ljust(max_key_len)}: {value}"
-		output += f"\noutputs : {type(self.outputs)}, count={count_excl(self.outputs)}, length={len(self.outputs)}"
+		output += f"\noutputs : {type(self.outputs)}, count={count(self.outputs)}, length={len(self.outputs)}"
 		for edge in self.outputs:
 			output += f"\n    {edge!r}"
 		return output
@@ -157,9 +157,9 @@ class FunctionNode(Node):
 
 	def __repr__(self):
 		id_str = f"ID={int_to_str.int_to_str(id(self),int_to_str.HAN)}"
-		inputs_str = f"{count_excl(self.inputs)} inputs"
-		outputs_str = f"{count_excl(self.outputs)} outputs"
-		payload_str = f"payload={self.payload}"
+		inputs_str = f"{count(self.inputs)} inputs"
+		outputs_str = f"{count(self.outputs)} outputs"
+		payload_str = f"payload={self.payload!r}"
 		return f"<FunctionNode: {id_str}, {inputs_str}, {outputs_str}, {payload_str}>"
 	
 	def __str__(self):
@@ -169,10 +169,10 @@ class FunctionNode(Node):
 		max_key_len = max(len(repr(key)) for key in self.metadata.keys())
 		for key, value in self.metadata.items():
 			output += f"\n    {repr(key).ljust(max_key_len)}: {value}"
-		output += f"\ninputs  : {type(self.inputs)}, count={count_excl(self.inputs)}, length={len(self.inputs)}"
+		output += f"\ninputs  : {type(self.inputs)}, count={count(self.inputs)}, length={len(self.inputs)}"
 		for index, edge in enumerate(self.inputs):
 			output += f"\n    [{index}]: {edge!r}"
-		output += f"\noutputs : {type(self.outputs)}, count={count_excl(self.outputs)}, length={len(self.outputs)}"
+		output += f"\noutputs : {type(self.outputs)}, count={count(self.outputs)}, length={len(self.outputs)}"
 		for edge in self.outputs:
 			output += f"\n    {edge!r}"
 		return output
@@ -222,18 +222,18 @@ class OutputNode(Node):
 
 	def __repr__(self):
 		id_str = f"ID={int_to_str.int_to_str(id(self), int_to_str.HANGUL)}"
-		inputs_str = f"{count_excl(self.inputs)} inputs"
+		inputs_str = f"{count(self.inputs)} inputs"
 		payload_str = f"payload={self.payload!r}"
 		return f"<OutputNode: {id_str}, {inputs_str}, {payload_str}>"
 	
 	def __str__(self):
 		output = f"OutputNode (ID={int_to_str.int_to_str(id(self), int_to_str.HANGUL)})"
 		output += f"\npayload : {self.payload!r}"
-		output += f"\nmetadata: {type(self.metadata)}, count={count_excl(self.metadata)}, length={len(self.metadata)}"
+		output += f"\nmetadata: {type(self.metadata)}, count={count(self.metadata)}, length={len(self.metadata)}"
 		max_key_len = max(len(repr(key)) for key in self.metadata.keys())
 		for key, value in self.metadata.items():
 			output += f"\n    {repr(key).ljust(max_key_len)}: {value}"
-		output += f"\ninputs  : {type(self.inputs)}, count={count_excl(self.inputs)}, length={len(self.inputs)}"
+		output += f"\ninputs  : {type(self.inputs)}, count={count(self.inputs)}, length={len(self.inputs)}"
 		for index, edge in enumerate(self.inputs):
 			output += f"\n    [{index}]: {edge!r}"
 		return output
@@ -258,7 +258,7 @@ class Edge:
 		output += f"\nsource  : {self.source!r}"
 		output += f"\ntarget  : {self.target!r}"
 		output += f"\nindex   : {self.index}"
-		output += f"\nmetadata: {type(self.metadata)}, count={count_excl(self.metadata)}, length={len(self.metadata)}"
+		output += f"\nmetadata: {type(self.metadata)}, count={count(self.metadata)}, length={len(self.metadata)}"
 		max_key_len = max(len(repr(key)) for key in self.metadata.keys())
 		for key, value in self.metadata.items():
 			output += f"\n    {repr(key).ljust(max_key_len)}: {value}"
@@ -418,24 +418,24 @@ class Dag:
 	
 	def __repr__(self): 
 		id_str = f"ID={int_to_str.int_to_str(id(self), int_to_str.LATIN)}"
-		inputnodes_str = f"{count_excl(self.inputnodes)} InputNode"
-		functionnodes_str = f"{count_excl(self.functionnodes)} FunctionNode"
+		inputnodes_str = f"{count(self.inputnodes)} InputNode"
+		functionnodes_str = f"{count(self.functionnodes)} FunctionNode"
 		outputnodes_str = f"{len(self.outputnodes)} OutputNode"
 		edges_str = f"{len(self.edges)} Edge"
 		return f"<Dag: {id_str}, {inputnodes_str}, {functionnodes_str}, {outputnodes_str}, {edges_str}>"
 
 	def __str__(self):
 		output = f"Dag (ID={int_to_str.int_to_str(id(self), int_to_str.LATIN)})"
-		output += f"\ninputnodes: {type(self.inputnodes)}, count={count_excl(self.inputnodes)}, length={len(self.inputnodes)}"
+		output += f"\ninputnodes: {type(self.inputnodes)}, count={count(self.inputnodes)}, length={len(self.inputnodes)}"
 		for node in self.inputnodes:
 			output += '\n    ' + repr(node)
-		output += f"\nfunctionnodes: {type(self.inputnodes)}, count={count_excl(self.functionnodes)}, length={len(self.functionnodes)}"
+		output += f"\nfunctionnodes: {type(self.inputnodes)}, count={count(self.functionnodes)}, length={len(self.functionnodes)}"
 		for node in self.functionnodes:
 			output += '\n    ' + repr(node)
-		output += f"\noutputnodes: {type(self.inputnodes)}, count={count_excl(self.outputnodes)}, length={len(self.outputnodes)}"
+		output += f"\noutputnodes: {type(self.inputnodes)}, count={count(self.outputnodes)}, length={len(self.outputnodes)}"
 		for node in self.outputnodes:
 			output += '\n    ' + repr(node)
-		output += f"\nedges: {type(self.inputnodes)}, count={count_excl(self.edges)}, length={len(self.edges)}"
+		output += f"\nedges: {type(self.inputnodes)}, count={count(self.edges)}, length={len(self.edges)}"
 		for edge in self.edges:
 			output += '\n    ' + repr(edge)
 		return output
