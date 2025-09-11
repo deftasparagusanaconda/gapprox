@@ -16,202 +16,265 @@
 
 # NOTE: storing tensorial inputs is bad because it muddies up code to be near-unreadable. objects sometimes having attributes and sometimes not is horrifyingly torturing. it indents code unnecessarily for just an existence check/special case. this is bad. the less special cases, the simpler and the better. just sayin...
 
+# for finding how many valid inputs or outputs a node has
+from typing import Iterable
+def count_excl(stuff:Iterable, something:any=None) -> int:
+	'count how many things are in stuff, excluding something'
+	return sum(thing!=something for thing in stuff)
+
 from .misc import int_to_str	# for printing object IDs
 from abc import ABC	# to make Node an abstract class
 
+DEFAULT_NODE_METADATA:dict = {'weight': 1, 'fixed':False}	# not actually used
+DEFAULT_EDGE_METADATA:dict = {'weight': 1, 'fixed':False}
+DEFAULT_INPUTNODE_METADATA:dict = {'weight': 1, 'fixed':False}
+DEFAULT_FUNCTIONNODE_METADATA:dict = {'weight': 1, 'fixed':False}
+DEFAULT_OUTPUTNODE_METADATA:dict = {'weight': 1, 'fixed':False}
+
 class Node(ABC):
 	'base class for InputNode, FunctionNode, OutputNode'
-	def __init__(self, payload:any, metadata:dict=None):
+	def __init__(self, payload:any, metadata:dict=DEFAULT_NODE_METADATA):
 		self.payload:any = payload
 		self.metadata:dict = metadata
 
 class InputNode(Node):
 	'a node that returns its payload upon substitution'
 	
-	def __init__(self, payload:any, metadata:dict=None):
+	def __init__(self, payload:any, metadata:dict=DEFAULT_INPUTNODE_METADATA):
 		super().__init__(payload, metadata)
 		self.outputs:set[Edge] = set()
 	
 	def substitute(
 			self, 
-			node_subs                :dict = None, # for substituting sub-trees or sub-expressions
 			inputnode_payload_subs   :dict = None, # for substituting variables and such
 			functionnode_payload_subs:dict = None, # for substituting op names with the actual callables
-			#node_cache               :dict = None, # for remembering which nodes have already been substituted
-			#caching       :bool = True,  # enable saving to and reading from the cache dict, to reduce repeated computation
+			node_subs                :dict = None, # for substituting sub-trees or sub-expressions
+			node_cache               :dict = None, # for remembering which nodes have already been substituted
+			*,
+			caching                  :bool = True,  # enable saving to and reading from the cache dict, to reduce repeated computation
 			#mutating      :bool = False, # makes substitutions permanent by replacing any nodes by their result
-			#recursing     :bool = True,  # substitute recursively 
 			#sorting       :bool = False  # perform a topological sort before doing recursive substitution
 			) -> any:
-
-		# initialize subs dicts
-		node_subs              = node_subs or set()
-		inputnode_payload_subs = inputnode_payload_subs or set()
 		
-		# use node substitution
+		# initialize dicts
+		inputnode_payload_subs = dict() if inputnode_payload_subs is None else inputnode_payload_subs
+		node_subs = dict() if node_subs is None else node_subs
+		if caching:
+			node_cache = dict() if node_cache is None else node_cache
+		
+		# do node substitution
 		if self in node_subs:
 			return node_subs[self]
+
+		# do cache substitution
+		if caching and self in node_cache:
+			return node_cache[self]
 	
-		# use inputnode payload substitution
+		# do payload substitution
 		if self.payload in inputnode_payload_subs:
 			payload = inputnode_payload_subs[self.payload]
 		else:
 			payload = self.payload
-	
+		
+		# ending part
 		result = payload
+
+		if caching:
+			node_cache[self] = result
+
 		return result
 
 	def __repr__(self):
-		return f"<InputNode: ID={int_to_str.int_to_str(id(self), int_to_str.KATAKANA)}, {len(self.outputs)} outputs, payload={self.payload}>"
+		id_str = f"ID={int_to_str.int_to_str(id(self), int_to_str.KATAKANA)}"
+		outputs_str = f"{count_excl(self.outputs)} outputs"
+		payload_str = f"payload={self.payload}"
+		return f"<InputNode: {id_str}, {outputs_str}, {payload_str}>"
 
 	def __str__(self):
-		output = f"InputNode (ID={int_to_str.int_to_str(id(self), int_to_str.KATAKANA)})\n"
-		output += f"payload: {self.payload!r}\n"
-		output += f"outputs: {type(self.outputs)} of {len(self.outputs)} elements\n"
+		output = f"InputNode (ID={int_to_str.int_to_str(id(self), int_to_str.KATAKANA)})"
+		output += f"\npayload : {self.payload!r}"
+		output += f"\nmetadata: {type(self.metadata)} with length {len(self.metadata)}"
+		max_key_len = max(len(repr(key)) for key in self.metadata.keys())
+		for key, value in self.metadata.items():
+			output += f"\n    {repr(key).ljust(max_key_len)}: {value}"
+		output += f"\noutputs : {type(self.outputs)}, count={count_excl(self.outputs)}, length={len(self.outputs)}"
 		for edge in self.outputs:
-			output += f"    {edge!r}\n"
-		output += f"metadata: {self.metadata!r}"
+			output += f"\n    {edge!r}"
 		return output
 		
 class FunctionNode(Node):
 	'a node that represents a callable'
-	def __init__(self, payload:any, metadata:dict=None):
+	def __init__(self, payload:any, metadata:dict=DEFAULT_FUNCTIONNODE_METADATA):
 		super().__init__(payload, metadata)
 		self.inputs:list[Edge] = list()
 		self.outputs:set[Edge] = set()
 		
 	def substitute(
 			self, 
-			node_subs                :dict = None, # for substituting sub-trees or sub-expressions
 			inputnode_payload_subs   :dict = None, # for substituting variables and such
 			functionnode_payload_subs:dict = None, # for substituting op names with the actual callables
-			#node_cache               :dict = None, # for remembering which nodes have already been substituted
-			#caching       :bool = True,  # enable saving to and reading from the cache dict, to reduce repeated computation
+			node_subs                :dict = None, # for substituting sub-trees or sub-expressions
+			node_cache               :dict = None, # for remembering which nodes have already been substituted
+			*,
+			caching                  :bool = True,  # enable saving to and reading from the cache dict, to reduce repeated computation
 			#mutating      :bool = False, # makes substitutions permanent by replacing any nodes by their result
-			#recursing     :bool = True,  # substitute recursively 
 			#sorting       :bool = False  # perform a topological sort before doing recursive substitution
 			) -> any:
-		'unfortunately, python functions only take vectorial input of arguments so FunctionNode allows only vectorial inputs list'
-
-		# initialize subs dicts
-		node_subs                 = node_subs or set()
-		functionnode_payload_subs = functionnode_payload_subs or set()
 		
-		# use node substitution
+		# initialize dicts
+		functionnode_payload_subs = dict() if functionnode_payload_subs is None else inputnode_payload_subs
+		node_subs = dict() if node_subs is None else node_subs
+		if caching:
+			node_cache = dict() if node_cache is None else node_cache
+		
+		# do node substitution
 		if self in node_subs:
 			return node_subs[self]
 
-		# use functionnode payload substitution
+		# do cache substitution
+		if caching and self in node_cache:
+			return node_cache[self]
+	
+		# do payload substitution
 		if self.payload in functionnode_payload_subs:
 			payload = functionnode_payload_subs[self.payload]
 		else:
 			payload = self.payload
-		
-		# check if payload is not callable
-		if not callable(payload):
-			raise ValueError("payload is not callable!")
-		
-		# get arguments to call payload with
-		args = (edge.source.substitute(node_subs, inputnode_payload_subs, functionnode_payload_subs) for edge in self.inputs)
 
-		result = self.payload(*args)
+		if not callable(payload):
+			raise ValueError("payload is not callable")
 		
-		#node_cache[self] = result
+		# ending part
+		args = list()
+		for edge in self.inputs:
+			args.append(edge.source.substitute(inputnode_payload_subs, functionnode_payload_subs, node_subs, node_cache, caching=caching))
+		result = payload(*args)
+
+		if caching:
+			node_cache[self] = result
+
 		return result
 
 	def __repr__(self):
-		return f"<FunctionNode: ID={int_to_str.int_to_str(id(self),int_to_str.HAN)}, {len(self.inputs)} inputs, {len(self.outputs)} outputs, payload={self.payload}>"
+		id_str = f"ID={int_to_str.int_to_str(id(self),int_to_str.HAN)}"
+		inputs_str = f"{count_excl(self.inputs)} inputs"
+		outputs_str = f"{count_excl(self.outputs)} outputs"
+		payload_str = f"payload={self.payload}"
+		return f"<FunctionNode: {id_str}, {inputs_str}, {outputs_str}, {payload_str}>"
 	
 	def __str__(self):
-		output = f"FunctionNode (ID={int_to_str.int_to_str(id(self), int_to_str.HAN)})\n"
-		output += f"payload: {self.payload!r}\n"
-		output += f"inputs: {type(self.inputs)} with length {len(self.inputs)}\n"
-		for edge in self.inputs:
-			output += f"    {edge!r}\n"
-		output += f"outputs: {type(self.outputs)} with length {len(self.outputs)}\n"
+		output = f"FunctionNode (ID={int_to_str.int_to_str(id(self), int_to_str.HAN)})"
+		output += f"\npayload : {self.payload!r}"
+		output += f"\nmetadata: {type(self.metadata)} with length {len(self.metadata)}"
+		max_key_len = max(len(repr(key)) for key in self.metadata.keys())
+		for key, value in self.metadata.items():
+			output += f"\n    {repr(key).ljust(max_key_len)}: {value}"
+		output += f"\ninputs  : {type(self.inputs)}, count={count_excl(self.inputs)}, length={len(self.inputs)}"
+		for index, edge in enumerate(self.inputs):
+			output += f"\n    [{index}]: {edge!r}"
+		output += f"\noutputs : {type(self.outputs)}, count={count_excl(self.outputs)}, length={len(self.outputs)}"
 		for edge in self.outputs:
-			output += f"    {edge!r}\n"
-		output += f"metadata: {self.metadata!r}\n"
+			output += f"\n    {edge!r}"
 		return output
 	
 class OutputNode(Node):
 	'a node that only represents things that want to point to a Node. an expression wants to point to the root of an expression. this node is how you achieve that'
-	def __init__(self, payload:any, metadata:dict=None):
+	def __init__(self, payload:any, metadata:dict=DEFAULT_OUTPUTNODE_METADATA):
 		super().__init__(payload, metadata)
-		self.inputs:list[Edge] = [None]
-		
+		self.inputs:list[Edge] = [None]	# initialized because OutputNode should always have exactly one input
+	
 	def substitute(
 			self, 
-			node_subs                :dict = None, # for substituting sub-trees or sub-expressions
 			inputnode_payload_subs   :dict = None, # for substituting variables and such
 			functionnode_payload_subs:dict = None, # for substituting op names with the actual callables
-			#node_cache               :dict = None, # for remembering which nodes have already been substituted
-			#caching     :bool = True,  # enable saving to and reading from the cache dict, to reduce repeated computation
+			node_subs                :dict = None, # for substituting sub-trees or sub-expressions
+			node_cache               :dict = None, # for remembering which nodes have already been substituted
+			*,
+			caching                  :bool = True,  # enable saving to and reading from the cache dict, to reduce repeated computation
 			#mutating      :bool = False, # makes substitutions permanent by replacing any nodes by their result
-			#recursing     :bool = True,  # substitute recursively 
 			#sorting       :bool = False  # perform a topological sort before doing recursive substitution
 			) -> any:
 
+		# integrity check
 		if len(self.inputs) != 1:
 			raise ValueError("OutputNode accepts exactly one input")
-
-		# initialize subs dicts
-		node_subs = node_subs or set()
 		
-		# use node substitution
+		# initialize dicts
+		node_subs = dict() if node_subs is None else node_subs
+		if caching:
+			node_cache = dict() if node_cache is None else node_cache
+		
+		# do node substitution
 		if self in node_subs:
 			return node_subs[self]
 
-		# call substitute on each 
-		result = self.inputs[0].source.substitute(node_subs, inputnode_payload_subs, functionnode_payload_subs)
-
-		#node_cache[self] = result
-		return result
+		# do cache substitution
+		if caching and self in node_cache:
+			return node_cache[self]
 	
+		# ending part
+		result = self.inputs[0].source.substitute(inputnode_payload_subs, functionnode_payload_subs, node_subs, node_cache, caching=caching)
+
+		if caching:
+			node_cache[self] = result
+
+		return result
+
 	def __repr__(self):
-		inputs_str = f"{len(self.inputs)} inputs"
+		id_str = f"ID={int_to_str.int_to_str(id(self), int_to_str.HANGUL)}"
+		inputs_str = f"{count_excl(self.inputs)} inputs"
 		payload_str = f"payload={self.payload!r}"
-		return f"<OutputNode: ID={int_to_str.int_to_str(id(self), int_to_str.HANGUL)}, {inputs_str}, {payload_str}>"
+		return f"<OutputNode: {id_str}, {inputs_str}, {payload_str}>"
 	
 	def __str__(self):
-		output = f"OutputNode (ID={int_to_str.int_to_str(id(self), int_to_str.HANGUL)})\n"
-		output += f"payload: {self.payload!r}\n"
-		output += f"inputs: {type(self.inputs)} of length {len(self.inputs)}\n"
-		for edge in self.inputs:
-			output += f"    {edge!r}\n"
-		output += f"metadata: {self.metadata!r}"
+		output = f"OutputNode (ID={int_to_str.int_to_str(id(self), int_to_str.HANGUL)})"
+		output += f"\npayload : {self.payload!r}"
+		output += f"\nmetadata: {type(self.metadata)}, count={count_excl(self.metadata)}, length={len(self.metadata)}"
+		max_key_len = max(len(repr(key)) for key in self.metadata.keys())
+		for key, value in self.metadata.items():
+			output += f"\n    {repr(key).ljust(max_key_len)}: {value}"
+		output += f"\ninputs  : {type(self.inputs)}, count={count_excl(self.inputs)}, length={len(self.inputs)}"
+		for index, edge in enumerate(self.inputs):
+			output += f"\n    [{index}]: {edge!r}"
 		return output
 	
 class Edge:
 	'holds a directional relationship between a source node and a target node'
-	def __init__(self, source:Node, target:Node, index:int, metadata:dict=None):
+	def __init__(self, source:Node, target:Node, index:int, metadata:dict=DEFAULT_EDGE_METADATA):
 		self.source  :Node = source
 		self.target  :Node = target
 		self.index   :int  = index
 		self.metadata:dict = metadata
 
+	def __repr__(self):
+		id_str = f"ID={int_to_str.int_to_str(id(self), int_to_str.GREEK)}"
+		source_str = f"{self.source.payload!r}"
+		target_str = f"{self.target.payload!r}"
+		index_str = f"[{self.index}]"
+		return f"<Edge: {id_str}, {source_str} → {target_str} @ {index_str}>"
+
 	def __str__(self):
-		output = f"Edge (ID={int_to_str.int_to_str(id(self), int_to_str.GREEK)})\n"
-		output += f"source  : {self.source!r}\n"
-		output += f"target  : {self.target!r}\n"
-		output += f"index   : {self.index}\n"
-		output += f"metadata: {self.metadata}"
+		output = f"Edge (ID={int_to_str.int_to_str(id(self), int_to_str.GREEK)})"
+		output += f"\nsource  : {self.source!r}"
+		output += f"\ntarget  : {self.target!r}"
+		output += f"\nindex   : {self.index}"
+		output += f"\nmetadata: {type(self.metadata)}, count={count_excl(self.metadata)}, length={len(self.metadata)}"
+		max_key_len = max(len(repr(key)) for key in self.metadata.keys())
+		for key, value in self.metadata.items():
+			output += f"\n    {repr(key).ljust(max_key_len)}: {value}"
 		return output
 
-	def __repr__(self):
-		return f"<Edge: ID={int_to_str.int_to_str(id(self), int_to_str.GREEK)}, {self.source.payload} → {self.target.payload!r} @ [{self.index}]"
-
 class Dag:
-	'handles all DAG-related operations. it handles Nodes and Edges. you may create new ones with new_node and new_edge, add with add_node and add_edge, remove with remove_node and remove_edge'
+	'handles all DAG-related operations. it handles Nodes and Edges. you may create new ones with new_inputnode, new_functionnode, new_outputnode, and new_edge, add with add_node and add_edge, remove with remove_node and remove_edge'
 
 	def __init__(
 			self,
 			inputnodes   :set[InputNode]    = None, 
 			functionnodes:set[FunctionNode] = None, 
 			outputnodes  :set[OutputNode]   = None, 
-			edges        :set[Edge]         = None, 
+			edges        :set[Edge]         = None,
 			*, 
-			strict       :bool              = True
+			strict       :bool              = True,
 			):
 		self.inputnodes   :set[InputNode]    = inputnodes or set()
 		self.functionnodes:set[FunctionNode] = functionnodes or set()
@@ -219,32 +282,32 @@ class Dag:
 		self.edges        :set[Edge]         = edges or set()
 		self.strict       :bool              = strict
 	
-	def new_inputnode(self, payload:any, metadata:dict=None, strict:bool=None) -> InputNode:
+	def new_inputnode(self, payload:any, metadata:dict=DEFAULT_INPUTNODE_METADATA, *, strict:bool=None) -> InputNode:
 		'create a new InputNode and add it. also return it'
 		new_node = InputNode(payload, metadata)
-		self.add_node(new_node, self.strict if strict is None else strict)
+		self.add_node(new_node, strict=self.strict if strict is None else strict)
 		return new_node
 	
-	def new_functionnode(self, payload:any, metadata:dict=None, strict:bool=None) -> FunctionNode:
+	def new_functionnode(self, payload:any, metadata:dict=DEFAULT_FUNCTIONNODE_METADATA, *, strict:bool=None) -> FunctionNode:
 		'create a new FunctionNode and add it. also return it'
 		new_node = FunctionNode(payload, metadata)
-		self.add_node(new_node, self.strict if strict is None else strict)
+		self.add_node(new_node, strict=self.strict if strict is None else strict)
 		return new_node
 	
-	def new_outputnode(self, payload:any, metadata:dict=None, strict:bool=None) -> OutputNode:
+	def new_outputnode(self, payload:any, metadata:dict=DEFAULT_OUTPUTNODE_METADATA, *, strict:bool=None) -> OutputNode:
 		'create a new OutputNode and add it. also return it'
 		new_node = OutputNode(payload, metadata)
-		self.add_node(new_node, self.strict if strict is None else strict)
+		self.add_node(new_node, strict=self.strict if strict is None else strict)
 		return new_node
 
-	def new_edge(self, source:Node, target:Node, index:int, metadata:dict=None, strict:bool=None) -> Edge:
+	def new_edge(self, source:Node, target:Node, index:int, metadata:dict=DEFAULT_EDGE_METADATA, *, strict:bool=None) -> Edge:
 		'create a new edge instance and add it. also return it'
 		new_edge = Edge(source, target, index, metadata)
-		self.add_edge(new_edge, self.strict if strict is None else strict)
+		self.add_edge(new_edge, strict=self.strict if strict is None else strict)
 		return new_edge
 	
-	def add_edge(self, edge:Edge, strict:bool=None)->Edge:
-		'add an edge and update its source and target to know that edge. raises an error if the edge already exists, or its source or target already know that edge'
+	def add_edge(self, edge:Edge, *, strict:bool=None)->Edge:
+		"""add an edge and update its source and target to know that edge. raises an error if the edge already exists, or its source or target already know that edge, or its source or target are not known"""
 		if (self.strict if strict is None else strict):
 			if edge in self.edges:
 				raise ValueError(f"edge already exists in Dag's edges")
@@ -256,6 +319,10 @@ class Dag:
 				raise ValueError(f"cannot route an OutputNode to a Node")
 			if isinstance(edge.target, InputNode):
 				raise ValueError(f"cannot route a Node to an InputNode")
+			if edge.target not in self.functionnodes and edge.target not in self.outputnodes:
+				raise ValueError(f"edge's target does not exist in functionnodes nor outputnodes. edge:{edge!r}, edge.target:{edge.target!r}")
+			if edge.source not in self.inputnodes and edge.source not in self.functionnodes:
+				raise ValueError(f"edge's source does not exist in inputnodes nor functionnodes. edge:{edge!r}, edge.source:{self.source!r}")
 
 		# update set of edges
 		self.edges.add(edge)
@@ -268,7 +335,14 @@ class Dag:
 		# set source's output
 		edge.source.outputs.add(edge)
 
-	def remove_edge(self, edge, strict:bool=None):
+	def remove_edge(self, edge:Edge, *, strict:bool=None):
+		"""remove an edge
+
+		overloaded to accept:
+		remove_edge(edge:Edge)
+		remove_edge(source:Node, target:Node, index:int)
+		"""
+		
 		if (self.strict if strict is None else strict):
 			if edge not in self.edges:
 				raise ValueError("edge not found in Dag's edges set")
@@ -290,13 +364,13 @@ class Dag:
 		# set source's output
 		edge.source.outputs.remove(edge)
 	
-	def add_node(self, node:Node, strict:bool=None)->Node:
+	def add_node(self, node:Node, *, strict:bool=None)->Node:
 		'add a node to the corresponding nodes set'
 		if (self.strict if strict is None else strict):
 			if node in self.inputnodes:
 				raise ValueError("node already exists in Dag's inputnodes")
 			if node in self.functionnodes:
-				raise ValueError("node already exists in Dag's outputnodes")
+				raise ValueError("node already exists in Dag's functionnodes")
 			if node in self.outputnodes:
 				raise ValueError("node already exists in Dag's outputnodes")
 		
@@ -308,24 +382,23 @@ class Dag:
 			case OutputNode():
 				self.outputnodes.add(node)
 		
-	def remove_node(self, node:Node, strict:bool=None)->Node:
-		'remove a node, and all corresponding edges'
+	def remove_node(self, node:Node, *, cascade:bool=None, strict:bool=None)->Node:
+		'remove a node, and all corresponding edges if cascade=False is given as argument'
 
 		if (self.strict if strict is None else strict):
 			if node not in self.inputnodes or node not in self.functionnodes or node not in self.outputnodes:
 				raise ValueError("node not found in DAG")
 
-		# remove input edges
-		if hasattr(node, 'inputs'):
-			for edge in node.inputs:
-				self.edges.remove(edge)
-				edge.source.outputs.discard(edge)
-
-		# remove output edges
-		if hasattr(node, 'outputs'):
-			for edge in node.outputs:
-				self.edges.remove(edge)
-				edge.target.inputs[edge.index] = None
+		if cascade:
+			# remove input edges
+			if hasattr(node, 'inputs'):
+				for edge in node.inputs:
+					remove_edge(edge)
+	
+			# remove output edges
+			if hasattr(node, 'outputs'):
+				for edge in node.outputs:
+					remove_edge(edge)
 
 		# remove from Dag's nodes set
 		match node:
@@ -339,29 +412,34 @@ class Dag:
 	@staticmethod
 	def tree_view(node, prefix=""):
 		print(f"{prefix}{node!r}")
-		for index, edge in enumerate(node.inputs):
-			Dag.tree_view(edge.source, prefix + str(index).ljust(4, '-'))
-	
-	def __str__(self):
-		output = f"Dag (ID={int_to_str.int_to_str(id(self), int_to_str.LATIN)})\n"
-		output += f"inputnodes: {len(self.inputnodes)}\n"
-		for node in self.inputnodes:
-			output += '    ' + repr(node) + '\n'
-		output += f"functionnodes: {len(self.functionnodes)}\n"
-		for node in self.functionnodes:
-			output += '    ' + repr(node) + '\n'
-		output += f"outputnodes: {len(self.outputnodes)}\n"
-		for node in self.outputnodes:
-			output += '    ' + repr(node) + '\n'
-		output += f"edges: {len(self.edges)}\n"
-		for edge in self.edges:
-			output += '    ' + repr(edge) + '\n'
-		output += f"strict: {self.strict}"
-		return output
+		if hasattr(node, 'inputs'):
+			for index, edge in enumerate(node.inputs):
+				Dag.tree_view(edge.source, prefix + str(index).ljust(4, '-'))
 	
 	def __repr__(self): 
-		return f"<Dag: ID={int_to_str.int_to_str(id(self), int_to_str.LATIN)}, {len(self.inputnodes)} InputNode, {len(self.functionnodes)} FunctionNode, {len(self.outputnodes)} OutputNode, {len(self.edges)} Edge>"
+		id_str = f"ID={int_to_str.int_to_str(id(self), int_to_str.LATIN)}"
+		inputnodes_str = f"{count_excl(self.inputnodes)} InputNode"
+		functionnodes_str = f"{count_excl(self.functionnodes)} FunctionNode"
+		outputnodes_str = f"{len(self.outputnodes)} OutputNode"
+		edges_str = f"{len(self.edges)} Edge"
+		return f"<Dag: {id_str}, {inputnodes_str}, {functionnodes_str}, {outputnodes_str}, {edges_str}>"
 
+	def __str__(self):
+		output = f"Dag (ID={int_to_str.int_to_str(id(self), int_to_str.LATIN)})"
+		output += f"\ninputnodes: {type(self.inputnodes)}, count={count_excl(self.inputnodes)}, length={len(self.inputnodes)}"
+		for node in self.inputnodes:
+			output += '\n    ' + repr(node)
+		output += f"\nfunctionnodes: {type(self.inputnodes)}, count={count_excl(self.functionnodes)}, length={len(self.functionnodes)}"
+		for node in self.functionnodes:
+			output += '\n    ' + repr(node)
+		output += f"\noutputnodes: {type(self.inputnodes)}, count={count_excl(self.outputnodes)}, length={len(self.outputnodes)}"
+		for node in self.outputnodes:
+			output += '\n    ' + repr(node)
+		output += f"\nedges: {type(self.inputnodes)}, count={count_excl(self.edges)}, length={len(self.edges)}"
+		for edge in self.edges:
+			output += '\n    ' + repr(edge)
+		return output
+	
 # now theres a question of whether or not we should let OutputNode return a list of Edge or not. im erring towards only one input. but how will its .inputs look? just a list with one element? why not store the element directly? but that would violate the contract for a node's {inputs and outputs}-handling
 
 # upon substitution, a FunctionNode returns only one answer. the result of its callable. why should an OutputNode suddenly return multiple answers? it should also return one answer, just like FunctionNode.
@@ -380,30 +458,3 @@ this is all cool and all but after you also do all this, you should also condens
 gapprox is currently facing a namespace explosion crisis, so minimize and reduce as much as possible. if a distinction changes how the class operates, its fair to make it into a separate class (whether a sibling or a subclass). if it only changes what it is, then just implement it as a property.
 """
 
-"""
-    def __repr__(self):
-        return f"<Node(payload={self.payload!r}, mass={self.mass!r}, inputs={self.inputs}, outputs={self.outputs})>"
-
-    def __str__(self):
-        return str(self.payload)
-
-    def __hash__(self):
-        return id(self)
-
-    def __eq__(self, other):
-        return other is self
-
-    def pretty_print(self):
-        print(f"payload  : {self.payload!r}")
-        print(f"mass     : {self.mass!r}")
-        if len(self.inputs) == 0:
-            print(f"inputs   : []")
-        else:
-            for index, input in enumerate(self.inputs):
-                print(f"inputs[{index}]: {input}")
-        if len(self.outputs) == 0:
-            print(f"outputs  : set()")
-        else:
-            for output in self.outputs:
-                print(f"outputs  : {output}")
-"""
