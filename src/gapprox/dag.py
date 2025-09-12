@@ -35,13 +35,13 @@ class Node(ABC):
 	'base class for InputNode, FunctionNode, OutputNode'
 	def __init__(self, payload:any, metadata:dict=DEFAULT_NODE_METADATA):
 		self.payload:any = payload
-		self.metadata:dict = metadata
+		self.metadata:dict = DEFAULT_NODE_METADATA if metadata is None else metadata
 
 class InputNode(Node):
 	'a node that returns its payload upon substitution'
 	
-	def __init__(self, payload:any, metadata:dict=DEFAULT_INPUTNODE_METADATA):
-		super().__init__(payload, metadata)
+	def __init__(self, payload:any, metadata:dict=None):
+		super().__init__(payload, DEFAULT_INPUTNODE_METADATA.copy() if metadata is None else metadata)
 		self.outputs:set[Edge] = set()
 	
 	def substitute(
@@ -104,8 +104,8 @@ class InputNode(Node):
 		
 class FunctionNode(Node):
 	'a node that represents a callable'
-	def __init__(self, payload:any, metadata:dict=DEFAULT_FUNCTIONNODE_METADATA):
-		super().__init__(payload, metadata)
+	def __init__(self, payload:any, metadata:dict=None):
+		super().__init__(payload, DEFAULT_FUNCTIONNODE_METADATA.copy() if metadata is None else metadata)
 		self.inputs:list[Edge] = list()
 		self.outputs:set[Edge] = set()
 		
@@ -179,8 +179,8 @@ class FunctionNode(Node):
 	
 class OutputNode(Node):
 	'a node that only represents things that want to point to a Node. an expression wants to point to the root of an expression. this node is how you achieve that'
-	def __init__(self, payload:any, metadata:dict=DEFAULT_OUTPUTNODE_METADATA):
-		super().__init__(payload, metadata)
+	def __init__(self, payload:any, metadata:dict=None):
+		super().__init__(payload, DEFAULT_FUNCTIONNODE_METADATA.copy() if metadata is None else metadata)
 		self.inputs:list[Edge] = [None]	# initialized because OutputNode should always have exactly one input
 	
 	def substitute(
@@ -240,11 +240,11 @@ class OutputNode(Node):
 	
 class Edge:
 	'holds a directional relationship between a source node and a target node'
-	def __init__(self, source:Node, target:Node, index:int, metadata:dict=DEFAULT_EDGE_METADATA):
+	def __init__(self, source:Node, target:Node, index:int, metadata:dict=None):
 		self.source  :Node = source
 		self.target  :Node = target
 		self.index   :int  = index
-		self.metadata:dict = metadata
+		self.metadata:dict = DEFAULT_EDGE_METADATA.copy() if metadata is None else metadata
 
 	def __repr__(self):
 		id_str = f"ID={int_to_str.int_to_str(id(self), int_to_str.GREEK)}"
@@ -282,25 +282,25 @@ class Dag:
 		self.edges        :set[Edge]         = edges or set()
 		self.strict       :bool              = strict
 	
-	def new_inputnode(self, payload:any, metadata:dict=DEFAULT_INPUTNODE_METADATA, *, strict:bool=None) -> InputNode:
+	def new_inputnode(self, payload:any, metadata:dict=None, *, strict:bool=None) -> InputNode:
 		'create a new InputNode and add it. also return it'
 		new_node = InputNode(payload, metadata)
 		self.add_node(new_node, strict=self.strict if strict is None else strict)
 		return new_node
 	
-	def new_functionnode(self, payload:any, metadata:dict=DEFAULT_FUNCTIONNODE_METADATA, *, strict:bool=None) -> FunctionNode:
+	def new_functionnode(self, payload:any, metadata:dict=None, *, strict:bool=None) -> FunctionNode:
 		'create a new FunctionNode and add it. also return it'
 		new_node = FunctionNode(payload, metadata)
 		self.add_node(new_node, strict=self.strict if strict is None else strict)
 		return new_node
 	
-	def new_outputnode(self, payload:any, metadata:dict=DEFAULT_OUTPUTNODE_METADATA, *, strict:bool=None) -> OutputNode:
+	def new_outputnode(self, payload:any, metadata:dict=None, *, strict:bool=None) -> OutputNode:
 		'create a new OutputNode and add it. also return it'
 		new_node = OutputNode(payload, metadata)
 		self.add_node(new_node, strict=self.strict if strict is None else strict)
 		return new_node
 
-	def new_edge(self, source:Node, target:Node, index:int, metadata:dict=DEFAULT_EDGE_METADATA, *, strict:bool=None) -> Edge:
+	def new_edge(self, source:Node, target:Node, index:int, metadata:dict=None, *, strict:bool=None) -> Edge:
 		'create a new edge instance and add it. also return it'
 		new_edge = Edge(source, target, index, metadata)
 		self.add_edge(new_edge, strict=self.strict if strict is None else strict)
@@ -408,14 +408,7 @@ class Dag:
 				self.functionnodes.remove(node)
 			case OutputNode():
 				self.outputnodes.remove(node)
-	
-	@staticmethod
-	def tree_view(node, prefix=""):
-		print(f"{prefix}{node!r}")
-		if hasattr(node, 'inputs'):
-			for index, edge in enumerate(node.inputs):
-				Dag.tree_view(edge.source, prefix + str(index).ljust(4, '-'))
-	
+
 	def __repr__(self): 
 		id_str = f"ID={int_to_str.int_to_str(id(self), int_to_str.LATIN)}"
 		inputnodes_str = f"{count(self.inputnodes)} InputNode"
@@ -439,6 +432,18 @@ class Dag:
 		for edge in self.edges:
 			output += '\n    ' + repr(edge)
 		return output
+	
+	@staticmethod
+	def tree_view(node, prefix=""):
+		print(f"{prefix}{node!r}")
+		if hasattr(node, 'inputs'):
+			for index, edge in enumerate(node.inputs):
+				Dag.tree_view(edge.source, prefix + str(index).ljust(4, '-'))
+	
+	@staticmethod
+	def topologial_sort(node:Node):
+		"return a topologically sorted list of Node. uses python's native graphlib.TopologicalSorter"
+		raise NotImplementedError("not made yet. its pretty hard to do")
 	
 # now theres a question of whether or not we should let OutputNode return a list of Edge or not. im erring towards only one input. but how will its .inputs look? just a list with one element? why not store the element directly? but that would violate the contract for a node's {inputs and outputs}-handling
 
