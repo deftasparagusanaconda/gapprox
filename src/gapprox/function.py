@@ -9,7 +9,7 @@ from .misc.ast_op_to_op_dict_key import ast_op_to_op_dict_key
 
 class Function:
 	"""represents a mathematical function. it can take m inputs for m variables and give n outputs for n expressions"""
-
+	
 	def __init__(
 			self, 
 			*args, 
@@ -21,9 +21,9 @@ class Function:
 		self.constants:set[Constant] = set()
 		self.dag:Dag = None
 		self.output_nodes:list[Node] = list()
-
+		
 		expressions:list[Expressioon] = list()
-
+		
 		# populate collections
 		for arg in args:
 			if isinstance(arg, Constant):
@@ -90,9 +90,6 @@ class Function:
 		'convert the heavy Function to a fast python function'
 		# return compile(self.dag)
 		raise NotImplementedError("this is pretty hard to do sry come back later")
-	
-	def topological_sort(self):
-		raise NotImplementedError("will use python's graphlib. soon!")
 	
 	def __repr__(self):
 		return f"<gapprox.Function(dag={self.dag!r})>"

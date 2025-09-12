@@ -1,0 +1,32 @@
+the file is called symbols.txt but im not interested in just symbols. im interested in everything that goes into a mathematical expression. lets write out a bunch of them:
+
+ⅰ) 2
+ⅱ) 9 * 18x
+ⅲ) a + b
+ⅳ) sin(x)
+ⅴ) 󰿈(2+x)dx
+ⅵ) a² + b² = c²
+ⅶ) (a+b)² = a² + b² + 2ab
+ⅷ) sin(πx)
+ⅸ) 
+ⅹ) 
+ⅺ) 
+ⅻ) 
+
+in ⅰ), we see just the number 2 by itself. as a mathematical expression, this just evaluates to 2
+
+in ⅱ), we see our first instance of an operator. an operator also has a symbol. its different from just a mathematical function because we give it special rules, precedence, and a special symbol that represents it. instead of 'multiply(9, 18x)', we are able to write '9 * 18x'
+
+	we also see our first instance of implied behaviour, where 18 and x are implied to be connected by a multiplication.this is common shorthand, but we must be wary of this. (gapprox.Function will not allow this, since strings will be decoded by python's ast, which doesnt allow such shorthand. this is better)
+
+in ⅲ), we see a and b, of which we are not sure are supposed to be constants or parameters. the safer option here would be to assume they are parameters, and not variables. (i dont know why)
+
+in ⅳ), we see our first trigonometric function. unlike operators, trig functions are not operators because we do not have common shorthand for them, and instead we write out their name followed by parentheses. a good reason why implied multiplication is bad is because it clashes with writing functions.
+
+in ⅴ), we see an integral. this *does* have a shorthand. though a computer can represent it as integral(something, variable), us mathematicians simply write it as 󰿈 because it is simpler.
+
+⋮
+
+--------------------------------------------------------------------------------
+
+im not sure what else there is out there besides variables, parameters, and constants. sympy has a wildcard symbol that means anything but im not sure how to implement that, and how the idea of it fits into my program. 

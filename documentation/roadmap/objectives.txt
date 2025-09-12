@@ -59,9 +59,17 @@ node weight          | sum of weights of all nodes
 edge weight          | sum of weights of edges
 total weight         | sum of weights of all nodes and edges
 average in degree    | how many inputs nodes have on average
-average out degree   | how many outupts nodes have on average
+aOverage out degree  | how many outupts nodes have on average
 average total degree | how many inputs and outputs nodes have on average
-tree depth           | the length of the longest path from an outputnode to an inputnode
+max tree depth       | the length of the longest path from an outputnode to an inputnode
+max tree breadth     | max number of nodes for depths
+max tree ratio       | ratio of max tree depth to max tree breadth
+min tree depth       | min depth of tree
+min tree breadth     | min number of nodes for depths
+min tree ratio       | ratio of min tree depth to min tree breadth
+avg tree depth       | average depth of tree
+avg tree breadth     | average number of nodes for depths
+avg tree ratio       | ratio of avg tree depth to avg tree breadth
 average arity        | how many inputs the functionnodes have on average
 
 and from the Function representation of the expression:
@@ -73,6 +81,13 @@ hyperbolic count    |
 arithmetic count    | 
 comparative count   | 
 boolean count       | 
+
+and mathematically:
+max degree          | exponent power of highest term
+term count          | how many terms are present
+factorizability     | how much it can be further factorized
+max nesting depth   | how deeply a part of it is embedded within parentheses
+zero crossing count | how much it crosses zero
 
 as for how the program actually handles these objectives, it should let the user choose their set of preferred objective score tuples. instead of "simplest is best", sometimes the user might want something that is moderately simple. sometimes the user might want something that is *roughly* moderately simple. the user should be able to define their preference for an objective. how much they reward the program when it achieves a certain objective. to do this, the user defines a reward function, which can take on any shape. lets discuss this with one objective, and then with three objectives:
 

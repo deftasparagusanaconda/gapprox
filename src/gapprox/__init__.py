@@ -11,6 +11,9 @@ from .expression import Expression
 #from .edge import Edge
 #from .node import Node
 from .dag import InputNode, FunctionNode, OutputNode, Edge, Dag
+from . import rewarders
+from . import reductions
+from . import objectives
 #from .function import Function
 #from .variable import Variable, variables
 #from .constant import Constant, constants
@@ -18,4 +21,4 @@ from .dag import InputNode, FunctionNode, OutputNode, Edge, Dag
 
 # monkeypatch the __dir__ to clean up the module's autocomplete
 from sys import modules
-modules[__name__].__dir__ = lambda: ['Approximation', 'Function', 'Expression', 'InputNode', 'FunctionNode', 'OutputNode', 'Edge', 'Dag', 'paramgens', 'structgens', 'outliers', 'plotters', 'operator_dicts', 'constant_dicts']
+modules[__name__].__dir__ = lambda: ['Approximation', 'Function', 'Expression', 'InputNode', 'FunctionNode', 'OutputNode', 'Edge', 'Dag', 'paramgens', 'structgens', 'outliers', 'plotters', 'operator_dicts', 'constant_dicts', 'reductions', 'aggregators', 'objectives']
