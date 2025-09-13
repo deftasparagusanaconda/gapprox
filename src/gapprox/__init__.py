@@ -21,6 +21,7 @@ from .traversers import NodeVisitor, NodeTransformer
 # monkeypatch the __dir__ to clean up the module's autocomplete
 from sys import modules
 modules[__name__].__dir__ = lambda: [
+		'debug',
 		'Approximation', 
 		'Function', 
 		'Expression', 
@@ -38,7 +39,7 @@ modules[__name__].__dir__ = lambda: [
 		'errors', 
 		'reductions', 
 		'rewarders', 
-		'objectives'
+		'objectives',
 		'NodeVisitor',
 		'NodeTransformer'
 ]
