@@ -16,14 +16,10 @@
 
 # NOTE: storing tensorial inputs is bad because it muddies up code to be near-unreadable. objects sometimes having attributes and sometimes not is horrifyingly torturing. it indents code unnecessarily for just an existence check/special case. this is bad. the less special cases, the simpler and the better. just sayin...
 
-# for finding how many valid inputs or outputs a node has
-from typing import Iterable
-def count(stuff:Iterable, something:any=None) -> int:
-	'count how many things are in stuff, excluding something'
-	return sum(thing!=something for thing in stuff)
-
 from .misc import int_to_str	# for printing object IDs
+from .misc.count import count	# for getting how many non-None elements are in something
 from abc import ABC	# to make Node an abstract class
+import gapprox	# for gapprox.debug:bool
 
 DEFAULT_NODE_METADATA:dict = {'weight': 1, 'fixed':False}	# not actually used
 DEFAULT_EDGE_METADATA:dict = {'weight': 1, 'fixed':False}
@@ -273,42 +269,39 @@ class Dag:
 			functionnodes:set[FunctionNode] = None, 
 			outputnodes  :set[OutputNode]   = None, 
 			edges        :set[Edge]         = None,
-			*, 
-			strict       :bool              = True,
 			):
 		self.inputnodes   :set[InputNode]    = inputnodes or set()
 		self.functionnodes:set[FunctionNode] = functionnodes or set()
 		self.outputnodes  :set[OutputNode]   = outputnodes or set()
 		self.edges        :set[Edge]         = edges or set()
-		self.strict       :bool              = strict
 	
-	def new_inputnode(self, payload:any, metadata:dict=None, *, strict:bool=None) -> InputNode:
+	def new_inputnode(self, payload:any, metadata:dict=None) -> InputNode:
 		'create a new InputNode and add it. also return it'
 		new_node = InputNode(payload, metadata)
-		self.add_node(new_node, strict=self.strict if strict is None else strict)
+		self.add_node(new_node)
 		return new_node
 	
-	def new_functionnode(self, payload:any, metadata:dict=None, *, strict:bool=None) -> FunctionNode:
+	def new_functionnode(self, payload:any, metadata:dict=None) -> FunctionNode:
 		'create a new FunctionNode and add it. also return it'
 		new_node = FunctionNode(payload, metadata)
-		self.add_node(new_node, strict=self.strict if strict is None else strict)
+		self.add_node(new_node)
 		return new_node
 	
-	def new_outputnode(self, payload:any, metadata:dict=None, *, strict:bool=None) -> OutputNode:
+	def new_outputnode(self, payload:any, metadata:dict=None) -> OutputNode:
 		'create a new OutputNode and add it. also return it'
 		new_node = OutputNode(payload, metadata)
-		self.add_node(new_node, strict=self.strict if strict is None else strict)
+		self.add_node(new_node)
 		return new_node
 
-	def new_edge(self, source:Node, target:Node, index:int, metadata:dict=None, *, strict:bool=None) -> Edge:
+	def new_edge(self, source:Node, target:Node, index:int, metadata:dict=None) -> Edge:
 		'create a new edge instance and add it. also return it'
 		new_edge = Edge(source, target, index, metadata)
-		self.add_edge(new_edge, strict=self.strict if strict is None else strict)
+		self.add_edge(new_edge)
 		return new_edge
 	
-	def add_edge(self, edge:Edge, *, strict:bool=None)->Edge:
+	def add_edge(self, edge:Edge)->Edge:
 		"""add an edge and update its source and target to know that edge. raises an error if the edge already exists, or its source or target already know that edge, or its source or target are not known"""
-		if (self.strict if strict is None else strict):
+		if gapprox.debug:
 			if edge in self.edges:
 				raise ValueError(f"edge already exists in Dag's edges")
 			if edge in edge.source.outputs:
@@ -335,15 +328,15 @@ class Dag:
 		# set source's output
 		edge.source.outputs.add(edge)
 
-	def remove_edge(self, edge:Edge, *, strict:bool=None):
+	def remove_edge(self, edge:Edge):
 		"""remove an edge
 
 		overloaded to accept:
 		remove_edge(edge:Edge)
 		remove_edge(source:Node, target:Node, index:int)
 		"""
-		
-		if (self.strict if strict is None else strict):
+
+		if gapprox.debug:
 			if edge not in self.edges:
 				raise ValueError("edge not found in Dag's edges set")
 			if edge not in edge.source.outputs:
@@ -364,9 +357,9 @@ class Dag:
 		# set source's output
 		edge.source.outputs.remove(edge)
 	
-	def add_node(self, node:Node, *, strict:bool=None)->Node:
+	def add_node(self, node:Node)->Node:
 		'add a node to the corresponding nodes set'
-		if (self.strict if strict is None else strict):
+		if gapprox.debug:
 			if node in self.inputnodes:
 				raise ValueError("node already exists in Dag's inputnodes")
 			if node in self.functionnodes:
@@ -382,23 +375,22 @@ class Dag:
 			case OutputNode():
 				self.outputnodes.add(node)
 		
-	def remove_node(self, node:Node, *, cascade:bool=None, strict:bool=None)->Node:
+	def remove_node(self, node:Node)->Node:
 		'remove a node, and all corresponding edges if cascade=False is given as argument'
 
-		if (self.strict if strict is None else strict):
+		if gapprox.debug:
 			if node not in self.inputnodes or node not in self.functionnodes or node not in self.outputnodes:
 				raise ValueError("node not found in DAG")
 
-		if cascade:
-			# remove input edges
-			if hasattr(node, 'inputs'):
-				for edge in node.inputs:
-					remove_edge(edge)
-	
-			# remove output edges
-			if hasattr(node, 'outputs'):
-				for edge in node.outputs:
-					remove_edge(edge)
+		# remove input edges
+		if hasattr(node, 'inputs'):
+			for edge in node.inputs:
+				remove_edge(edge)
+
+		# remove output edges
+		if hasattr(node, 'outputs'):
+			for edge in node.outputs:
+				remove_edge(edge)
 
 		# remove from Dag's nodes set
 		match node:
@@ -463,3 +455,7 @@ this is all cool and all but after you also do all this, you should also condens
 gapprox is currently facing a namespace explosion crisis, so minimize and reduce as much as possible. if a distinction changes how the class operates, its fair to make it into a separate class (whether a sibling or a subclass). if it only changes what it is, then just implement it as a property.
 """
 
+class NodeVisitor:
+	pass
+
+# the DAG system needs something like an ast.NodeVisitor that can be subclassed to implement different substitution logic for each kind of node. ga.NodeVisitor. thus instead of a Node baking in substitute logic, it will do node traversal through instances of these node visitors (aka node traversers)
