@@ -8,15 +8,13 @@ from . import operator_dicts, constant_dicts
 from .parser import parser
 from .sampler import sampler
 from .approximation.approximation import Approximation
-from .expression import Expression
 from .dag import InputNode, FunctionNode, OutputNode, Edge, Dag
 from . import errors
 from . import rewarders
 from . import reductions
 from . import objectives
 from .function import Function
-from .traversers import NodeVisitor, NodeTransformer
-#from .add_ast_to_dag import AddAstToDag
+from . import traversers
 
 # monkeypatch the __dir__ to clean up the module's autocomplete
 from sys import modules
@@ -40,6 +38,5 @@ modules[__name__].__dir__ = lambda: [
 		'reductions', 
 		'rewarders', 
 		'objectives',
-		'NodeVisitor',
-		'NodeTransformer'
+		'traversers'
 ]

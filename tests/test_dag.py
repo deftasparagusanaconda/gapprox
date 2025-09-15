@@ -1,3 +1,4 @@
+import gapprox as ga
 from gapprox.dag import *
 import operator
 import builtins
@@ -23,7 +24,7 @@ def test_node_and_edge():
 
 	out1.inputs[0] = e3
 
-	assert out1.substitute() == 5
+	assert ga.traversers.EvaluationVisitor().visit(out1) == 5
 
 def test_dag():
 	'test 2+3'
@@ -39,7 +40,7 @@ def test_dag():
 	e2 = dag.new_edge(in2, func1, 1)
 	e3 = dag.new_edge(func1, out1, 0)
 
-	assert out1.substitute() == 5
+	assert ga.traversers.EvaluationVisitor().visit(out1) == 5
 
 	'test abs(2)'
 	func2 = dag.new_functionnode(builtins.abs)
@@ -49,7 +50,7 @@ def test_dag():
 
 	print(dag)
 
-	assert out2.substitute() == 2
+	assert ga.traversers.EvaluationVisitor().visit(out2) == 2
 
 def test_formulae_on_dag():
 	dag1 = Dag()
@@ -74,7 +75,7 @@ e1 = dag.new_edge(in1, func1, 0)
 e2 = dag.new_edge(in2, func1, 1)
 e3 = dag.new_edge(func1, out1, 0)
 
-assert out1.substitute() == 5
+assert ga.traversers.EvaluationVisitor().visit(out1) == 5
 
 func2 = dag.new_functionnode(builtins.abs)
 out2 = dag.new_outputnode('abs(2)')
@@ -83,6 +84,6 @@ e5 = dag.new_edge(func2, out2, 0)
 
 print(dag)
 
-assert out2.substitute() == 2
+assert ga.traversers.EvaluationVisitor().visit(out2) == 2
 
 """

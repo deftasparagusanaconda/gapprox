@@ -1,0 +1,1 @@
+gapprox doesnt just approximate a function. it asks you what kind of approximation you want. its not a question of "if". its a question of "how". it does that by implementing a modular reward system. you measure many things about an approximation, you convert those measurements into rewards, then you take all the rewards and combine them into one value. 

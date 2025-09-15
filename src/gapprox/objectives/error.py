@@ -1,7 +1,7 @@
 from .. import losses, reductions
 
 def error(original:list[any], approximation:list[any], loss:callable=losses.difference_squared, reduction:callable=reductions.sum):
-	'uses RMSE (root mean squared error) by default'
+	'calculate how much discrepancy is between two arrays of numbers. uses RMSE (root mean squared error) by default'
 	if len(original) != len(approximation):
 		raise ValueError(f"length mismatch: len(original)={len(original)}, len(approximation)={len(approximation)}")
 

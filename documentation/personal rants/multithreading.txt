@@ -1,0 +1,3 @@
+about multithreading, we can multithread mutations of a DAG. that is obvious, i think... it might be a bit more nuanced though so i have to give a bit of thought on that first
+
+when we traverse a DAG, we can multithread traversal when multiple nodes are independent of each other. the width of the DAG at a particular depth tells us whether its apt for multithreading or not

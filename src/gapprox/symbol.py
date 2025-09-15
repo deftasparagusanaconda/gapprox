@@ -13,7 +13,7 @@ DEFAULT_PARAMETER_METADATA = {
 		'frozen'         : False,
 		'mutation_chance': 1.0,
 		'mutation_amount': 1.0,
-		'tendency'       : None
+		'value_tendency' : None
 }
 
 class Symbol(ABC):
@@ -41,7 +41,7 @@ class Variable(Symbol):
 
 
 class Parameter(Symbol):
-	"""a symbol that represents something that is supposed to be fixed, but can change across different versions of a function. in an equation/function, it is less volatile than a variable but more volatile than a constant
+	"""a symbol that represents something that is supposed to be fixed, but can change across different mutations of a function. in an equation/function, it is less volatile than a variable but more volatile than a constant
 
 	in an expression like 2𝑥² + 3𝑥 + 4, the parameters 2, 3, 4 do not typically have a designated name. their value is their name directly. thus Parameter only has .value but no .name
 
@@ -71,25 +71,58 @@ class Parameter(Symbol):
 
 	class Constraints:
 		'a collection of constraint functions, for use in Parameter().constraints'
-		@staticmethod
-		def min(number): return lambda x: x >= number
 
 		@staticmethod
-		def max(number): return lambda x: x <= number
+		def is_less_than(number): return lambda x: x < number
 
 		@staticmethod
-		def positive():
+		def is_less_than_or_equal_to(number): return lambda x: x <= number
+
+		@staticmethod
+		def is_equal_to(number): return lambda x: x == number
+
+		@staticmethod
+		def is_not_equal_to(number): return lambda x: x != number
+
+		@staticmethod
+		def is_greater_than_or_equal_to(number): return lambda x: x >= number
+
+		@staticmethod
+		def is_greater_than(number): return lambda x: x > number
+
+		@staticmethod
+		def is_prime(): raise NotImplementedError("prime checking algorithm not yet implemented")
+		
+		@staticmethod
+		def is_composite(): raise NotImplementedError("composite checking algorithm not yet implemented")
+		
+		@staticmethod
+		def is_positive():
 			from math import copysign
 			return lambda x: copysign(1, x) == 1
 
 		@staticmethod
-		def negative():
+		def is_negative():
 			from math import copysign
 			return lambda x: copysign(1, x) == -1
 
 		@staticmethod
-		def is_instance(type):
-			return lambda x: isinstance(x, type)
+		def is_integer(): return lambda x: x % 0 == 0
+
+		@staticmethod
+		def is_real(): return lambda x: hasattr(x, 'real')
+	
+		@staticmethod
+		def is_imaginary(): return lambda x: isinstance(x, complex) and x.real == 0
+
+		@staticmethod
+		def is_complex(): return lambda x: isinstance(x, complex)
+	
+		@staticmethod
+		def is_instance(thing): return lambda x: isinstance(x, thing)
+
+		@staticmethod
+		def is_type(thing): return lambda x: type(x) == thing
 
 class Constant(Symbol):
 	"""a symbol that represents something that is supposed to be fixed, and should not change across different versions of a function. in an equation/function, it is the least volatile kind of symbol
