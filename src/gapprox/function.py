@@ -2,7 +2,7 @@ from .operator_dicts import default as operator_dict_default
 from .dag import Node, InputNode, FunctionNode, OutputNode, Edge, Dag
 from .symbol import Variable, Parameter, Constant
 from .misc.ast_op_to_op_dict_key import ast_op_to_op_dict_key
-from .misc.ast_to_dag import ast_to_dag
+from .misc.ast_to_dag import AstToDagVisitor
 from .misc.str_to_ast import str_to_ast
 from .misc.count import count
 import ast

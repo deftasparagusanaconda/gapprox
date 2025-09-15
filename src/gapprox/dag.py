@@ -126,7 +126,10 @@ class Edge:
 		return output
 
 class Dag:
-	'handles all DAG-related operations. it handles Nodes and Edges. you may create new ones with new_inputnode, new_functionnode, new_outputnode, and new_edge, add with add_node and add_edge, remove with remove_node and remove_edge'
+	"""handles all DAG-related operations. it handles Nodes and Edges. you may create new ones with new_inputnode, new_functionnode, new_outputnode, and new_edge, add with add_node and add_edge, remove with remove_node and remove_edge
+
+	a Dag prefers not to have two separate sub-graphs. it prefers that all nodes be connected, and that there are no orphan nodes. this is not enforced in code anywhere, but its the best design choice. if you want to have two separate subgraphs, create two separate Dag instances
+	"""
 
 	def __init__(
 			self,

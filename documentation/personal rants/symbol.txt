@@ -1,0 +1,60 @@
+how am i going to figure out the syntax for Variable, Parameter, Constant?
+
+lets take 3xᵉ + pxᵖ + sin(πy), p = 2
+where x, y are Variable
+      3, p are Parameter
+	  π, ᵉ are Constant
+
+var1 = Variable('x')
+var2 = Variable('y')
+param1 = Parameter(3)
+param1 = Parameter(2, 'p')
+const1 = Constant('π', math.pi)
+const2 = Constant('ᵉ', math.e)
+
+(or)
+
+var1 = Variable('x')
+var2 = Variable('y')
+param1 = Parameter(3)		# this 
+param1 = Parameter('p', 2)	# and this shouldnt be allowed together
+const1 = Constant('π', math.pi)
+const2 = Constant('ᵉ', math.e)
+
+(or)
+
+var1 = Variable('x')
+var2 = Variable('y')
+param1 = Parameter(None, 3)		# someone looking at this wont realize None is meant to mean "no name"
+param1 = Parameter('p', 2)
+const1 = Constant('π', math.pi)
+const2 = Constant('ᵉ', math.e)
+
+(or)
+
+var1 = Variable(None, 'x')
+var2 = Variable(None, 'y')
+param1 = Parameter(3)
+param1 = Parameter(2, 'p')
+const1 = Constant(math.pi, 'π')
+const2 = Constant(math.e, 'ᵉ')
+
+(or)
+
+var1 = Variable(name='x')
+var2 = Variable(name='y')
+param1 = Parameter(name=None, value=3)
+param1 = Parameter(name='p', value=2)
+const1 = Constant(name='π', value=math.pi)
+const2 = Constant('ᵉ', math.e)
+
+i think ill take (name, value). its the best, i think. keyword is too cumbersome. 
+
+no... its bad. semantic clarity is better than syntactic uniformity. instead do it like this:
+
+var1 = Variable('x')
+var2 = Variable('y')
+param1 = Parameter(3)
+param1 = Parameter(2, name='p')
+const1 = Constant('π', value=math.pi)
+const2 = Constant('ᵉ', value=math.e)

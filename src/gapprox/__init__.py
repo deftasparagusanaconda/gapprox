@@ -15,28 +15,33 @@ from . import reductions
 from . import objectives
 from .function import Function
 from . import traversers
+from . import constants
+from .symbol import Variable, Parameter, Constant
 
 # monkeypatch the __dir__ to clean up the module's autocomplete
 from sys import modules
 modules[__name__].__dir__ = lambda: [
-		'debug',
-		'Approximation', 
-		'Function', 
-		'Expression', 
-		'InputNode', 
-		'FunctionNode', 
-		'OutputNode', 
-		'Edge', 
-		'Dag', 
-		'paramgens', 
-		'structgens', 
-		'outliers', 
-		'plotters', 
-		'operator_dicts', 
-		'constant_dicts', 
-		'errors', 
-		'reductions', 
-		'rewarders', 
-		'objectives',
-		'traversers'
+		 'debug'
+		,'Approximation'
+		,'Function'
+		,'Expression'
+		,'Variable'
+		,'Parameter'
+		,'Constant'
+		,'InputNode'
+		,'FunctionNode'
+		,'OutputNode'
+		,'Edge'
+		,'Dag'
+		,'paramgens'
+		,'structgens'
+		,'outliers'
+		,'plotters'
+		,'operator_dicts'
+		,'errors'
+		,'reductions'
+		,'rewarders'
+		,'objectives'
+		,'traversers'
+		,'constants'
 ]

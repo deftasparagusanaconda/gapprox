@@ -3,13 +3,8 @@ from ..symbol import Variable, Parameter, Constant
 from ..dag import Node, InputNode, FunctionNode, OutputNode, Edge, Dag
 from .ast_op_to_op_dict_key import ast_op_to_op_dict_key
 
-# this class is very tied to state. should it be embedded into Function instead?
-# i mean.. this function..
-
-class AstToDagAdder(ast.NodeVisitor):
-	"""stateful function that adds nodes of an ast to a Dag
-
-	it is a subclass of ast.NodeVisitor, as specified in greentreesnakes.readthedocs.io, but doesnt use generic_visit() to call children, since help(ast.NodeVisitor) says generic_visit() is for when visit_* isnt defined and i trust the help page more and the children may have their type defined so i use visit() instead"""
+class AstToDagVisitor(ast.NodeVisitor):
+	'stateful function that adds nodes of an ast to a Dag'
 	def __init__(self, *, dag, variables, parameters, constants, ast_op_to_op_dict_key = ast_op_to_op_dict_key):
 		self.dag:Dag = dag
 		self.variables:list[Variable] = variables
@@ -64,22 +59,5 @@ AstToDagAdder(dag, None, None).visit(tree)
 dag.debug_summary()
 """
 
-def ast_to_dag(ast_tree:ast.AST, dag:Dag):
-	'convert an ast tree to nodes and add them to a Dag'
-	
-	# initialize the ast node visitor
-	ast_to_dag_adder = AstToDagAdder(
-			dag=dag, 
-			variables = variables, 
-			constants = constants, 
-			ast_op_to_op_dict_key = ast_op_to_op_dict_key)
-	
-	# to connect the last decoded ast node with an outputnode
-	latest_node = ast_to_dag_adder.visit(ast_tree)
-	expr_
-	outputnode = dag.new_outputnode()
-	dag.new_edge(latest_node, output_node, 0)
-	
-	return outputnode
-
 # why does ast_to_dag need to know variables and constants? wouldnt ast already know them from context?
+# i dont know
