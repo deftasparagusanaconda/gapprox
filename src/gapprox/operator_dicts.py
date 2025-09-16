@@ -58,8 +58,8 @@ def _fractional_part(x):
 	return _math.modf(x)[0]
 
 def _ifelse(a,b,c):
-	'return b if a is true, otherwise return c'
-	return b if a else c
+	'return a if b is true, otherwise return c'
+	return a if b else c
 
 def _cot(x):
 	'trigonometric cotangent'

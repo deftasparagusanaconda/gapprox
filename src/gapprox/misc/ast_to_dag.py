@@ -74,7 +74,7 @@ class AstToDagVisitor(ast.NodeVisitor):
 		return func_node
 
 	def visit_Compare(self, node) -> FunctionNode:
-		"assumes comparison operators are binary operators"
+		'assumes comparison operators are binary operators'
 		args: list[Node] = [self.visit(arg) for arg in [node.left] + node.comparators]	# recursion
 
 		func_nodes: list[Node] = []
@@ -98,11 +98,61 @@ class AstToDagVisitor(ast.NodeVisitor):
 		# route tuple wrapper to all()
 		all_funcnode = self.dag.new_functionnode('all')
 		self.dag.new_edge(tuple_funcnode, all_funcnode, 0)
-
+		
 		return all_funcnode
+		
+	def visit_BoolOp(self, node) -> FunctionNode:
+		'uses AND/OR if binary, ALL/ANY if variadic'
+		op = type(node.op)
 
-#	def visit_BoolOp(self, node):
-#	def visit_IfExp(self, node):
+		if op not in self.ast_op_to_op_dict_key:
+			raise NotImplementedError(f"{node.op} not supported")
+
+		if len(node.values) == 2:	# binary
+			func_node = self.dag.new_functionnode(ast_op_to_op_dict_key[op])
+			in1 = self.visit(node.values[0])	# recursion
+			in2 = self.visit(node.values[1])	# recursion
+			self.dag.new_edge(in1, func_node, 0)
+			self.dag.new_edge(in2, func_node, 1)
+			return func_node
+
+		if isinstance(node.op, ast.And):
+			name = 'all'
+		elif isinstance(node.op, ast.Or):
+			name = 'any'
+		else:
+			raise ValueError(f"critical error! {node.op} not recognized")
+
+		tuple_node = self.dag.new_functionnode('tuple')
+		func_node = self.dag.new_functionnode(name)
+		
+		for index, value in enumerate(node.values):
+			input = self.visit(value)	# recursion
+			self.dag.new_edge(input, tuple_node, index)
+
+		self.dag.new_edge(tuple_node, func_node, 0)
+		
+		return func_node
+
+	def visit_IfExp(self, node) -> FunctionNode:
+		"if else expression. ast formats it like: 'node.body if node.test else node.orelse' and gapprox follows a 'a if b else c' order, instead of a 'if a then b else c' order"
+		op = type(node)
+		
+		if op not in self.ast_op_to_op_dict_key:
+			raise NotImplementedError(f"{node.op} not supported")
+
+		func_node = self.dag.new_functionnode(ast_op_to_op_dict_key[op])
+		
+		body_node:Node = self.visit(node.body)	# recursion
+		test_node:Node = self.visit(node.test)	# recursion
+		orelse_node:Node = self.visit(node.orelse)	#recursion
+		
+		self.dag.new_edge(body_node, func_node, 0)
+		self.dag.new_edge(test_node, func_node, 1)
+		self.dag.new_edge(orelse_node, func_node, 2)
+
+		return func_node
+
 #	def visit_Lambda(self, node):
 #	def visit_Subscript(self, node):
 #	def visit_Attribute(self, node):

@@ -35,4 +35,6 @@ ast_op_to_op_dict_key = {
 		ast.IsNot    : 'isnot',
 		ast.In       : 'in',
 		ast.NotIn    : 'notin',
+
+		ast.IfExp    : 'ifelse',
 }
