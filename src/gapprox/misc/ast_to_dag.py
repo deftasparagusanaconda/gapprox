@@ -23,7 +23,7 @@ class AstToDagVisitor(ast.NodeVisitor):
 		return self.dag.new_inputnode(Parameter(node.value))
 
 	def generic_visit(self, node):
-		raise NotImplementedError(f"{node} is currently not supported. please report this")
+		raise NotImplementedError(f"critical error! {node} is not recognized. please report this")
 		
 	# this logic is probably wrong. it should return a node, not a Symbol
 	def visit_Name(self, node) -> InputNode:
@@ -153,9 +153,11 @@ class AstToDagVisitor(ast.NodeVisitor):
 
 		return func_node
 
-#	def visit_Lambda(self, node):
-#	def visit_Subscript(self, node):
-#	def visit_Attribute(self, node):
+	def visit_Lambda(self, node):
+		raise NotImplementedError("the developer is still debating how to represent a lambda function in a DAG. should she represent it as an object? a FunctionNode? an InputNode? its own self-contained Dag? or self-contained Function? these are perplexing questions...")
 
-# why does ast_to_dag need to know variables and constants? wouldnt ast already know them from context?
-# i dont know
+	def visit_Subscript(self, node):
+		raise NotImplementedError("the developer has not added support for this yet. you can request it on the github repo!")
+
+	def visit_Attribute(self, node):
+		raise NotImplementedError("the developer has not added support for this yet. you can request it on the github repo!")
