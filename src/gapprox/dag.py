@@ -243,18 +243,18 @@ class Dag:
 		'remove a node, and all corresponding edges if cascade=False is given as argument'
 
 		if gapprox.debug:
-			if node not in self.inputnodes or node not in self.functionnodes or node not in self.outputnodes:
+			if node not in self.inputnodes and node not in self.functionnodes and node not in self.outputnodes:
 				raise ValueError("node not found in DAG")
 
 		# remove input edges
 		if hasattr(node, 'inputs'):
 			for edge in node.inputs:
-				remove_edge(edge)
+				self.remove_edge(edge)
 
 		# remove output edges
 		if hasattr(node, 'outputs'):
 			for edge in node.outputs:
-				remove_edge(edge)
+				self.remove_edge(edge)
 
 		# remove from Dag's nodes set
 		match node:
@@ -266,7 +266,6 @@ class Dag:
 				self.outputnodes.remove(node)
 	
 	def __repr__(self): 
-		id_str = f"ID={int_to_str.int_to_str(id(self), int_to_str.LATIN)}"
 		inputnodes_str = f"{count(self.inputnodes)} InputNode"
 		functionnodes_str = f"{count(self.functionnodes)} FunctionNode"
 		outputnodes_str = f"{len(self.outputnodes)} OutputNode"

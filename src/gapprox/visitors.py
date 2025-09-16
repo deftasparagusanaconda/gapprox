@@ -8,7 +8,7 @@ class NodeVisitor:
 	this class is really just a stateful function that traverses through nodes in a DAG. the difference is that it will have different logic for different kinds of nodes. you make a subclass of it, and there you define visit_* methods, where * is your node's class name. say you have ParameterNode. then you would define something like visit_ParameterNode and you would call MyNodeVisitorSubclass().visit(ParameterNode)
 
 	like ast.NodeVisitor, it defines visit and generic_visit, and subclasses are supposed to define visit_* (* meaning YourClassName)
-	unlike ast.NodeVisitor, it does not define generic_visit or visit_Constant, is not specific to a tree structure, and is not specific to ast nodes. it supports a directed acyclic graph data structure, and is generic to *any* kind of DAG node (i think). 
+	unlike ast.NodeVisitor, it does not define generic_visit or visit_Constant, is not specific to a tree structure, and is not specific to ast nodes. it supports a directed acyclic graph data structure, and is generic to *any* kind of DAG node (i think). it also is not limited to root-to-leaf traversal, and can be bi-directional or such
 
 	for a tree structure, a node is visited once. for a DAG structure, a node may be visited multiple times. implement your own memoization if you do not want this repeated traversal.
 

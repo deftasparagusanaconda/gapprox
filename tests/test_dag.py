@@ -24,7 +24,7 @@ def test_node_and_edge():
 
 	out1.inputs[0] = e3
 
-	assert ga.traversers.EvaluationVisitor().visit(out1) == 5
+	assert ga.visitors.EvaluationVisitor().visit(out1) == 5
 
 def test_dag():
 	'test 2+3'
@@ -40,7 +40,7 @@ def test_dag():
 	e2 = dag.new_edge(in2, func1, 1)
 	e3 = dag.new_edge(func1, out1, 0)
 
-	assert ga.traversers.EvaluationVisitor().visit(out1) == 5
+	assert ga.visitors.EvaluationVisitor().visit(out1) == 5
 
 	'test abs(2)'
 	func2 = dag.new_functionnode(builtins.abs)
@@ -50,7 +50,7 @@ def test_dag():
 
 	print(dag)
 
-	assert ga.traversers.EvaluationVisitor().visit(out2) == 2
+	assert ga.visitors.EvaluationVisitor().visit(out2) == 2
 
 def test_formulae_on_dag():
 	dag1 = Dag()

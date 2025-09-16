@@ -1,5 +1,5 @@
-from .operator_dicts import default as operator_dict_default
-from .dag import Node, InputNode, FunctionNode, OutputNode, Edge, Dag
+from . import operator_dicts
+from .dag import InputNode, FunctionNode, OutputNode, Node, Edge, Dag
 from .symbol import Variable, Parameter, Constant
 from .misc.ast_op_to_op_dict_key import ast_op_to_op_dict_key
 from .misc.ast_to_dag import AstToDagVisitor
@@ -8,70 +8,81 @@ from .misc.count import count
 import ast
 
 class Function:
-	"""represents a mathematical function. it can take m inputs for m variables and give n outputs for n expressions"""
+	"""represents a mathematical function. it is callable"""
 	
 	def __init__(
 			self,
-			expression:str|OutputNode|ast.AST,
+			expression           : OutputNode|ast.AST|str,
 			*args,
-			operator_dict:dict = None,
-			ast_op_to_op_dict_key:dict = ast_op_to_op_dict_key
-			):
-		self.variables:list[Variable] = list()
-		self.parameters:list[Parameter] = list()
-		self.constants:set[Constant] = set()
-		self.dag:Dag = None
-		self.outputnode:Node = None
-		self.operator_dict:dict = operator_dicts.default.copy() if operator_dict is None else operator_dict
-		
+			dag                  : Dag             = None,
+			operator_dict        : dict            = None,
+			ast_op_to_op_dict_key: dict            = ast_op_to_op_dict_key
+			):		
+		self.variables    : list[Variable]      = list()
+		self.parameters   : set[Parameter]      = set()
+		self.constants    : set[Constant]       = set()
+		self.dag = Dag() if dag is None else dag
+		if operator_dict is None:
+			self.operator_dict: dict[str, callable] = operator_dicts.default
+		else:
+			self.operator_dict: dict[str, callable] = operator_dict
+
 		# populate collections
 		for arg in args:
-			if isinstance(arg, Variable):
-				self.variables.append(arg)
-			elif isinstance(arg, Constant):
-				self.constants.add(arg)
-			elif isinstance(arg, Parameter):
-				self.variables.add(arg)
-			elif isinstance(arg, Dag):
-				self.dag = arg
-			else:
-				raise TypeError(f"unrecognized argument {arg}: must be Variable, Parameter, Constant or Dag")
-		"""
-		# check clashing variable/constant names
-		names = list(var.name for var in self.variables) + list(const.name for const in self.constants)
+			match arg:
+				case Variable():
+					self.variables.append(arg)
+				case Constant():
+					if arg in self.constants:
+						raise ValueError(f"{arg} may have been given twice")
+					self.constants.add(arg)
+				case Parameter():
+					if arg in self.parameters:
+						raise ValueError(f"{arg} may have been given twice")
+					self.parameters.add(arg)
+				case _:
+					raise TypeError(f"unrecognized argument {arg}: must be Variable, Parameter, or Constant")
+
+		symbols:list[Symbol] = self.variables + list(self.parameters) + list(self.constants)
+		names:list[str] = list(symbol.name for symbol in symbols)
+		
+		# check clashing symbol names
 		if len(names) != len(set(names)):
 			from collections import Counter
-			var_names = list(var.name for var in self.variables)
-			const_names = list(const.name for const in self.constants)
-			
-			counts = Counter(var_names)
-			duplicates = [item for item, count in counts.items() if count > 1]
-			if len(duplicates) != 0:
-				raise ValueError(f"duplicate variable names: {duplicates}")
+			counts = Counter(names)
+			dupes = [(item, count) for item, count in counts.items() if count > 1]
+			raise ValueError(f"detected clashing symbol names: {dupes}")
+		
 
-			counts = Counter(const_names)
-			duplicates = [item for item, count in counts.items() if count > 1]
-			if len(duplicates) != 0:
-				raise ValueError(f"duplicate constant names: {duplicates}")
+		match expression:
+			case OutputNode():
+				self.outputnode = expression
+			case ast.AST():
+				ast_to_dag_visitor = AstToDagVisitor(
+					dag=self.dag, 
+					symbols=symbols, 
+					ast_op_to_op_dict_key=ast_op_to_op_dict_key
+					)
+				
+				root_node = ast_to_dag_visitor.visit(expression)
+				outputnode = self.dag.new_outputnode()
+				self.dag.new_edge(root_node, outputnode, 0)
+				self.outputnode = outputnode
 
-			duplicates = set(var_names) & set(const_names)
-			if len(duplicates) != 0:
-				raise ValueError(f"clashing variable and constant names: {duplicates}")
+			case str():
+				ast_tree = str_to_ast(expression)
+				ast_to_dag_visitor = AstToDagVisitor(
+					dag=self.dag, 
+					symbols=symbols, 
+					ast_op_to_op_dict_key=ast_op_to_op_dict_key
+					)
 
-			raise ValueError(f"found clashing variable/constant names but could not identify which")
-		"""
-
-		# create dag if not given
-		if self.dag is None:
-			# need to offload this to a separate function
-			self.dag = Dag()
-			add_ast_to_dag = AddAstToDag(self.dag, self.variables, self.constants, ast_op_to_op_dict_key=ast_op_to_op_dict_key)
-
-			tree = ast.parse(expression, mode='eval').body
-			latest_node = add_ast_to_dag.visit(tree)
-			expr_node = self.dag.new_node(expr)
-			self.dag.new_edge(latest_node, expr_node, 0)
-			self.output_nodes.append(expr_node)
+				root_node = ast_to_dag_visitor.visit(ast_tree)
+				outputnode = self.dag.new_outputnode()
+				self.dag.new_edge(root_node, outputnode, 0)
+				self.outputnode = outputnode
+			case _:
+				raise ValueError(f"unrecognized {expression!r}: must be str, ast.AST, or OutputNode")
 			
 	def evaluate(self):
 		"""performs a recursive cached/memoized DFS evaluation with a substitution dict. even if there are repeated nodes, this allows it to avoid those. for example, computing x+2 only once in (x+2)*(x+2). this substitution dict is also shared between expressions. so (x+2)/3 and (x+2)/4 would have to compute (x+2) only once and then reuse it.
@@ -87,7 +98,7 @@ class Function:
 		raise NotImplementedError("this is pretty hard to do sry come back later")
 	
 	def __str__(self):
-		output = f"Function (ID={hex(id(self))})"
+		output = f"Function at {hex(id(self))}"
 		output += f"\nvariables    : {type(self.variables)}, count={count(self.variables)}, length={len(self.variables)}"
 		for variable in self.variables:
 			output += f"\n    {variable!r}"
@@ -98,6 +109,6 @@ class Function:
 		for constant in self.constants:
 			output += f"\n    {constant!r}"
 		output += f"\ndag          : {self.dag!r}"
-		output += f"\noutputnode   : {self.output_nodes!r}"
+		output += f"\noutputnode   : {self.outputnode!r}"
 		output += f"\noperator_dict: {type(self.operator_dict)}, count={count(self.operator_dict)}, length={len(self.operator_dict)}"
 		return output
