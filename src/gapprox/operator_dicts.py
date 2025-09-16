@@ -9,6 +9,18 @@ import numbers as _numbers
 import builtins as _builtins
 import statistics as _statistics
 
+def _to_tuple(*args):
+	return tuple(args)
+
+def _to_list(*args):
+	return list(args)
+
+def _to_dict(*args):
+	return dict(args)
+
+def _to_set(*args):
+	return set(args)
+
 def _generalized_mean(p, *args):
 	'returns the power mean for given p (first argument) (p=1: arithmetic, 0: geometric, -1: harmonic)'
 	if p == 0:
@@ -424,6 +436,12 @@ default = {
 #'erfc'    : _math.erfc
 #'in'      : 
 #'notin'   : 
+
+# datatyping
+'tuple'   : _to_tuple,
+'list'    : _to_list,
+'dict'    : _to_dict,
+'set'     : _to_set,
 }
 
 complex = default.copy()

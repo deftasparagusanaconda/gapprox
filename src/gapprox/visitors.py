@@ -1,4 +1,5 @@
 from .misc.count import count
+from .symbol import Symbol
 from .dag import InputNode, FunctionNode, OutputNode, Node, Edge, Dag
 import gapprox
 
@@ -78,32 +79,36 @@ class EvaluationVisitor(NodeVisitor):
 			#sorting       :bool = False  # perform a topological sort before doing recursive substitution
 			):
 		self.inputnode_payload_subs   : dict = dict() if inputnode_payload_subs    is None else inputnode_payload_subs
-		self.functionnode_payload_subs: dict = dict() if functionnode_payload_subs is None else inputnode_payload_subs
+		self.functionnode_payload_subs: dict = dict() if functionnode_payload_subs is None else functionnode_payload_subs
 		self.node_subs                : dict = dict() if node_subs                 is None else node_subs
 		self.node_cache               : dict = dict() if node_cache                is None else node_cache
 		self.caching                  : bool = caching
-
+	
 	def visit_InputNode(self, node: InputNode) -> any:
 		# do node substitution
 		if node in self.node_subs:
 			return self.node_subs[node]
-
+		
 		# do cache substitution
 		if self.caching and node in self.node_cache:
 			return self.node_cache[node]
-
+		
 		# do payload substitution
 		if node.payload in self.inputnode_payload_subs:
 			payload = self.inputnode_payload_subs[node.payload]
 		else:
 			payload = node.payload
 
+		# do symbol value substution
+		if isinstance(payload, Symbol):
+			payload = payload.value
+		
 		# ending part
 		result = payload
-
+		
 		if self.caching:
 			self.node_cache[node] = result
-
+		
 		return result
 
 	def visit_FunctionNode(self, node: FunctionNode) -> any:
@@ -122,7 +127,7 @@ class EvaluationVisitor(NodeVisitor):
 			payload = node.payload
 
 		if not callable(payload):
-			raise ValueError(f"{payload} is not callable")
+			raise ValueError(f"{payload!r} is not callable")
 
 		# ending part
 		args = list()

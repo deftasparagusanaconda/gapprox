@@ -5,6 +5,7 @@ from .misc.ast_op_to_op_dict_key import ast_op_to_op_dict_key
 from .misc.ast_to_dag import AstToDagVisitor
 from .misc.str_to_ast import str_to_ast
 from .misc.count import count
+from .visitors import EvaluationVisitor
 import ast
 
 class Function:
@@ -22,6 +23,7 @@ class Function:
 		self.parameters   : set[Parameter]      = set()
 		self.constants    : set[Constant]       = set()
 		self.dag = Dag() if dag is None else dag
+
 		if operator_dict is None:
 			self.operator_dict: dict[str, callable] = operator_dicts.default
 		else:
@@ -44,15 +46,14 @@ class Function:
 					raise TypeError(f"unrecognized argument {arg}: must be Variable, Parameter, or Constant")
 
 		symbols:list[Symbol] = self.variables + list(self.parameters) + list(self.constants)
-		names:list[str] = list(symbol.name for symbol in symbols)
 		
 		# check clashing symbol names
+		names:list[str] = list(symbol.name for symbol in symbols)
 		if len(names) != len(set(names)):
 			from collections import Counter
 			counts = Counter(names)
 			dupes = [(item, count) for item, count in counts.items() if count > 1]
-			raise ValueError(f"detected clashing symbol names: {dupes}")
-		
+			raise ValueError(f"detected clashing symbol names: {dupes}")		
 
 		match expression:
 			case OutputNode():
@@ -84,13 +85,17 @@ class Function:
 			case _:
 				raise ValueError(f"unrecognized {expression!r}: must be str, ast.AST, or OutputNode")
 			
-	def evaluate(self):
-		"""performs a recursive cached/memoized DFS evaluation with a substitution dict. even if there are repeated nodes, this allows it to avoid those. for example, computing x+2 only once in (x+2)*(x+2). this substitution dict is also shared between expressions. so (x+2)/3 and (x+2)/4 would have to compute (x+2) only once and then reuse it.
+	def evaluate(self, *args) -> any:
+		'perform mathematical evaluation using gapprox.visitors.EvaluationVisitor'
+		if len(args) != len(self.variables):
+			raise ValueError(f"takes exactly {len(self.variables)} arguments")
 
-		if you need to use the substitutions dict it used during evaluation, you can initialize your own dict instance outside the function and then pass it to the arguments. any substitutions it made will be reflected in that instance you passed because dicts are passed by reference :) have fun with that!"""
-		return outputnode.substitute(substitutions)
+		inputnode_payload_subs = dict((self.variables[i], args[i]) for i in range(len(self.variables)))
+		evaluation_visitor = EvaluationVisitor(inputnode_payload_subs = inputnode_payload_subs, functionnode_payload_subs = self.operator_dict)
+
+		return evaluation_visitor.visit(self.outputnode)
 		
-	__call__ = evaluate # makes the Function callable lol
+	__call__ = evaluate # makes the Function callable (obv lol)
 		
 	def to_callable(self):
 		'convert the heavy Function to a fast python function'
