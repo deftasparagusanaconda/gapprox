@@ -9,15 +9,32 @@ class AstToDagVisitor(ast.NodeVisitor):
 			self, 
 			*, 
 			dag                  :Dag,
-			symbols              :dict,
-			name_to_symbol_dict  :dict = None,
-			ast_op_to_op_dict_key:dict[ast.AST, 'str'] = ast_op_to_op_dict_key
+			variables            :list[Variable]     = None,
+			parameters           :set[Parameter]     = None,
+			constants            :set[Constant]      = None,
+			name_to_symbol_dict  :dict[str, Symbol]  = None,
+			ast_op_to_op_dict_key:dict[ast.AST, str] = ast_op_to_op_dict_key
 			):
-		self.dag:Dag = dag
-		self.symbols:list[Symbol] = symbols
+		self.dag                  :Dag                = dag
+		self.variables            :list[Variable]     = variables
+		self.parameters           :set[Parameter]     = parameters
+		self.constants            :set[Constant]      = constants
+		self.name_to_symbol_dict  :dict[str, Symbol]  = name_to_symbol_dict
+		self.ast_op_to_op_dict_key:dict[ast.AST, str] = ast_op_to_op_dict_key
+
+		if variables is None:
+			self.variables:list[Variable] = list()
+
+		if parameters is None:
+			self.parameters:set[Parameter] = list()
+
+		if constants is None:
+			self.constants:set[Constant] = list()
+
+		symbols = variables + list(parameters) + list(constants)
+
 		if name_to_symbol_dict is None:
 			self.name_symbol_dict:dict[str, Symbol] = dict((symbol.name, symbol) for symbol in symbols)
-		self.ast_op_to_op_dict_key:dict = ast_op_to_op_dict_key
 		
 	def visit_Constant(self, node) -> InputNode:	# a number, like 2 in '2+x'
 		return self.dag.new_inputnode(Parameter(node.value))

@@ -60,30 +60,44 @@ class Function:
 				self.outputnode = expression
 			case ast.AST():
 				ast_to_dag_visitor = AstToDagVisitor(
-					dag=self.dag, 
-					symbols=symbols, 
-					ast_op_to_op_dict_key=ast_op_to_op_dict_key
-					)
+						dag                   = self.dag, 
+						variables             = self.variables,
+						parameters            = self.parameters,
+						constants             = self.constants,
+						ast_op_to_op_dict_key = ast_op_to_op_dict_key
+				)
 				
 				root_node = ast_to_dag_visitor.visit(expression)
 				outputnode = self.dag.new_outputnode()
 				self.dag.new_edge(root_node, outputnode, 0)
 				self.outputnode = outputnode
-
+			
 			case str():
 				ast_tree = str_to_ast(expression)
 				ast_to_dag_visitor = AstToDagVisitor(
-					dag=self.dag, 
-					symbols=symbols, 
-					ast_op_to_op_dict_key=ast_op_to_op_dict_key
-					)
+						dag                   = self.dag, 
+						variables             = self.variables,
+						parameters            = self.parameters,
+						constants             = self.constants,
+						ast_op_to_op_dict_key = ast_op_to_op_dict_key
+				)
 
 				root_node = ast_to_dag_visitor.visit(ast_tree)
 				outputnode = self.dag.new_outputnode()
 				self.dag.new_edge(root_node, outputnode, 0)
 				self.outputnode = outputnode
+
 			case _:
 				raise ValueError(f"unrecognized {expression!r}: must be str, ast.AST, or OutputNode")
+	"""
+	attributes are:
+	self.variables    : list[Variable]      = list()
+	self.parameters   : set[Parameter]      = set()
+	self.constants    : set[Constant]       = set()
+	self.dag          : Dag                 = Dag() if dag is None else dag
+	self.outputnode   : OutputNode          = blahblahblah
+	self.operator_dict: dict[str, callable] = blahblahblah
+	"""
 			
 	def evaluate(self, *args) -> any:
 		'perform mathematical evaluation using gapprox.visitors.EvaluationVisitor'
@@ -97,10 +111,16 @@ class Function:
 		
 	__call__ = evaluate # makes the Function callable (obv lol)
 		
-	def to_callable(self):
-		'convert the heavy Function to a fast python function'
-		# return compile(self.dag)
-		raise NotImplementedError("this is pretty hard to do sry come back later")
+#	def to_callable(self):
+#		'convert the heavy Function to a fast python function'
+#		# return compile(self.dag)
+#		raise NotImplementedError("this is pretty hard to do sry come back later")
+
+	def __repr__(self):
+		variables_str = f"{len(self.variables)} Variable"
+		parameters_str = f"{len(self.parameters)} Parameter"
+		constants_str = f"{len(self.constants)} Constant"
+		return f"<Function at {hex(id(self))}: {variables_str}, {parameters_str}, {constants_str}>"
 	
 	def __str__(self):
 		output = f"Function at {hex(id(self))}"
