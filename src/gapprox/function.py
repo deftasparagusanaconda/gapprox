@@ -1,10 +1,9 @@
 from . import operator_dicts
 from .dag import InputNode, FunctionNode, OutputNode, Node, Edge, Dag
 from .symbol import Variable, Parameter, Constant
-from .misc.ast_op_to_op_dict_key import ast_op_to_op_dict_key
-from .misc.ast_to_dag import AstToDagVisitor
-from .misc.str_to_ast import str_to_ast
-from .misc.count import count
+from .misc import ast_op_to_op_dict_key, str_to_ast
+from .ast_to_dag_visitor import AstToDagVisitor
+from .count import count
 from .visitors import EvaluationVisitor
 import ast
 

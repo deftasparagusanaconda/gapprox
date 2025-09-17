@@ -1,7 +1,7 @@
 import ast
-from ..symbol import Symbol, Variable, Parameter, Constant
-from ..dag import Node, InputNode, FunctionNode, OutputNode, Edge, Dag
-from .ast_op_to_op_dict_key import ast_op_to_op_dict_key
+from .symbol import Symbol, Variable, Parameter, Constant
+from .dag import Node, InputNode, FunctionNode, OutputNode, Edge, Dag
+from .misc import ast_op_to_op_dict_key
 
 class AstToDagVisitor(ast.NodeVisitor):
 	'stateful function that adds nodes of an ast to a Dag'

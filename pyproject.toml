@@ -4,14 +4,14 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gapprox"
-version = "0.3.0"
-#dynamic = ["version"]
+#version = "0.3.0"
+dynamic = ["version"]
 description = "toolkit to find the approximate function of a graph"
 readme = "README.md"
 requires-python = ">=3.11.0"
 license = "GPL-3.0-or-later"
 #package-dir = {"" = "."}
-#dependencies = ["numpy", "matplotlib"]
+dependencies = ["numpy", "matplotlib"]
 authors = [
 	{ name="deftasparagusanaconda", email="deftasparagusanaconda@gmail.com" },
 	{ name="Jeffrin Santon", email="jeffrinsanton0909@gmail.com"}
@@ -35,5 +35,5 @@ Repository = "https://github.com/deftasparagusanaconda/gapprox"
 where = ["src"]
 include = ["gapprox"]
 
-#[tool.setuptools.dynamic]
-#version = {attr = "src.__version__"}
+[tool.setuptools.dynamic]
+version.attr = "gapprox.__version__"

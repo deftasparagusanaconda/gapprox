@@ -1,4 +1,4 @@
-from .misc.count import count
+from .count import count
 from .symbol import Symbol
 from .dag import InputNode, FunctionNode, OutputNode, Node, Edge, Dag
 import gapprox

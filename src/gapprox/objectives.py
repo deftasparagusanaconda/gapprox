@@ -65,3 +65,15 @@ def tree_node_and_edge_count(node:Node):
     'how many Node and Edge in the spanning tree, starting from the given node'
 
 # make a traverser that can return all these in one traversal
+from . import errors, collapsers
+
+def error(original:list[any], approximation:list[any], error:callable=errors.difference_squared, collapser:callable=collapsers.sum):
+	'calculate how much discrepancy is between two arrays of numbers. uses RMSE (root mean squared error) by default'
+	if len(original) != len(approximation):
+		raise ValueError(f"length mismatch: len(original)={len(original)}, len(approximation)={len(approximation)}")
+
+	return reduction(loss(a, b) for a, b in zip(original, approximation))
+
+# error is pretty hard to find, because gapprox currently does it using discretely and numerically. and even then, it can do it by either taking in a bunch of points or taking a callable and sampling it on the spot. and gapprox should also be able to find error symbolically, continuously, analytically.
+
+# at least im sure about one thing: error should not sample the callable inside it. it should take sampled points. because when error is evaluated for each iteration, it should not have to resample for every iteration.

@@ -1,4 +1,4 @@
-# a reduction takes a vector of things and collapses them into one scalar
+# a collapser takes a vector of things and collapses them into one scalar
 
 from builtins import min
 from builtins import max

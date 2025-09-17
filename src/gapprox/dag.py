@@ -10,7 +10,7 @@
 
 # NOTE: OutputNode should not have any new special things going for it, like excluding payload, or excluding metadata because in other parts of the program, this causes more special cases just for this teeny tiny peeny piny little node that acts as a "pointer" in the DAG basically. so it has .inputs. but it also allows only one element to be stored in this one-element-long list
 
-from .misc.count import count	# for getting how many non-None elements are in something
+from .count import count	# for getting how many non-None elements are in something
 from abc import ABC	# to make Node an abstract class
 import gapprox	# for gapprox.debug:bool
 
