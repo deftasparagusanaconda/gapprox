@@ -1,0 +1,28 @@
+a DAG math expression structure can be mutated as follows:
+
+add/remove FunctionNode(callable) (and the corresponding Edge for it)
+change/swap/replace FunctionNode payload
+add/remove InputNode(Parameter)   (and the corresponding Edge for it)
+change/swap/replace InputNode's Parameter with Constant or Variable
+change/swap/replace InputNode's Parameter's value
+add/remove InputNode(Constant)    (and the corresponding Edge for it)
+change/swap/replace InputNode's Constant with Variable or Parameter
+change/swap/replace InputNode's Constant's value
+add/remove InputNode(Variable)    (and the corresponding Edge for it)
+change/swap/replace InputNode's Variable with Parameter6 or Constant
+change/swap/replace InputNode's Variable's value
+add/remove Edge
+add/remove subgraph               (and the corresponding Edge for it)
+
+change Edge:
+	change source
+	change target
+	change index
+
+a Variable can be added or removed only if the program allows changing input/output shape
+
+for FunctionNode specifically, if its inputs allow:
+	L → R rotation
+	R → L rotation
+	node bypass
+	swap

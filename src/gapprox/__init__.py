@@ -7,7 +7,7 @@ debug: bool = True	# should be False for release versions, but ill probably forg
 
 #from . import paramgens, structgens
 #from . import outliers, plotters
-from . import operator_dicts, constant_dicts
+from . import operator_dicts
 from .parser import parser
 from .sampler import sampler
 #from .approximation.approximation import Approximation
@@ -19,7 +19,7 @@ from . import objectives
 from .function import Function
 from . import visitors
 from . import constants
-from .symbol import Variable, Parameter, Constant
+from .symbol import Variable, Parameter, Constant, make_variables, make_parameters, make_constants
 
 # to denote the absence of something, instead of using None
 from .misc import Null as _Null
@@ -55,6 +55,11 @@ modules[__name__].__dir__ = lambda: [
 		,'rewarders'
 		,'objectives'
 		,'visitors'
+		,'constants'
+
+		# functions
+		,'variables'
+		,'parameters'
 		,'constants'
 ]
 

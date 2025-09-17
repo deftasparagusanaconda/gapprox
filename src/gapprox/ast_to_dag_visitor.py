@@ -1,3 +1,6 @@
+# TODO: let the class update its self.variables, self.parameters, self.constants correctly
+# TODO: ensure that the class reuses symbols if it finds symbol names that match what it looks up against. like adding '2+x' to a dag that already has InputNode(Variable('x')) should reuse that one, instead of creating a new one
+
 import ast
 from .symbol import Symbol, Variable, Parameter, Constant
 from .dag import Node, InputNode, FunctionNode, OutputNode, Edge, Dag
@@ -26,10 +29,10 @@ class AstToDagVisitor(ast.NodeVisitor):
 			self.variables:list[Variable] = list()
 
 		if parameters is None:
-			self.parameters:set[Parameter] = list()
+			self.parameters:set[Parameter] = set()
 
 		if constants is None:
-			self.constants:set[Constant] = list()
+			self.constants:set[Constant] = set()
 
 		symbols = variables + list(parameters) + list(constants)
 
@@ -37,7 +40,9 @@ class AstToDagVisitor(ast.NodeVisitor):
 			self.name_symbol_dict:dict[str, Symbol] = dict((symbol.name, symbol) for symbol in symbols)
 		
 	def visit_Constant(self, node) -> InputNode:	# a number, like 2 in '2+x'
-		return self.dag.new_inputnode(Parameter(node.value))
+		new_parameter = Parameter(node.value)
+		self.parameters.add(new_parameter)
+		return self.dag.new_inputnode(new_parameter)
 
 	def generic_visit(self, node):
 		raise NotImplementedError(f"critical error! {node} is not recognized. please report this")
@@ -45,12 +50,12 @@ class AstToDagVisitor(ast.NodeVisitor):
 	# this logic is probably wrong. it should return a node, not a Symbol
 	def visit_Name(self, node) -> InputNode:
 		if node.id in self.name_symbol_dict:
-			symbol = self.name_symbol_dict[node.id]
+			symbol:Symbol = self.name_symbol_dict[node.id]
 		else:
 			raise ValueError(f"{node.id} not found in symbols")
 
 		for inputnode in self.dag.inputnodes:
-			if isinstance(inputnode.payload, Symbol) and inputnode.payload.name == symbol:
+			if isinstance(inputnode.payload, Symbol) and inputnode.payload.name == symbol.name:
 				return inputnode
 		
 		return self.dag.new_inputnode(symbol)

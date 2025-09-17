@@ -37,8 +37,8 @@ class EndConditions:
 		self.window_deviation_weighted=None	# if deviation(last weighted n values) < window_deviation_weighted
 	# does putting these in here actually make sense? i dont know. but gotta put em somewhere, right?
 
-	def show(self):
-		print("should print end conditions here")
+#	def show(self):
+#		print("should print end conditions here")
 	
 #	def check() -> bool:
 #		if check_mode == "any":

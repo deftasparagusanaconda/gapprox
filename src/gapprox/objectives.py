@@ -72,7 +72,7 @@ def error(original:list[any], approximation:list[any], error:callable=errors.dif
 	if len(original) != len(approximation):
 		raise ValueError(f"length mismatch: len(original)={len(original)}, len(approximation)={len(approximation)}")
 
-	return reduction(loss(a, b) for a, b in zip(original, approximation))
+	return collapser(error(a, b) for a, b in zip(original, approximation))
 
 # error is pretty hard to find, because gapprox currently does it using discretely and numerically. and even then, it can do it by either taking in a bunch of points or taking a callable and sampling it on the spot. and gapprox should also be able to find error symbolically, continuously, analytically.
 

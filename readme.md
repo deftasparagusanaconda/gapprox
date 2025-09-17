@@ -26,17 +26,17 @@ pip install gapprox[all]
 ```python
 import gapprox
 
-function = gapprox.fit([1, 2, 4, 6, 3], [1, 2, 5, 5, 2])
+f = gapprox.fit([1, 2, 4, 6, 3], [1, 2, 5, 5, 2])
 
-print(function)
-print(function(2.5))
+print(f)
+print(f(2.5))
 ```
 
 `import gapprox` loads the gapprox package into python  
-`.fit()` uses an AI model to select the best approximation method and returns an [Expression][advanced guide]  
-you can print the Expression `print(function)` or call it like a function `function(2.5)`  
+`.fit()` uses an AI model to select the best approximation method and returns a [Function][advanced guide]  
+you can print the Function `print(f)` or call it like a function `f(2.5)`  
 
-check out more examples [here!][examples]
+check out more examples [here!][examples] or read the [manual][manual]
 
 ## 🚀 roadmap
 - DAG/expression trees  

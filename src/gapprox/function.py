@@ -1,3 +1,5 @@
+# TODO: finish Function.to_callable
+
 from . import operator_dicts
 from .dag import InputNode, FunctionNode, OutputNode, Node, Edge, Dag
 from .symbol import Variable, Parameter, Constant
@@ -110,10 +112,10 @@ class Function:
 		
 	__call__ = evaluate # makes the Function callable (obv lol)
 		
-#	def to_callable(self):
-#		'convert the heavy Function to a fast python function'
-#		# return compile(self.dag)
-#		raise NotImplementedError("this is pretty hard to do sry come back later")
+	def to_callable(self) -> callable:
+		'convert the heavy Function to a fast python function. this method is nowhere near done or made yet'
+		# return compile(self.dag)
+		return self
 
 	def __repr__(self):
 		variables_str = f"{len(self.variables)} Variable"

@@ -240,7 +240,7 @@ class Dag:
 				self.outputnodes.add(node)
 		
 	def remove_node(self, node:Node):
-		'remove a node, and all corresponding edges if cascade=False is given as argument'
+		'remove a node'
 
 		if gapprox.debug:
 			if node not in self.inputnodes and node not in self.functionnodes and node not in self.outputnodes:
@@ -288,6 +288,57 @@ class Dag:
 			output += '\n        ' + repr(edge)
 		return output
 	
+	def visualize(self):
+		from .symbol import Variable, Parameter, Constant
+		import networkx as nx
+		import matplotlib.pyplot as plt
+
+		graph = nx.MultiDiGraph()
+
+		# add nodes
+		for node in self.inputnodes:
+			match node.payload:
+				case Variable():
+					graph.add_node(node, type=type(node).__name__, payload=node.payload.name)
+				case Parameter():
+					graph.add_node(node, type=type(node).__name__, payload=node.payload.value)
+				case Constant():
+					graph.add_node(node, type=type(node).__name__, payload=node.payload.name)
+				case _:
+					raise ValueError(f"nani o kore??? {node}")
+
+		for node in self.functionnodes | self.outputnodes:
+			graph.add_node(node, type=type(node).__name__, payload=node.payload)
+
+		# add edges
+		for edge in self.edges:
+		    graph.add_edge(edge.source, edge.target, index=edge.index)
+		
+		# positions
+		try:
+			pos = nx.nx_agraph.graphviz_layout(graph, prog="dot")
+		except:
+			pos = nx.spring_layout(graph)  # fallback
+
+		# node colors
+		node_colors = []
+		for node in graph.nodes:
+			if isinstance(node, InputNode):
+				node_colors.append("blue")
+			elif isinstance(node, FunctionNode):
+				node_colors.append("green")
+			elif isinstance(node, OutputNode):
+				node_colors.append("red")
+			else:
+				node_colors.append("gray")
+
+		# draw
+		plt.figure(figsize=(12, 8))
+		labels = {node: graph.nodes[node]['payload'] for node in graph.nodes}
+		nx.draw(graph, pos, with_labels=True, labels=labels, node_color=node_colors, node_size=1200, arrowsize=20)
+
+		plt.show()
+
 	@staticmethod
 	def tree_view(node, prefix=""):
 		print(f"{prefix}{node!r}")
