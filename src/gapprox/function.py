@@ -1,6 +1,6 @@
 # TODO: finish Function.to_callable
 
-from . import operator_dicts
+from .operators_dict import operators_dict as default_operators_dict
 from .dag import InputNode, FunctionNode, OutputNode, Node, Edge, Dag
 from .symbol import Variable, Parameter, Constant
 from .misc import ast_op_to_op_dict_key, str_to_ast
@@ -17,7 +17,7 @@ class Function:
 			expression           : OutputNode|ast.AST|str,
 			*args,
 			dag                  : Dag             = None,
-			operator_dict        : dict            = None,
+			operators_dict       : dict            = None,
 			ast_op_to_op_dict_key: dict            = ast_op_to_op_dict_key
 			):		
 		self.variables    : list[Variable]      = list()
@@ -25,10 +25,10 @@ class Function:
 		self.constants    : set[Constant]       = set()
 		self.dag = Dag() if dag is None else dag
 
-		if operator_dict is None:
-			self.operator_dict: dict[str, callable] = operator_dicts.default
+		if operators_dict is None:
+			self.operators_dict: dict[str, callable] = default_operators_dict
 		else:
-			self.operator_dict: dict[str, callable] = operator_dict
+			self.operators_dict: dict[str, callable] = operators_dict
 
 		# populate collections
 		for arg in args:
@@ -92,12 +92,12 @@ class Function:
 				raise ValueError(f"unrecognized {expression!r}: must be str, ast.AST, or OutputNode")
 	"""
 	attributes are:
-	self.variables    : list[Variable]      = list()
-	self.parameters   : set[Parameter]      = set()
-	self.constants    : set[Constant]       = set()
-	self.dag          : Dag                 = Dag() if dag is None else dag
-	self.outputnode   : OutputNode          = blahblahblah
-	self.operator_dict: dict[str, callable] = blahblahblah
+	self.variables     : list[Variable]      = list()
+	self.parameters    : set[Parameter]      = set()
+	self.constants     : set[Constant]       = set()
+	self.dag           : Dag                 = Dag() if dag is None else dag
+	self.outputnode    : OutputNode          = blahblahblah
+	self.operators_dict: dict[str, callable] = blahblahblah
 	"""
 			
 	def evaluate(self, *args) -> any:
@@ -106,7 +106,7 @@ class Function:
 			raise ValueError(f"takes exactly {len(self.variables)} arguments")
 
 		inputnode_payload_subs = dict((self.variables[i], args[i]) for i in range(len(self.variables)))
-		evaluation_visitor = EvaluationVisitor(inputnode_payload_subs = inputnode_payload_subs, functionnode_payload_subs = self.operator_dict)
+		evaluation_visitor = EvaluationVisitor(inputnode_payload_subs = inputnode_payload_subs, functionnode_payload_subs = self.operators_dict)
 
 		return evaluation_visitor.visit(self.outputnode)
 		
@@ -134,7 +134,7 @@ class Function:
 		output += f"\nconstants    : {type(self.constants)}, count={count(self.constants)}, length={len(self.constants)}"
 		for constant in self.constants:
 			output += f"\n    {constant!r}"
-		output += f"\ndag          : {self.dag!r}"
-		output += f"\noutputnode   : {self.outputnode!r}"
-		output += f"\noperator_dict: {type(self.operator_dict)}, count={count(self.operator_dict)}, length={len(self.operator_dict)}"
+		output += f"\ndag           : {self.dag!r}"
+		output += f"\noutputnode    : {self.outputnode!r}"
+		output += f"\noperators_dict: {type(self.operators_dict)}, length={len(self.operators_dict)}"
 		return output

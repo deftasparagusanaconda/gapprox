@@ -154,7 +154,7 @@ class Constant(Symbol):
 		super().__init__(name=name, value=value)
 		self.name: str = name
 		self.value: any = value
-
+"""
 def make_variables(*args):
 	return tuple(Variable(arg) for arg in args)
 
@@ -163,3 +163,4 @@ def make_parameters(*args):
 
 def make_constants(*args):
 	return tuple(Constant(arg) for arg in args)
+"""
