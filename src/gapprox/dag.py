@@ -1,4 +1,5 @@
 import gapprox
+from . import misc
 
 class Node:
 	'a node of a directed acyclic graph. it holds a string as a payload. the meaning of the string is decoded using a context dict'
@@ -9,7 +10,7 @@ class Node:
 
 	@property
 	def is_output(self):
-		return self.payload is gapprox.OUTPUT_NODE_MARKER
+		return isinstance(self.payload, misc.OutputNodeMarker)
 
 	def __repr__(self):
 		return f"<Node at {hex(id(self))}: {len(self.inputs)} inputs, {len(self.outputs)} outputs, payload={self.payload!r}>"
@@ -170,7 +171,7 @@ class Dag:
 
 		# draw
 		plt.figure(figsize=(12, 8))
-		labels = {node: graph.nodes[node]['payload'] for node in graph.nodes}
+		labels = {node: ('' if node.is_output else repr(node.payload)) for node in graph.nodes}
 		nx.draw(graph, pos, with_labels=True, labels=labels, node_size=1200, arrowsize=20)
 
 		plt.show()
@@ -192,4 +193,4 @@ class Dag:
 	def print_tree_view(node, prefix :str = ''):
 		print(prefix + repr(node))
 		for index, edge in enumerate(node.inputs):
-			Dag.tree_view(edge.source, prefix + str(index).ljust(4, '-'))
+			Dag.print_tree_view(edge.source, prefix + str(index).ljust(4, '-'))

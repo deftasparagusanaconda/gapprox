@@ -51,7 +51,7 @@ class Expression:
 				return context[node.payload] if isinstance(node.payload, str) else node.payload
 			else:
 				function = context[node.payload] if isinstance(node.payload, str) else node.payload
-				arguments = (evaluate_node(edge.source) for edge in node.inputs)
+				arguments = tuple(evaluate_node(edge.source) for edge in node.inputs)
 				return function(*arguments)
 
 		return evaluate_node(self.root.inputs[0].source)

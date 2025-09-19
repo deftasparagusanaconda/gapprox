@@ -7,8 +7,12 @@ class Null:
     'to denote the absence of something, like a placeholder; for when None is not considered as the absence of something'
 	#def __repr__():
 	#	return f"<Null() at {hex(id(self))}>"
-# ast to operator mappings
 
+class OutputNodeMarker:
+	'to denote that a Node is an output node, meaning it has no outputs, and accepts only one input. store an object of this as the payload for a node'
+
+
+# ast to operator mappings
 import ast
 ast_op_to_op_dict_key = {
 		ast.UAdd     : 'pos',

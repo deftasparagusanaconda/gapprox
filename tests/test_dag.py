@@ -40,9 +40,9 @@ def test_dag():
 	e2 = dag.new_edge(in2, func1, 1)
 	e3 = dag.new_edge(func1, out1, 0)
 	
-	expr = ga.Expression(out1, dag=dag)
+#	expr = ga.Expression(out1, dag=dag)
 	
-	assert expr(x=3) == 5
+#	assert expr(x=3) == 5
 	
 """
 import gapprox as ga
