@@ -4,48 +4,38 @@ from .misc import ast_op_to_op_dict_key
 
 class AstToDagVisitor(ast.NodeVisitor):
 	'stateful function that adds nodes of an ast to a Dag'
-	def __init__(self, dag: Dag, context: dict[str, any], ast_op_to_op_dict_key: dict[ast.AST, str] = ast_op_to_op_dict_key):
+	def __init__(self, dag: Dag, ast_op_to_op_dict_key: dict[ast.AST, str] = ast_op_to_op_dict_key):
 		self.dag: Dag = dag
-		self.context: dict[str, any] = context
+		#self.context: dict[str, any] = context
 		self.ast_op_to_op_dict_key: dict[ast.AST, str] = ast_op_to_op_dict_key
 	
 	def generic_visit(self, node: Node) -> None:
-		raise NotImplementedError(f"critical error! {node} of type {type(node)} is not recognized. please report this")
+		raise NotImplementedError(f"critical error! {node!r} of type {type(node)!r} is not recognized. please report this")
 		
 	def visit_Constant(self, node: Node) -> Node:	# a number, like 2 in '2+x'
-		self.context[str(node.value)] = node.value
-		return self.dag.new_node(str(node.value))
+		return self.dag.new_node(node.value)
 	
 	def visit_Name(self, node: Node) -> Node:
-		if node.id in self.name_symbol_dict:
-			symbol:Symbol = self.name_symbol_dict[node.id]
-		else:
-			raise ValueError(f"{node.id} not found in symbols")
-
-		for inputnode in self.dag.inputnodes:
-			if isinstance(inputnode.payload, Symbol) and inputnode.payload.name == symbol.name:
-				return inputnode
-		
-		return self.dag.new_inputnode(symbol)
+		return self.dag.new_node(node.id)
 
 	def visit_UnaryOp(self, node: Node) -> Node:
 		op = type(node.op)
+
 		if op in self.ast_op_to_op_dict_key:
-			func_node = self.dag.new_functionnode(ast_op_to_op_dict_key[op])
-		else:
 			raise NotImplementedError(f"{node.op} not supported")
-		
+
+		func_node = self.dag.new_functionnode(ast_op_to_op_dict_key[op])
 		operand = self.visit(node.operand)	# recursion
 		self.dag.new_edge(operand, func_node, 0)
 		return func_node
 
 	def visit_BinOp(self, node: Node) -> Node:
 		op = type(node.op)
-		if op in self.ast_op_to_op_dict_key:
-			func_node = self.dag.new_node(ast_op_to_op_dict_key[op])
-		else:
+
+		if op not in self.ast_op_to_op_dict_key:
 			raise NotImplementedError(f"{node.op} not supported")
 
+		func_node = self.dag.new_node(ast_op_to_op_dict_key[op])
 		left = self.visit(node.left)	# recursion
 		right = self.visit(node.right)	# recursion
 		self.dag.new_edge(left, func_node, 0)

@@ -34,13 +34,13 @@ def test_dag():
 	in1 = dag.new_node(2)
 	in2 = dag.new_node('x')
 	func1 = dag.new_node('add')
-	out1 = dag.new_node(None)
+	out1 = dag.new_node(ga.OUTPUT_NODE_MARKER)
 	
 	e1 = dag.new_edge(in1, func1, 0)
 	e2 = dag.new_edge(in2, func1, 1)
 	e3 = dag.new_edge(func1, out1, 0)
 	
-	expr = ga.Expression(dag, out1)
+	expr = ga.Expression(out1, dag=dag)
 	
 	assert expr(x=3) == 5
 	
