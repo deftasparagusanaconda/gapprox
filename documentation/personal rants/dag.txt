@@ -1,0 +1,17 @@
+once again, i am changing the DAG. the DAG shall not consist of anything more than Node and Edge. no InputNode, FunctionNode, OutputNode. that would encroach on the semantics of math expressions onto the DAG structure itself. instead each Node will store a str. the meaning of this str will always be decoded using a context dict or such. because already im letting FunctionNode store a str, and im using a dict[str:callable] to give them meaning. why not do the same with the Symbols in InputNodes? most of the symbols i work with always have names. a wrapping Expression class will store this context as a dict.
+
+thus the structure will be like this:
+
+Node, Edge: components of a Dag
+Dag       : a manager object that represents one DAG. it allows adding and removing components only through its methods
+Expression: a wrapper class, basically. that stores either a string or a DAG, and a context dict. 
+
+an Expression is evaluable. there is no longer a concept of a Function, because a Function extends an Expression by defining domain, codomain, etc etc. 
+
+thus we remove the following classes:
+InputNode, FunctionNode, OutputNode, Symbol, Variable, Parameter, Constant, NamedConstant, LiteralConstant, Function
+
+we add the following classes:
+Expression
+
+we modify the whole codebase as it is to use this new system. its very clean, and it does not bake in any semantics into the class structures themselves. any meaning is defined in that context dict instead. now we can pass a clean context dict around as well. that also solves the problem of Function having had to take context as arguments. it was clunky

@@ -1,0 +1,39 @@
+it seems there are two kinds of constants. and that plain numbers are constants, not parameters.
+
+lets redefine things.
+
+variables are things that are substituted upon evaluation
+parameters are things that an improvement engine changes
+constants are things that dont change
+
+there are two kinds of constants. named constants like π or e and literal constants like 2, 3
+
+lets look at an expression:
+
+px²y + qxy² + sin(πxy)
+
+variables: x, y
+parameters: p, q
+named constants: π
+literal constants: 2, 2
+operators: +, +
+functions: sin
+
+a variable has a name that we refer to it by
+a parameter has a name. an iterative optimization engine holds values for it
+a named constant has a name. it also usually has a value too, although we refer to it mainly by the name. it doesnt change
+a literal constant has a value, but no name. it doesnt change
+an operator is a function with special semantics and precedence
+a function has a name and a list of instructions. it is something that takes input and gives output.
+
+this whole thing would preferably be wrapped in an Expression object.
+
+
+
+ahhhhh
+
+
+
+
+
+

@@ -1,0 +1,62 @@
+this file is made because i dont know what to do for the next step
+
+the program recognizes three kinds of symbols:
+
+variable
+parameter
+constant
+
+but upon further analysis, it seems there may be more, and that we should handle symbols very carefully. take for example a + a. a is a parameter. but when simplified to a * 2, suddenly we introduce the number 2. is it a parameter or a constant? its not a parameter because its not meant to be adjusted. the number comes from algebraic structure. its not a constant either because constants have a name, and this one does not.
+the solution i came up with was to subclass Constant into NamedConstant and LiteralConstant. it was quite cumbersome to have to change the program according to every new symbol i added. but it could roughly make sense. it also caused a change in behaviour, in that parameters should always have a name and that numbers should always be considered LiteralConstant, instead of Parameter. thus whatever the user wants the engine to optimize should be explicitly marked as a parameter. this models how in something like ax² + bx + c, the parameters are a, b, c and are referred firstly by their name. 
+
+upon further analysis, it started to seem like i should make my own parser, because the behaviour was quite.. erratic and it felt more and more out of my hands.
+
+i realized i have to do more analysis on what kinds of symbols are present in a math expression. so far, i have come up with the following:
+
+Variable
+Parameter
+Constant
+Operator
+Function
+
+i also realized that a function extends an expression. a function is a mapping from a domain to a codomain. it can be expressed as an expression. it also defines domain and codomain, which an expression does not do. thus we can see that a function is composed of an expression.
+
+that drove home the point for me that i should make an Expression class that can hold a mathematical expression in many forms: as a str, a DAG, a sympy expression, etc
+
+this Expression class would be evaluable if you substituted elements correctly. thus the Function class seems to be obsolete
+
+i also debated whether an expression should store its own context. it makes sense. in maths, when we write an expression, we dont explicitly write 'this is a variable, this is something we want to find, etc etc' but its implied from the context. in computer science, this context must be explicit. and it must be stored somewhere. perhaps it would be too cumbersome for everything using an expression to store its context for it. an expression should definitely know its own context. that means an expression, written out verbosely, would look something like: "2 + x, where 2 is a literal constant, + is the addition operator, x is a variable"
+
+do you see now why i thought writing my own parser might be a good idea? every single symbol needs to be decoded by hand. and this storage of context also depends on the way you store it. if you store it as a string, you need to give context for every single symbol (or token, given by a lexer). if you store it as a DAG, you need to wrap symbols in Symbol subclasses, which would give them meaning. if you store it as a sympy expression, you must first define symbols. then you compose the symbols together. in every case, a custom DAG seems to be the most powerful. the only problem is that its hard to classify which symbols are what, and we also need to change a lot (a LOT) of program internals for every new change in symbol semantics/organization/subclassing. even now, ive reverted the NamedConstant and LiteralConstant things because they affected code to be too unstable. a LOT of errors started to be introduced.
+
+what is the next best path here?
+
+perhaps subclassing Constant is a bad idea. dont you think a LiteralConstant's name is just its value? after all, name is just the str representation of the value.
+
+this does not affect decoding of string into Dag and Dag into string. it seems to be constant
+
+-----------------------------------------------------------
+
+i also figured out that since an objective function like error should hold its own target function (the data points that the approximation should aim for should be stored in the function itself), an Approximation class that holds target and approximation is obsolete. thus we have the following hierarchy:
+uuuu
+Symbol (Variable, Parameter, NamedConstant, LiteralConstant)
+Node (InputNode, FunctionNode, OutputNode)
+Edge
+Dag
+Expression
+Optimizer
+
+an optimizer now optimizes an expression, not a function.
+
+--------------------------------------------------------------
+
+also realized that a Parameter is just a concept, not a separate class. having only numbers be parameters is pretty unfair. functions can also be parameters. subgraphs can also be parameters. a parameter is just something you mark as something you want to mutate to achieve objectives. thus we no longer have a Parameter class. the project, even though its working as is, does not have the best structure. we may have to start over again. perhaps instead of broning into this head first, we should first work on our own string to expression decoder. something that is able to decode a string into something we can understand. 
+
+we need to identify the kinds of things that can appear in a math expression. so those are:
+
+Variable
+Constant
+Operator
+Function
+
+now a parameter only lives as metadata in these. and constraints apply to Constant, and they can apply to any other thing as well.
