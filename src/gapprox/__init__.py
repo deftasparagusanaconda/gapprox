@@ -7,7 +7,7 @@ debug: bool = True	# should be False for release versions, but ill probably forg
 
 #from . import paramgens, structgens
 #from . import outliers, plotters
-from .operators_dict import operators_dict
+from .operator_dict import operator_dict
 from . import operators
 from .parser import parser
 from .sampler import sampler

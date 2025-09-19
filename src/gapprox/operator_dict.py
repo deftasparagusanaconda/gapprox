@@ -6,7 +6,7 @@ import builtins
 import statistics
 from . import operators as ga_ops
 
-operators_dict:dict = {
+operator_dict:dict = {
 
 		# arithmetic
 		 'add'     : py_ops.add
@@ -120,7 +120,6 @@ operators_dict:dict = {
 		# hello there! lol
 
 		# bitwise
-		,'bittruth': lambda a: a
 		,'bitnot'  : py_ops.invert      # 10
 		,'bitand'  : py_ops.and_        # 0001
 		,'bitor'   : py_ops.or_         # 0111

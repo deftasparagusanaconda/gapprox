@@ -2,8 +2,8 @@ import gapprox
 
 class Node:
 	'a node of a directed acyclic graph. it holds a string as a payload. the meaning of the string is decoded using a context dict'
-	def __init__(self, payload: str):
-		self.payload: str = payload
+	def __init__(self, payload: any):
+		self.payload: any = payload
 		self.inputs: list['Edge'] = list()
 		self.outputs: set['Edge'] = set()
 
@@ -50,7 +50,7 @@ class Dag:
 		self.nodes: set[Node] = set() if nodes is None else nodes
 		self.edges: set[Edge] = set() if edges is None else edges
 
-	def new_node(self, payload: str) -> Node:
+	def new_node(self, payload: any) -> Node:
 		'create a new Node and add it to the Dag. also return it'
 		new_node = Node(payload)
 		self.add_node(new_node)
@@ -131,6 +131,34 @@ class Dag:
 
 		# update nodes set
 		self.nodes.remove(node)
+
+	def visualize(self):
+		import networkx as nx
+		import matplotlib.pyplot as plt
+
+		graph = nx.MultiDiGraph()
+
+		# add nodes
+		for node in self.nodes:
+			graph.add_node(node)
+
+		# add edges
+		for edge in self.edges:
+			graph.add_edge(edge.source, edge.target, index=edge.index)
+
+		# positions
+		try:
+			pos = nx.nx_agraph.graphviz_layout(graph, prog="dot")
+		except:
+			pos = nx.spring_layout(graph)  # fallback
+
+		# draw
+		plt.figure(figsize=(12, 8))
+		labels = {node: graph.nodes[node]['payload'] for node in graph.nodes}
+		nx.draw(graph, pos, with_labels=True, labels=labels, node_size=1200, arrowsize=20)
+
+		plt.show()
+
 
 	def __repr__(self):
 		return f"<Dag at {hex(id(self))}: {len(self.nodes)} nodes, {len(self.edges)} edges>"
