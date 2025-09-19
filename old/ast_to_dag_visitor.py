@@ -1,22 +1,54 @@
+# TODO: let the class update its self.variables, self.parameters, self.constants correctly
+# TODO: ensure that the class reuses symbols if it finds symbol names that match what it looks up against. like adding '2+x' to a dag that already has InputNode(Variable('x')) should reuse that one, instead of creating a new one
+
 import ast
-from .dag import Node, Edge, Dag
+from .symbol import Symbol, Variable, Parameter, Constant
+from .dag import Node, InputNode, FunctionNode, OutputNode, Edge, Dag
 from .misc import ast_op_to_op_dict_key
 
 class AstToDagVisitor(ast.NodeVisitor):
 	'stateful function that adds nodes of an ast to a Dag'
-	def __init__(self, dag: Dag, context: dict[str, any], ast_op_to_op_dict_key: dict[ast.AST, str] = ast_op_to_op_dict_key):
-		self.dag: Dag = dag
-		self.context: dict[str, any] = context
-		self.ast_op_to_op_dict_key: dict[ast.AST, str] = ast_op_to_op_dict_key
-	
-	def generic_visit(self, node: Node) -> None:
-		raise NotImplementedError(f"critical error! {node} of type {type(node)} is not recognized. please report this")
+	def __init__(
+			self, 
+			*, 
+			dag                  :Dag,
+			variables            :list[Variable]     = None,
+			parameters           :set[Parameter]     = None,
+			constants            :set[Constant]      = None,
+			name_to_symbol_dict  :dict[str, Symbol]  = None,
+			ast_op_to_op_dict_key:dict[ast.AST, str] = ast_op_to_op_dict_key
+			):
+		self.dag                  :Dag                = dag
+		self.variables            :list[Variable]     = variables
+		self.parameters           :set[Parameter]     = parameters
+		self.constants            :set[Constant]      = constants
+		self.name_to_symbol_dict  :dict[str, Symbol]  = name_to_symbol_dict
+		self.ast_op_to_op_dict_key:dict[ast.AST, str] = ast_op_to_op_dict_key
+
+		if variables is None:
+			self.variables:list[Variable] = list()
+
+		if parameters is None:
+			self.parameters:set[Parameter] = set()
+
+		if constants is None:
+			self.constants:set[Constant] = set()
+
+		symbols = variables + list(parameters) + list(constants)
+
+		if name_to_symbol_dict is None:
+			self.name_symbol_dict:dict[str, Symbol] = dict((symbol.name, symbol) for symbol in symbols)
 		
-	def visit_Constant(self, node: Node) -> Node:	# a number, like 2 in '2+x'
-		self.context[str(node.value)] = node.value
-		return self.dag.new_node(str(node.value))
-	
-	def visit_Name(self, node: Node) -> Node:
+	def visit_Constant(self, node) -> InputNode:	# a number, like 2 in '2+x'
+		new_parameter = Parameter(node.value)
+		self.parameters.add(new_parameter)
+		return self.dag.new_inputnode(new_parameter)
+
+	def generic_visit(self, node):
+		raise NotImplementedError(f"critical error! {node} is not recognized. please report this")
+		
+	# this logic is probably wrong. it should return a node, not a Symbol
+	def visit_Name(self, node) -> InputNode:
 		if node.id in self.name_symbol_dict:
 			symbol:Symbol = self.name_symbol_dict[node.id]
 		else:
@@ -28,7 +60,7 @@ class AstToDagVisitor(ast.NodeVisitor):
 		
 		return self.dag.new_inputnode(symbol)
 
-	def visit_UnaryOp(self, node: Node) -> Node:
+	def visit_UnaryOp(self, node) -> FunctionNode:
 		op = type(node.op)
 		if op in self.ast_op_to_op_dict_key:
 			func_node = self.dag.new_functionnode(ast_op_to_op_dict_key[op])
@@ -39,10 +71,10 @@ class AstToDagVisitor(ast.NodeVisitor):
 		self.dag.new_edge(operand, func_node, 0)
 		return func_node
 
-	def visit_BinOp(self, node: Node) -> Node:
+	def visit_BinOp(self, node) -> FunctionNode:
 		op = type(node.op)
 		if op in self.ast_op_to_op_dict_key:
-			func_node = self.dag.new_node(ast_op_to_op_dict_key[op])
+			func_node = self.dag.new_functionnode(ast_op_to_op_dict_key[op])
 		else:
 			raise NotImplementedError(f"{node.op} not supported")
 
@@ -52,18 +84,17 @@ class AstToDagVisitor(ast.NodeVisitor):
 		self.dag.new_edge(right, func_node, 1)
 		return func_node
 
-	def visit_Call(self, node) -> Node:
+	def visit_Call(self, node) -> FunctionNode:
 		op:str = node.func.id
 		args:list[Node] = [self.visit(arg) for arg in node.args]	# recursion
 		
 		# connect args as inputs to op
-		func_node = self.dag.new_node(op)
+		func_node = self.dag.new_functionnode(op)
 		for index, arg in enumerate(args):
 			self.dag.new_edge(arg, func_node, index)
-		
+
 		return func_node
 
-	"""
 	def visit_Compare(self, node) -> FunctionNode:
 		'assumes comparison operators are binary operators'
 		args: list[Node] = [self.visit(arg) for arg in [node.left] + node.comparators]	# recursion
@@ -152,5 +183,3 @@ class AstToDagVisitor(ast.NodeVisitor):
 
 	def visit_Attribute(self, node):
 		raise NotImplementedError("the developer has not added support for this yet. you can request it on the github repo!")
-
-	"""

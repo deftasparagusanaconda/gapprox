@@ -1,6 +1,6 @@
 'python toolkit to approximate the function of a graph'
 
-__version__ = "0.3.1"
+__version__ = "0.3.2"
 
 # enable data structure integrity checks and strict edge-case-raises, and other stuff
 debug: bool = True	# should be False for release versions, but ill probably forget to set it lol
@@ -12,15 +12,17 @@ from . import operators
 from .parser import parser
 from .sampler import sampler
 #from .approximation.approximation import Approximation
-from .dag import InputNode, FunctionNode, OutputNode, Edge, Dag
+from .dag import Node, Edge, Dag
 from . import errors
 from . import rewarders
 from . import collapsers
 from . import objectives
-from .function import Function
-from . import visitors
+from .expression import Expression
+#from . import visitors
 from . import constants
 from .symbol import Variable, Parameter, Constant#, make_variables, make_parameters, make_constants
+from .ast_to_dag_visitor import AstToDagVisitor
+from .misc import str_to_ast
 
 # to denote the absence of something, instead of using None
 from .misc import Null as _Null
@@ -33,17 +35,15 @@ modules[__name__].__dir__ = lambda: [
 		 'debug'
 
 		# classes
-		,'Approximation'
-		,'Function'
+		#,'Approximation'
 		,'Expression'
-		,'Variable'
-		,'Parameter'
-		,'Constant'
-		,'InputNode'
-		,'FunctionNode'
-		,'OutputNode'
+		#,'Variable'
+		#,'Parameter'
+		#,'Constant'
+		,'Node'
 		,'Edge'
 		,'Dag'
+		,'AstToDagVisitor'
 
 		# collections
 		,'paramgens'
@@ -54,11 +54,14 @@ modules[__name__].__dir__ = lambda: [
 		,'collapsers'
 		,'rewarders'
 		,'objectives'
-		,'visitors'
-		,'constants'
-		,'operators'
+		#,'visitors'
+		#,'constants'
+		#,'operators'
 
 		# dict
 		,'operators_dict'
+
+		# functions
+		,'str_to_ast'
 ]
 

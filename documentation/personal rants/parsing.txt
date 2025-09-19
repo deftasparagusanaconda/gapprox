@@ -1,0 +1,1 @@
+i will soon need to design my own parser. relying on ast is a good starting point but slowly slowly im going to find myself needing to write a custom parser
