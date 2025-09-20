@@ -1,3 +1,5 @@
+# TODO: update floor and ceil symbols
+
 import math
 import cmath
 import operator
@@ -6,11 +8,12 @@ import builtins
 import statistics
 from . import operators as gapprox_operators
 
-default_context: dict[str: any] = {
+default_context: dict[str: dict] = {
 	# arithmetic
 	'add': {
 		'callable': operator.add,
 		'symbols': ['+'],
+		'python_symbol': '+',
 		'aliases': ['addition', 'sum'],
 		'arity': 2,
 		'commutative': True,
@@ -18,6 +21,7 @@ default_context: dict[str: any] = {
 	'sub': {
 		'callable': operator.sub,
 		'symbols': ['−', '-'],
+		'python_symbol': '-',
 		'aliases': ['subtraction', 'difference'],
 		'arity': 2,
 		'commutative': False,
@@ -25,6 +29,7 @@ default_context: dict[str: any] = {
 	'mul': {
 		'callable': operator.mul,
 		'symbols': ['×', '⋅', '*', 'x'],
+		'python_symbol': '*',
 		'aliases': ['multiplication', 'product'],
 		'arity': 2,
 		'commutative': True,
@@ -32,6 +37,7 @@ default_context: dict[str: any] = {
 	'div': {
 		'callable': operator.truediv,
 		'symbols': ['∕', '÷', '/'],
+		'python_symbol': '/',
 		'aliases': ['division', 'ratio'],
 		'arity': 2,
 		'commutative': False,
@@ -41,21 +47,27 @@ default_context: dict[str: any] = {
 	'neg': { # unary minus, negative, additive inverse
 		'callable': operator.neg,
 		'symbols': ['−', '-'],
+		'python_symbol': '-',
 		'aliases': ['negation', 'additive inverse'],
 		'arity': 1,
 	},
 	'inv': { # multiplicative inverse
 		'callable': gapprox_operators.reciprocal,
 		'symbols': ['⅟', '1∕', '∕', '1/', '/'],
+		'python_symbol': '1/',
 		'aliases': ['reciprocal', 'multiplicative inverse'],
 		'arity': 1,
 	},
 	'mod': {
 		'callable': operator.mod,
+		'arity': 2,
 		'symbol': 'mod',
+		'python_symbol': '%',
 	},
 	'floordiv': {
 		'callable': operator.floordiv,
+		'arity': 2,
+		'python_symbol': '//',
 	},
 	'abs': {
 		'callable': operator.abs,
@@ -75,17 +87,21 @@ default_context: dict[str: any] = {
 	'pow': {
 		'callable': builtins.pow,
 		'arity': 2,
-		'symbol': '^'
+		'symbol': '^',
+		'python_symbol': '**',
 	},
 	'floor': {
 		'callable': math.floor,
-		'symbol': ''
+		'arity': 1,
+		'symbol': None,
 	},
 	'round': {
 		'callable': builtins.round,
 	},
 	'ceil': {
 		'callable': math.ceil,
+		'arity': 1,
+		'symbol': None,
 	},
 	'ipart': {
 		'callable': math.trunc,

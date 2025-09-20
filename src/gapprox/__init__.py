@@ -1,6 +1,6 @@
 'python toolkit to approximate the function of a graph'
 
-__version__ = "0.4.0"
+__version__ = "0.5.0"
 
 # enable data structure integrity checks and strict edge-case-raises, and other stuff
 debug: bool = True	# should be False for release versions, but ill probably forget to set it lol

@@ -1,12 +1,16 @@
 from .dag import Node, Dag
 from collections import Counter
 from .ast_to_dag_visitor import AstToDagVisitor
-from .misc import str_to_ast
+from . import misc
+from . import visitors
 import gapprox
 from typing import Iterable
 
 class Expression:
-	'represents a mathematical expression. it is evaluable and callable. the canonical storage is as a DAG, because it reveals the most structure about a math expression.'
+	"""represents a mathematical expression. it is evaluable and callable. the canonical storage is as a DAG, because it reveals the most structure about a math expression
+
+	context given in methods like .evaluate() or .to_str() are only temporary substitutions
+	"""
 		
 	def __init__(
 			self, 
@@ -14,14 +18,8 @@ class Expression:
 			context: dict[str, any] = gapprox.default_context, 
 			*, 
 			dag = None,
-			**kwargs
 			):
-		if len(kwargs) > 0:
-			self.context: dict[str, any] = gapprox.default_context.copy()
-			self.context.update(kwargs)
-		else:
-			self.context: dict[str, any] = context
-
+		self.context = context
 		self.dag = dag
 
 		if dag is None:
@@ -29,7 +27,7 @@ class Expression:
 
 		if isinstance(expr, str):
 			ast_to_dag_visitor = AstToDagVisitor(self.dag)
-			ast_tree = str_to_ast(expr)
+			ast_tree = misc.str_to_ast(expr)
 			top_node = ast_to_dag_visitor.visit(ast_tree)
 			self.root = self.dag.new_node(None)
 			edge = self.dag.new_edge(top_node, self.root, 0)
@@ -41,7 +39,7 @@ class Expression:
 			raise ValueError("first argument must be str or gapprox.Node")
 		
 	def evaluate(self, **kwargs):
-		'allows evaluation of the expression using a substitution dict'
+		"evaluate the expression using keyword arguments as temporary substitutions, like so: expr(x=2) or expr(**{'x': 2})"
 		
 		context: dict[str, any] = self.context.copy()
 		context.update(kwargs)
@@ -65,25 +63,21 @@ class Expression:
 
 	__call__ = evaluate # makes the expression callable
 
-	def to_str(self, node: Node = None, cache: dict[Node: str] = None) -> str:
-		'convert the Expression to a str'
-		node = self.root.inputs[0].source if node is None else node
-		cache = dict() if cache is None else cache
+	def to_str(
+			self, 
+			*, 
+			context: dict[str, dict] = None,
+			**kwargs
+			) -> str:
+		'return the expression as a str'
+		new_context = self.context.copy()
 
-		if node in cache:
-			return cache[node]
+		if context is not None:
+			new_context.update(context)
 
-		if node.is_branch:
-			args: Iterable[str] = (self.to_str(edge.source, cache) for edge in node.inputs)	# recursion
-			output = f"{node.payload}({', '.join(args)})"
-		elif node.is_leaf:
-			output = str(node.payload)
-		else:
-			raise RuntimeError(f"did not expect this branch for {node}: {node.is_branch=}, {node.is_leaf=}")
+		stringify_visitor = visitors.StringifyVisitor(context=new_context, **kwargs)
 
-		cache[node] = output
-
-		return output
+		return stringify_visitor.visit(self.root.inputs[0].source)
 
 	def __repr__(self):
 		return f"<Expression at {hex(id(self))}: dag=<Dag at {hex(id(self.dag))}>, {self.root.inputs[0].source.payload!r} → root, {len(self.context)} contexts>"

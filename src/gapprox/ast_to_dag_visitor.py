@@ -3,10 +3,9 @@ from .dag import Node, Edge, Dag
 from .misc import ast_op_to_op_dict_key
 
 class AstToDagVisitor(ast.NodeVisitor):
-	'stateful function that adds nodes of an ast to a Dag. operates without context'
+	'stateful function that adds nodes of an ast to a Dag'
 	def __init__(self, dag: Dag, ast_op_to_op_dict_key: dict[ast.AST, str] = ast_op_to_op_dict_key):
 		self.dag: Dag = dag
-		#self.context: dict[str, any] = context
 		self.ast_op_to_op_dict_key: dict[ast.AST, str] = ast_op_to_op_dict_key
 	
 	def generic_visit(self, node: Node) -> None:

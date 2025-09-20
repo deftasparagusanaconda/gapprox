@@ -1,33 +1,38 @@
-from .count import count
-from .symbol import Symbol
-from .dag import InputNode, FunctionNode, OutputNode, Node, Edge, Dag
+# we kinda *want* something that can update the inputs list for the operators because inputs lists are being dynamically grown which can get pretty expensive, i think. dynamic allocation is always slower than static allocation
+
 import gapprox
+from .dag import Node, Dag
 
 class NodeVisitor:
 	"""inspired by python's ast.NodeVisitor. see https://docs.python.org/3/library/ast.html#ast.NodeVisitor
 
-	this class is really just a stateful function that traverses through nodes in a DAG. the difference is that it will have different logic for different kinds of nodes. you make a subclass of it, and there you define visit_* methods, where * is your node's class name. say you have ParameterNode. then you would define something like visit_ParameterNode and you would call MyNodeVisitorSubclass().visit(ParameterNode)
-
-	like ast.NodeVisitor, it defines visit and generic_visit, and subclasses are supposed to define visit_* (* meaning YourClassName)
-	unlike ast.NodeVisitor, it does not define generic_visit or visit_Constant, is not specific to a tree structure, and is not specific to ast nodes. it supports a directed acyclic graph data structure, and is generic to *any* kind of DAG node (i think). it also is not limited to root-to-leaf traversal, and can be bi-directional or such
-
-	for a tree structure, a node is visited once. for a DAG structure, a node may be visited multiple times. implement your own memoization if you do not want this repeated traversal.
-
-	to mutate nodes during traversal, use gapprox.NodeTransformer instead. NodeVisitor is only meant for read-only traversal
-
-	it is generally recommended to name any subclasses of NodeVisitor as *Visitor such as SubstitutionVisitor, StringifyVisitor, …
+	base class for any node visitor
 	"""
-	def visit(self, node):
-		'the thing to call to start traversal. never start traversal by calling visit_SpecificNodeType(mynode). always start traversal using visit(mynode)'
+#	"""inspired by python's ast.NodeVisitor. see https://docs.python.org/3/library/ast.html#ast.NodeVisitor
 
-		method = 'visit_' + node.__class__.__name__
+#	this class is really just a stateful function that traverses through nodes in a DAG. the difference is that it will have different logic for different kinds of nodes. you make a subclass of it, and there you define visit_* methods, where * is your node's class name. say you have ParameterNode. then you would define something like visit_ParameterNode and you would call MyNodeVisitorSubclass().visit(ParameterNode)
 
-		if hasattr(self, method):
-			visitor = getattr(self, method)
-		else:
-			raise AttributeError(f"{method} not defined for {node!r}")
+#	like ast.NodeVisitor, it defines visit and generic_visit, and subclasses are supposed to define visit_* (* meaning YourClassName)
+#	unlike ast.NodeVisitor, it does not define generic_visit or visit_Constant, is not specific to a tree structure, and is not specific to ast nodes. it supports a directed acyclic graph data structure, and is generic to *any* kind of DAG node (i think). it also is not limited to root-to-leaf traversal, and can be bi-directional or such
+
+#	for a tree structure, a node is visited once. for a DAG structure, a node may be visited multiple times. implement your own memoization if you do not want this repeated traversal.
+
+#	to mutate nodes during traversal, use gapprox.NodeTransformer instead. NodeVisitor is only meant for read-only traversal
+
+#	it is generally recommended to name any subclasses of NodeVisitor as *Visitor such as SubstitutionVisitor, StringifyVisitor, …
+#	"""
+
+	def visit(self, node) -> any:
+		'the thing to call to start traversal. never start traversal by calling visit_*(mynode). always start traversal by calling visit(mynode)'
+
+		method = 'visit_' + str(node.payload)
+		visitor = getattr(self, method, self.generic_visit)
 
 		return visitor(node)
+
+	def generic_visit(self, node) -> any:
+		'generic_visit generally defines the method (pre-order or post-order) and the direction (towards root or toward leaves) of recursion'
+		raise ValueError("this {self.__class__.__name__} got {node=}, {type(node)=} and no corresponding visit_* was defined")
 
 	def __repr__(self):
 		# all names in the instance
@@ -35,7 +40,7 @@ class NodeVisitor:
 
 		# filter out attributes and methods
 		attributes = [name for name in all_names if not callable(getattr(self, name)) and not name.startswith("__")]
-		methods    = [name for name in all_names if callable(getattr(self, name)) and not name.startswith("__")]
+		methods	= [name for name in all_names if callable(getattr(self, name)) and not name.startswith("__")]
 
 		name_str = self.__class__.__name__	# in case derived classes dont implement their own __repr__ which they probably wont
 		attributes_str = f"{len(attributes)} attributes"
@@ -50,121 +55,126 @@ class NodeVisitor:
 
 		# filter out attributes and methods
 		attributes = [name for name in all_names if not callable(getattr(self, name)) and not name.startswith("__")]
-		methods    = [name for name in all_names if callable(getattr(self, name)) and not name.startswith("__")]
+		methods	= [name for name in all_names if callable(getattr(self, name)) and not name.startswith("__")]
 
 		output = f"{self.__class__.__name__} (ID={hex(id(self))})"
 		output += f"\nattributes: {len(attributes)} defined"
 		for name in attributes:
 			value = getattr(self, name)
 			if isinstance(value, Iterable) and not isinstance(value, (str, bytes)):
-				output += f"\n    {name} = {type(value)}, count={count(value)}, length={len(value)}"
+				output += f"\n	{name} = {type(value)}, len={len(value)}"
 			else:
-				output += f"\n    {name} = {value}"
+				output += f"\n	{name} = {value}"
 		output += f"\nmethods: {len(methods)} defined"
 		for method in methods:
-			output += f"\n    {method}()"
+			output += f"\n	{method}()"
 		return output
 
-class EvaluationVisitor(NodeVisitor):
-	"""perform mathematical expression evaluation by returning InputNode payloads and calling FunctionNode payloads"""
+class SimplifyVisitor(NodeVisitor):
+	'perform mathematical simplification'
+	def __init__(self, dag: Dag):
+		self.dag = dag
 
-	def __init__(self,
-			inputnode_payload_subs   : dict = None, # for substituting variables and such
-			functionnode_payload_subs: dict = None, # for substituting op names with the actual callables
-			node_subs                : dict = None, # for substituting sub-trees or sub-expressions
-			node_cache               : dict = None, # for remembering which nodes have already been substituted
-			*,
-			caching                  : bool = True, # enable saving to and reading from the cache dict, to reduce repeated computation
-			#mutating      :bool = False, # makes substitutions permanent by replacing any nodes by their result
-			#sorting       :bool = False  # perform a topological sort before doing recursive substitution
-			):
-		self.inputnode_payload_subs   : dict = dict() if inputnode_payload_subs    is None else inputnode_payload_subs
-		self.functionnode_payload_subs: dict = dict() if functionnode_payload_subs is None else functionnode_payload_subs
-		self.node_subs                : dict = dict() if node_subs                 is None else node_subs
-		self.node_cache               : dict = dict() if node_cache                is None else node_cache
-		self.caching                  : bool = caching
+#	def generic_visit(self):
+#		'we want to simplify '
 	
-	def visit_InputNode(self, node: InputNode) -> any:
-		# do node substitution
-		if node in self.node_subs:
-			return self.node_subs[node]
-		
-		# do cache substitution
-		if self.caching and node in self.node_cache:
-			return self.node_cache[node]
-		
-		# do payload substitution
-		if node.payload in self.inputnode_payload_subs:
-			payload = self.inputnode_payload_subs[node.payload]
-		else:
-			payload = node.payload
+	def visit_add(self, node) -> Node:
+		"simplify chained binary 'add' nodes to a single variadic 'sum' node. uses post-order scorched-earth recursion"
+		if node.inputs[0].source.payload != 'add' and node.inputs[1].source.payload != 'add':
+			return node
 
-		# do symbol value substution
-		if isinstance(payload, Symbol):
-			payload = payload.value
-		
-		# ending part
-		result = payload
-		
-		if self.caching:
-			self.node_cache[node] = result
-		
-		return result
+		sum_input_nodes: list[Node] = list()
 
-	def visit_FunctionNode(self, node: FunctionNode) -> any:
-		# do node substitution
-		if node in self.node_subs:
-			return self.node_subs[node]
+		def visit_node(node: Node) -> None:
+			for edge in node.inputs:
+				if edge.source.payload == 'add':
+					visit_node(node)	# recursion
+				else:
+					sum_input_nodes.append(edge.source)
 
-		# do cache substitution
-		if self.caching and node in self.node_cache:
-			return self.node_cache[node]
+			dag.remove_node(edge)	# also removes edges
 
-		# do payload substitution
-		if node.payload in self.functionnode_payload_subs:
-			payload = self.functionnode_payload_subs[node.payload]
-		else:
-			payload = node.payload
+		sum_node: Node = dag.new_node('sum')
 
-		if not callable(payload):
-			raise ValueError(f"{payload!r} is not callable")
+		for index, node in enumerate(sum_input_nodes):
+			dag.new_edge(node, sum_node, index)
 
-		# ending part
-		args = list()
-		for edge in node.inputs:
-			args.append(self.visit(edge.source))
-		result = payload(*args)
+		return sum_node
 
-		if self.caching:
-			self.node_cache[node] = result
+	def visit_mul(self, node) -> Node:
+		"simplify chained binary 'mul' nodes to a single variadic 'prod' node. uses post-order scorched-earth recursion"
+		if node.inputs[0].source.payload != 'mul' and node.inputs[1].source.payload != 'mul':
+			return node
 
-		return result
+		prod_input_nodes: list[Node] = list()
 
-	def visit_OutputNode(self, node: OutputNode) -> any:
-		if gapprox.debug and len(node.inputs) != 1:
-			raise ValueError("OutputNode accepts exactly one input")
+		def visit_node(node: Node) -> None:
+			for edge in node.inputs:
+				if edge.source.payload == 'mul':
+					visit_node(node)	# recursion
+				else:
+					prod_input_nodes.append(edge.source)
 
-		# do node substitution
-		if node in self.node_subs:
-			return self.node_subs[node]
+			dag.remove_node(edge)	# also removes edges
 
-		# do cache substitution
-		if self.caching and node in self.node_cache:
-			return self.node_cache[node]
+		prod_node: Node = dag.new_node('prod')
+		for index, node in enumerate(prod_input_nodes):
+			dag.new_edge(node, prod_node, index)
 
-		# ending part
-		result = self.visit(node.inputs[0].source)
+		return prod_node
+"""
+class AggregateLeavesVisitor(NodeVisitor):
+	'aggregate leaves with the same payload into one node, since this is not done by default by the parser'
 
-		if self.caching:
-			self.node_cache[node] = result
-
-		return result
-
+	def __init__(self, dag: Dag):
+		self.dag: Dag = dag
+		raise NotImplementedError("not finished yet")
+"""
+	
 class StringifyVisitor(NodeVisitor):
-	"""turn a math expression DAG into a string
-	"""
-	pass
+	'turn a mathematical expression DAG into a string. implements special syntax for operators like +, −, ×, ∕'
+	def __init__(
+			self, 
+			*, 
+			pretty: bool = False, 
+			spacing: str = ' ',
+			cache: dict[Node, str] = None, 
+			context: dict[str, dict] = gapprox.default_context):
+		self.pretty: bool = pretty
+		self.spacing: str = spacing
+		self.cache: dict[Node, str] = dict() if cache is None else cache
+		self.context: dict[str, dict] = context
 
-# make a class that can get the statistics of a spanning tree
+	def generic_visit(self, node: Node) -> str:
+		'any generic function node, like sin(x) that doesnt have any special operator syntax'
+		if node in self.cache:
+			return self.cache[node]
+		
+		if node.is_branch:
+			args: Iterable[str] = (self.visit(edge.source) for edge in node.inputs) # recursion
+			output = f"{node.payload}({', '.join(args)})"
+		elif node.is_leaf:
+			output = str(node.payload)
+		else:
+			raise RuntimeError(f"did not expect this branch for {node}: {node.is_branch=}, {node.is_leaf=}")
+		
+		self.cache[node] = output
+		return output
 
+	def generic_visit_binary(self, node: Node) -> str:
+		'binary operations like +, −, ×, ∕'
+		left: str = self.visit(node.inputs[0].source)	# recursion
+		right: str = self.visit(node.inputs[1].source)	# recursion
 
+		if self.pretty:
+			operand: str = self.context[node.payload]['symbols'][0]
+		else:
+			operand: str = self.context[node.payload]['python_symbol']
+
+		return f"{left}{self.spacing}{operand}{self.spacing}{right}"
+
+	visit_add = generic_visit_binary
+	visit_sub = generic_visit_binary
+	visit_mul = generic_visit_binary
+	visit_div = generic_visit_binary
+	visit_pow = generic_visit_binary
