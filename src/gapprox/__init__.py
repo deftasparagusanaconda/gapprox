@@ -7,7 +7,7 @@ debug: bool = True	# should be False for release versions, but ill probably forg
 
 #from . import paramgens, structgens
 #from . import outliers, plotters
-from .operator_dict import operator_dict
+from .default_context import default_context
 from . import operators
 from .parser import parser
 from .sampler import sampler
@@ -18,8 +18,6 @@ from . import rewarders
 from . import collapsers
 from . import objectives
 from .expression import Expression
-#from . import visitors
-from . import constants
 from .symbol import Variable, Parameter, Constant#, make_variables, make_parameters, make_constants
 from .ast_to_dag_visitor import AstToDagVisitor
 from . import misc
@@ -27,9 +25,6 @@ from .misc import str_to_ast
 
 # to denote the absence of something, instead of using None
 _NULL = misc.Null()
-
-# special payload to mark that a Node is an output node
-OUTPUT_NODE_MARKER = misc.OutputNodeMarker()
 
 # monkeypatch the __dir__ to clean up the module's autocomplete
 from sys import modules
@@ -65,7 +60,7 @@ modules[__name__].__dir__ = lambda: [
 		,'misc'
 
 		# dict
-		,'operators_dict'
+		,'default_context'
 
 		# functions
 		,'str_to_ast'

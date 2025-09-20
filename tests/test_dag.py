@@ -34,7 +34,7 @@ def test_dag():
 	in1 = dag.new_node(2)
 	in2 = dag.new_node('x')
 	func1 = dag.new_node('add')
-	out1 = dag.new_node(ga.OUTPUT_NODE_MARKER)
+	out1 = dag.new_node(None)
 	
 	e1 = dag.new_edge(in1, func1, 0)
 	e2 = dag.new_edge(in2, func1, 1)

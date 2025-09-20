@@ -1,5 +1,4 @@
 from .dag import Node, Dag
-from .operator_dict import operator_dict
 from collections import Counter
 from .ast_to_dag_visitor import AstToDagVisitor
 from .misc import str_to_ast
@@ -11,16 +10,16 @@ class Expression:
 	def __init__(
 			self, 
 			expr: str | Node, 
-			context: dict[str, any] = operator_dict, 
+			context: dict[str, any] = gapprox.default_context, 
 			*, 
 			dag = None,
 			**kwargs
 			):
 		if len(kwargs) > 0:
-			self.context: dict[str, any] = operator_dict.copy()
+			self.context: dict[str, any] = gapprox.default_context.copy()
 			self.context.update(kwargs)
 		else:
-			self.context: dict[str, any] = operator_dict
+			self.context: dict[str, any] = context
 
 		self.dag = dag
 
@@ -31,11 +30,11 @@ class Expression:
 			ast_to_dag_visitor = AstToDagVisitor(self.dag)
 			ast_tree = str_to_ast(expr)
 			top_node = ast_to_dag_visitor.visit(ast_tree)
-			self.root = self.dag.new_output_node()
+			self.root = self.dag.new_node(None)
 			edge = self.dag.new_edge(top_node, self.root, 0)
 		elif isinstance(expr, Node):
-			if not expr.is_output:
-				raise ValueError(f"expected {expr} to have payload={gapprox.OUTPUT_NODE_MARKER}")
+			if not expr.is_root:
+				raise ValueError(f"expected {expr} to be a root node")
 			self.root = expr
 		else:
 			raise ValueError("first argument must be str or gapprox.Node")
@@ -45,12 +44,19 @@ class Expression:
 		
 		context: dict[str, any] = self.context.copy()
 		context.update(kwargs)
+
+		 # normalise kwargs → wrap raw values into {'value': ...}
+		for key, value in kwargs.items():
+			if isinstance(value, dict) and 'value' in value:
+				context[key] = value
+			else:
+				context[key] = {'value': value}
 		
 		def evaluate_node(node: Node) -> any:
 			if len(node.inputs) == 0:
-				return context[node.payload] if isinstance(node.payload, str) else node.payload
+				return context[node.payload]['value'] if isinstance(node.payload, str) else node.payload
 			else:
-				function = context[node.payload] if isinstance(node.payload, str) else node.payload
+				function = context[node.payload]['callable'] if isinstance(node.payload, str) else node.payload
 				arguments = tuple(evaluate_node(edge.source) for edge in node.inputs)
 				return function(*arguments)
 
