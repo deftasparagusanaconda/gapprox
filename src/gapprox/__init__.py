@@ -21,7 +21,8 @@ from .expression import Expression
 from .symbol import Variable, Parameter, Constant#, make_variables, make_parameters, make_constants
 from .ast_to_dag_visitor import AstToDagVisitor
 from . import misc
-from .misc import str_to_ast
+from . import visitors
+#from .misc import str_to_ast
 
 # to denote the absence of something, instead of using None
 _NULL = misc.Null()
@@ -54,15 +55,15 @@ modules[__name__].__dir__ = lambda: [
 		,'collapsers'
 		,'rewarders'
 		,'objectives'
-		#,'visitors'
+		,'visitors'
 		#,'constants'
-		#,'operators'
+		,'operators'
 		,'misc'
 
 		# dict
 		,'default_context'
 
 		# functions
-		,'str_to_ast'
+		#,'str_to_ast'
 ]
 

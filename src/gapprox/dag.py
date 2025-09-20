@@ -153,16 +153,19 @@ class Dag:
 	def get_integrity_dict(self) -> dict[str, dict[Node|Edge, bool]]:
 		'return a dict[str, dict[Node|Edge, bool]] of integrity checks'
 		return {
-			'node_orphanage'          : {node: not node.is_orphan for node in self.nodes},
-			'node_inputs_sparsity'    : {node: True if node.is_leaf else count(node.inputs)==len(node.inputs) for node in self.nodes},
+			'node_non_orphanage'      : {node: not node.is_orphan for node in self.nodes},
+			'node_non_inputs_sparsity': {node: node.is_leaf or count(node.inputs)==len(node.inputs) for node in self.nodes},
 			'node_inputs_belongness'  : {node: all(edge in self.edges for edge in node.inputs) for node in self.nodes},
 			'node_outputs_belongness' : {node: all(edge in self.edges for edge in node.outputs) for node in self.nodes},
 			'edge_source_belongness'  : {edge: edge.source in self.nodes for edge in self.edges},
 			'edge_target_belongness'  : {edge: edge.target in self.nodes for edge in self.edges},
 			'edge_index_validity'     : {edge: edge.index < len(edge.target.inputs) for edge in self.edges},
 			'edge_source_non_rootness': {edge: not edge.source.is_root for edge in self.edges},
-			'edge_target_non_leafness': {edge: not edge.target.is_leaf for edge in self.edges},
-		}
+			'edge_target_non_leafness': {edge: not edge.target.is_leaf for edge in self.edges}}
+
+	@property
+	def holds_integrity(self) -> bool:
+		return all(all(dictionary.values()) for dictionary in self.get_integrity_dict().values())
 	
 	def visualize(self) -> None:
 		try:

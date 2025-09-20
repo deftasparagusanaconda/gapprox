@@ -3,6 +3,7 @@ from collections import Counter
 from .ast_to_dag_visitor import AstToDagVisitor
 from .misc import str_to_ast
 import gapprox
+from typing import Iterable
 
 class Expression:
 	'represents a mathematical expression. it is evaluable and callable. the canonical storage is as a DAG, because it reveals the most structure about a math expression.'
@@ -64,17 +65,38 @@ class Expression:
 
 	__call__ = evaluate # makes the expression callable
 
+	def to_str(self, node: Node = None, cache: dict[Node: str] = None) -> str:
+		'convert the Expression to a str'
+		node = self.root.inputs[0].source if node is None else node
+		cache = dict() if cache is None else cache
+
+		if node in cache:
+			return cache[node]
+
+		if node.is_branch:
+			args: Iterable[str] = (self.to_str(edge.source, cache) for edge in node.inputs)	# recursion
+			output = f"{node.payload}({', '.join(args)})"
+		elif node.is_leaf:
+			output = str(node.payload)
+		else:
+			raise RuntimeError(f"did not expect this branch for {node}: {node.is_branch=}, {node.is_leaf=}")
+
+		cache[node] = output
+
+		return output
+
 	def __repr__(self):
 		return f"<Expression at {hex(id(self))}: dag=<Dag at {hex(id(self.dag))}>, {self.root.inputs[0].source.payload!r} → root, {len(self.context)} contexts>"
 
 	def __str__(self):
 		output = f"Expression at {hex(id(self))}"
 		output += f"\n    dag: {self.dag!r}"
+		output += f"\n    root: {self.root!r}"
 		output += f"\n    context: {type(self.context)}, len={len(self.context)}"
 
-		type_counts = Counter((type(k), type(v)) for k, v in self.context.items())
-		for (ktype, vtype), count in type_counts.items():
-			output += f"\n        {count} pairs of ({ktype.__name__}: {vtype.__name__})"
+		#type_counts = Counter((type(k), type(v)) for k, v in self.context.items())
+		#for (ktype, vtype), count in type_counts.items():
+		#	output += f"\n        {count} pairs of ({ktype.__name__}: {vtype.__name__})"
 
 		#for key, value in self.context.items():
 		#	output += f"\n        {key!r}: {value!r}"

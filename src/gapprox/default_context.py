@@ -535,6 +535,16 @@ default_context: dict[str: any] = {
 	#,'notin': {
 	#	{'callable': {
 
+	# variadic
+	'sum': {
+		'callable': gapprox_operators.summation,
+		'arity': None
+	},
+	'prod': {
+		'callable': gapprox_operators.product,
+		'arity': None
+	},
+
 	# datatyping
 	'tuple': {
 		'callable': gapprox_operators.to_tuple,
