@@ -1,5 +1,54 @@
-# TODO: finish Function.to_callable
+from .mapping import Mapping
+from typing import Callable, Iterable
 
+class Function:
+	def __init__(
+			self,
+			domain: set  | Callable[..., bool],
+			codomain: set  | Callable[..., bool],
+			mapping: dict[any, any] | Callable[..., bool] | Mapping):
+		self.domain: set  | Callable[..., bool] = domain
+		self.codomain: set  | Callable[..., bool] = codomain
+		self.mapping: dict[any, any] | Callable[..., bool] | Mapping = mapping
+
+	def __call__(*args) -> any:
+		if not self.domain_has(args):
+			raise ValueError("Function does not define {args} in its domain")
+
+		codomain = self.mapping.get_codomain(args)
+
+		if not self.codomain_has(codomain):
+			raise ValueError("Function does not define {args} in its codomain")
+
+		return codomain
+
+	def domain_has(domain: any) -> bool:
+		raise NotImplementedError("not finished yet")
+
+	def codomain_has(codomain: any) -> bool:
+		raise NotImplementedError("not finished yet")
+
+	def mapping_has(mapping: any) -> bool:
+		raise NotImplementedError("not finished yet")
+
+	def __repr__(self) -> str:
+		return f"<Function at {hex(id(self))}: domain={self.domain!r}, codomain={self.codomain!r}, mapping={self.mapping!r}>"
+
+	def __str__(self) -> str:
+		output = f"Function at {hex(id(self))}"
+		output += f"\n    domain: {type(self.domain)}"
+		if isinstance(self.domain, Iterable) and not callable(self.domain):	# because callables can be iterable, strangely
+			output += f", len={len(self.domain)}"
+		output += f"\n    codomain: {type(self.codomain)}"
+		if isinstance(self.codomain, Iterable) and not callable(self.codomain):
+			output += f", len={len(self.codomain)}"
+		output += f"\n    mapping: {type(self.mapping)}"
+		if isinstance(self.mapping, Iterable) and not callable(self.mapping):
+			output += f", len={len(self.mapping)}"
+		return output
+
+
+"""
 from .operators_dict import operators_dict as default_operators_dict
 from .dag import InputNode, FunctionNode, OutputNode, Node, Edge, Dag
 from .symbol import Variable, Parameter, Constant
@@ -10,7 +59,7 @@ from .visitors import EvaluationVisitor
 import ast
 
 class Function:
-	"""represents a mathematical function. it is callable"""
+	'represents a mathematical function. it is callable'
 	
 	def __init__(
 			self,
@@ -90,15 +139,6 @@ class Function:
 
 			case _:
 				raise ValueError(f"unrecognized {expression!r}: must be str, ast.AST, or OutputNode")
-	"""
-	attributes are:
-	self.variables     : list[Variable]      = list()
-	self.parameters    : set[Parameter]      = set()
-	self.constants     : set[Constant]       = set()
-	self.dag           : Dag                 = Dag() if dag is None else dag
-	self.outputnode    : OutputNode          = blahblahblah
-	self.operators_dict: dict[str, callable] = blahblahblah
-	"""
 			
 	def evaluate(self, *args) -> any:
 		'perform mathematical evaluation using gapprox.visitors.EvaluationVisitor'
@@ -138,3 +178,4 @@ class Function:
 		output += f"\noutputnode    : {self.outputnode!r}"
 		output += f"\noperators_dict: {type(self.operators_dict)}, length={len(self.operators_dict)}"
 		return output
+"""

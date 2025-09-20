@@ -1,0 +1,1 @@
+feels like a good time to work on manual.md now that the DAG system has been upgraded *heavily*

@@ -311,9 +311,19 @@ furthermore, certain critical parts of gapprox may be directly compiled to C usi
 
 # ⏳ changelog </summary>
 ---
+
+0.5.0
+---
+string input/output support for Expression class
+
+0.4.0
+---
++ substitution-based DAG system overhaul
+- removed class namespace explosion
+- removed InputNode, FunctionNode, OutputNode classes
+
 0.3.0
 ---
-+ 
 + DAG system
 + extensive documentation ([manual.md](#https://github.com/deftasparagusanaconda/gapprox/blob/main/documentation/manual.md))
 + re-release as `gapprox` on PyPI
@@ -364,34 +374,24 @@ currently, ga only supports single-input single-output [many-to-one][relation ty
 
 # 🤝 contributing </summary>
 ---
-gapprox is currently not looking for contributors. solo dev work is required to get a good structure going. "if you want something done right, you gotta do it yourself"  
+~~gapprox is currently not looking for contributors. solo dev work is required to get a good structure going. "if you want something done right, you gotta do it yourself"~~  
 
-if youre reallly into it though, you can do the following:
+gapprox is now accepting contributions, especially to the iterative optimization engine. to get started quick, try an editable install:
 
 ```shell
 git clone https://github.com/deftasparagusanaconda/gapprox/
-cd gapprox/src/gapprox
+cd gapprox/
 pip install -e .    # -e means editable
 ```
 
-and whatever changes you make will be reflected in your installed version of gapprox
+the module files are in gapprox/src/gapprox
 
-if you are on linux, you may need to activate a virtual python environment before installing, since your package manager may manage python packages. in case youre too lazy to look up how to do that:
+if you are on linux, you may need to use a virtual python environment before installing, since your package manager may manage python packages. in case youre too lazy to look up how to do that, this may work:
 
 ```shell
 python -m venv myenv
-source myenv/bin/activate # or source myenv/bin/activate.fish if you use fish like me :)
-
+source myenv/bin/activate
 ```
-
----
-</details><details><summary>
-
-# 🧶 tidbits & trinkets </summary>
----
-- see [disciplines](https://github.com/deftasparagusanaconda/gapprox/tree/main/documentation/disciplines.md) for which disciplines this project intersects with
-
-- there is a peculiarity in the custom number system, where abs(Integer) is not defined. there is no consensus whether abs(Integer) is Integer or Whole. by definition, abs(Real) is Real. even though the range of values is restricted, the number set is unchanged so it is still considered Real. but the Integer and Whole are indeed differentiated by the range of values. furthermore, a Whole is also technically an Integer.
 
 ---
 </details>

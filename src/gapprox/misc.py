@@ -3,10 +3,10 @@ def str_to_ast(expr:str):
 	'parse a str expression to an ast tree'
 	return parse(expr, mode='eval').body
 
-class Null:
-    'to denote the absence of something, like a placeholder; for when None is not considered as the absence of something'
-	#def __repr__():
-	#	return f"<Null() at {hex(id(self))}>"
+#class Null:
+#    'to denote the absence of something, like a placeholder; for when None is not considered as the absence of something'
+#	#def __repr__():
+#	#	return f"<Null() at {hex(id(self))}>"
 
 # ast to operator mappings
 import ast

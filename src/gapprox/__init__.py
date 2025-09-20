@@ -18,6 +18,8 @@ from . import rewarders
 from . import collapsers
 from . import objectives
 from .expression import Expression
+from .mapping import Mapping
+from .function import Function
 from .symbol import Variable, Parameter, Constant#, make_variables, make_parameters, make_constants
 from .ast_to_dag_visitor import AstToDagVisitor
 from . import misc
@@ -25,7 +27,7 @@ from . import visitors
 #from .misc import str_to_ast
 
 # to denote the absence of something, instead of using None
-_NULL = misc.Null()
+#_NULL = misc.Null()
 
 # monkeypatch the __dir__ to clean up the module's autocomplete
 from sys import modules
@@ -36,15 +38,17 @@ modules[__name__].__dir__ = lambda: [
 		,'OUTPUT_NODE_MARKER'
 
 		# classes
+		,'AstToDagVisitor'
 		#,'Approximation'
-		,'Expression'
 		#,'Variable'
 		#,'Parameter'
 		#,'Constant'
 		,'Node'
 		,'Edge'
 		,'Dag'
-		,'AstToDagVisitor'
+		,'Expression'
+		,'Mapping'
+		,'Function'
 
 		# collections
 		,'paramgens'

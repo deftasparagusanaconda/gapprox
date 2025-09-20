@@ -17,44 +17,46 @@ cd gapprox
 pip install .
 ```
 
-for faster performance, install with all optional dependencies:
+for better performance, install with all optional dependencies:
 ```shell
 pip install gapprox[all]
 ```
 
 ## 📗 basic guide
 ```python
-import gapprox
+import gapprox as ga
 
-f = gapprox.fit([1, 2, 4, 6, 3], [1, 2, 5, 5, 2])
+f = ga.fit([1, 2, 4, 6, 3], [1, 2, 5, 5, 2])
 
 print(f)
 print(f(2.5))
 ```
 
-`import gapprox` loads the gapprox package into python  
-`.fit()` uses an AI model to select the best approximation method and returns a [Function][advanced guide]  
+`.fit()` selects the best approximation method and returns an [Expression][advanced guide]  
 you can print the Function `print(f)` or call it like a function `f(2.5)`  
 
-check out more examples [here!][examples] or read the [manual][manual]
+gapprox can do a lot more. check out more examples [here!][examples] or read the [manual][manual]
 
 ## 🚀 roadmap
-- DAG/expression trees  
-- multi-objective analysis (and [pareto front](https://en.wikipedia.org/wiki/Pareto_front) presentation)  
++ DAG/expression trees  
++ multi-objective analysis 
++ complex numbers  
++ parametric function support  
++ multiple-input multiple-output
+- [pareto front](https://en.wikipedia.org/wiki/Pareto_front) presentation
 - web app  
 - symbolic regression  
-- complex numbers  
-- parametric function support  
-- multiple-input multiple-output
 - n-dimensional plotters  
 - surface approximation  
 - [many-to-many][relation types] relation approximation  
 - point density evaluators  
 - hypersonic blasters 🚀
 
-in the far far future, ga will support multiple-input multiple-output approximation. for m inputs and n outputs, it runs n approximations of m-dimensional [manifolds][manifold] separately  
+~~in the far far future, ga will support multiple-input multiple-output approximation. for m inputs and n outputs, it runs n approximations of m-dimensional [manifolds][manifold] separately  
 effectively, this turns it into a general-purpose prediction library, analogous to AI  
-currently, ga only supports single-input single-output [many-to-one][relation types] functions. see [roadmap][roadmap] for details  
+currently, ga only supports single-input single-output [many-to-one][relation types] functions. see [roadmap][roadmap] for details  ~~
+
+gapprox now supports any general mathematical expression as long as it is representable on a directed acyclic graph. you may go ham on tensorial input/output
 
 ## 📔 you read all that?!?
 

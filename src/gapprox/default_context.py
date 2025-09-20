@@ -8,7 +8,7 @@ import builtins
 import statistics
 from . import operators as gapprox_operators
 
-default_context: dict[str: dict] = {
+default_context: dict[str: dict[str: any]] = {
 	# arithmetic
 	'add': {
 		'callable': operator.add,
@@ -624,3 +624,12 @@ default_context: dict[str: dict] = {
 	}
 }
 
+# what kind of metadata can we give a number?
+"""
+is_positive
+is_negative
+is_integral
+is_real
+is_imaginary
+is_complex
+"""
