@@ -348,6 +348,7 @@ string input/output support for Expression class
 ---
 - `gapprox.fit()` automatic graph fitting
 - DAG/expression trees  
+- hypergraphs  
 - multi-objective analysis (and [pareto front](https://en.wikipedia.org/wiki/Pareto_front) presentation)  
 - web app  
 - DAG node & edge weighting
@@ -358,6 +359,7 @@ string input/output support for Expression class
 - n-dimensional plotters  
 - surface approximation  
 - [many-to-many][relation types] relation approximation  
+- n-ary relation approximation  
 - point density evaluators  
 - hypersonic blasters 🚀
 

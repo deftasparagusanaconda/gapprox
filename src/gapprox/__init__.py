@@ -20,6 +20,7 @@ from . import objectives
 from .expression import Expression
 from .mapping import Mapping
 from .function import Function
+from .relation import Relation
 from .symbol import Variable, Parameter, Constant#, make_variables, make_parameters, make_constants
 from .ast_to_dag_visitor import AstToDagVisitor
 from . import misc
@@ -48,6 +49,7 @@ modules[__name__].__dir__ = lambda: [
 		,'Dag'
 		,'Expression'
 		,'Mapping'
+		,'Relation'
 		,'Function'
 
 		# collections

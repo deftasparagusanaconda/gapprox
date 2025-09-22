@@ -1,0 +1,13 @@
+if i want gapprox to handle relation approximation, first i have to study *deeply* what a relation is. and i dont want just a homogeneous relation, or a binary relation either. i want it to handle n-ary relations
+
+and since i want it to be represented as a graph (because IMO a graph exposes more structure about a relation than, say adjacency lists or matrices), i kept thinking of it like this: an n-ary relation is an n-partite graph, where the tuples are represented as directed paths that connect one vertex from each of the n partitions. for each partition, the relation may not connect all the nodes, but they are there in the graph nontheless. if the relation is total for some set, then it connects all nodes in that partition. 
+
+the representation is NOT a hypergraph, where a hyperedge connects multiple nodes to multiple nodes. a hyperedge stores an ordering of two sets, not nodes. 
+
+what is this graph called? is it that all i have to do is change Edge to be called Path? or.. should i not make it its own object? its just a tuple of nodes. it would be much lighter that way. i dont have to delete the Edge class either. okay. ill make it that way.
+
+
+
+rant:
+
+the idea of an n-ary relation as a set of n-tuples leads me to think of a set of tuples that are not necessarily n-length. is this still a relation? a degenerate relation, perhaps?

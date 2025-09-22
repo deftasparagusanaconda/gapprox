@@ -1,7 +1,9 @@
 from .mapping import Mapping
 from typing import Callable, Iterable
+from .relation import Relation
 
-class Function:
+class Function(Relation):
+	'a special case of a relation, where each element in the domain always maps to exactly one codomain. it is stored as a dict[any, any]'
 	def __init__(
 			self,
 			domain: set  | Callable[..., bool],

@@ -1,0 +1,11 @@
+gapprox was first meant to be "given a graph, find the function". and what i meant by that was "given some data points on a 2d graph, or some hand-drawn shape, find the function that describes it"
+
+at first i thought "hmm, encode some suitable general shapes, and let the engine optimize the parameters"
+
+then i thought "hmm.. i could generalize this to do structure optimization" which made it into a symbolic regressor
+
+then i thought "hmm.. i could generalize this to approximate not just functions but relations" and so its one of the few new relation approximation engines
+
+then i thought "hmm.. i could generalize this to approximate a probability distribution" because a relation describes whether a tuple belongs to a cartesian product. a probability distribution describes to what degree a tuple belongs to a cartesian product.
+
+what is the next generalization?
