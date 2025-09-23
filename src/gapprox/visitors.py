@@ -1,7 +1,7 @@
 # we kinda *want* something that can update the inputs list for the operators because inputs lists are being dynamically grown which can get pretty expensive, i think. dynamic allocation is always slower than static allocation
 
 import gapprox
-from .dag import Node, Dag
+from .graph import Node, MultiDAG
 
 class NodeVisitor:
 	"""inspired by python's ast.NodeVisitor. see https://docs.python.org/3/library/ast.html#ast.NodeVisitor
@@ -72,45 +72,45 @@ class NodeVisitor:
 
 class SimplifyVisitor(NodeVisitor):
 	'perform mathematical simplification'
-	def __init__(self, dag: Dag):
-		self.dag = dag
+	def __init__(self, graph: MultiDAG):
+		self.graph = graph
 
 #	def generic_visit(self):
 #		'we want to simplify '
 	
 	def visit_add(self, node) -> Node:
 		"simplify chained binary 'add' nodes to a single variadic 'sum' node. uses post-order scorched-earth recursion"
-		if node.inputs[0].source.payload != 'add' and node.inputs[1].source.payload != 'add':
+		if all(edge.source.metadata != 'add' for edge in iter(node.inputs)):
 			return node
 
 		sum_input_nodes: list[Node] = list()
 
 		def visit_node(node: Node) -> None:
 			for edge in node.inputs:
-				if edge.source.payload == 'add':
+				if edge.source.metadata == 'add':
 					visit_node(node)	# recursion
 				else:
 					sum_input_nodes.append(edge.source)
 
-			dag.remove_node(edge)	# also removes edges
+			self.graph.remove_node(edge)	# also removes edges
 
-		sum_node: Node = dag.new_node('sum')
+		sum_node: Node = self.graph.new_node('sum')
 
 		for index, node in enumerate(sum_input_nodes):
-			dag.new_edge(node, sum_node, index)
+			self.graph.new_edge(node, sum_node, index)
 
 		return sum_node
 
 	def visit_mul(self, node) -> Node:
 		"simplify chained binary 'mul' nodes to a single variadic 'prod' node. uses post-order scorched-earth recursion"
-		if node.inputs[0].source.payload != 'mul' and node.inputs[1].source.payload != 'mul':
+		if all(edge.source.metadata != 'mul' for edge in iter(node.inputs)):
 			return node
 
 		prod_input_nodes: list[Node] = list()
 
 		def visit_node(node: Node) -> None:
 			for edge in node.inputs:
-				if edge.source.payload == 'mul':
+				if edge.source.metadata == 'mul':
 					visit_node(node)	# recursion
 				else:
 					prod_input_nodes.append(edge.source)
@@ -124,7 +124,7 @@ class SimplifyVisitor(NodeVisitor):
 		return prod_node
 """
 class AggregateLeavesVisitor(NodeVisitor):
-	'aggregate leaves with the same payload into one node, since this is not done by default by the parser'
+	'aggregate leaves with the same metadata into one node, since this is not done by default by the parser'
 
 	def __init__(self, dag: Dag):
 		self.dag: Dag = dag

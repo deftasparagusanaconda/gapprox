@@ -20,10 +20,10 @@ class AstToMultiDAGVisitor(ast.NodeVisitor):
 	def visit_UnaryOp(self, node: Node) -> Node:
 		op = type(node.op)
 
-		if op in self.ast_op_to_op_dict_key:
+		if op not in self.ast_op_to_op_dict_key:
 			raise NotImplementedError(f"{node.op} not supported")
 
-		func_node = self.graph.new_functionnode(ast_op_to_op_dict_key[op])
+		func_node = self.graph.new_node(ast_op_to_op_dict_key[op])
 		operand = self.visit(node.operand)	# recursion
 		self.graph.new_edge(operand, func_node, 0)
 		return func_node

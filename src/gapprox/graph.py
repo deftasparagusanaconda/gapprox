@@ -1,4 +1,3 @@
-from .misc import count
 from collections.abc import Sequence
 import gapprox
 
@@ -11,27 +10,27 @@ class Node:
 
 	@property
 	def is_root(self) -> bool:
-		return len(self.outputs) == 0 and count(self.inputs) != 0
+		return len(self.outputs) == 0 and len(self.inputs) != 0
 
 	@property
 	def is_branch(self) -> bool:
-		return len(self.outputs) != 0 and count(self.inputs) != 0
+		return len(self.outputs) != 0 and len(self.inputs) != 0
 
 	@property
 	def is_leaf(self) -> bool:
-		return len(self.outputs) != 0 and count(self.inputs) == 0
+		return len(self.outputs) != 0 and len(self.inputs) == 0
 
 	@property
 	def is_orphan(self) -> bool:
-		return len(self.outputs) == 0 and count(self.inputs) == 0
+		return len(self.outputs) == 0 and len(self.inputs) == 0
 
 	def __repr__(self) -> str:
-		return f"<Node at {hex(id(self))}: {count(self.inputs)} inputs, {len(self.outputs)} outputs, metadata={self.metadata!r}>"
+		return f"<Node at {hex(id(self))}: {len(self.inputs)} inputs, {len(self.outputs)} outputs, metadata={self.metadata!r}>"
 
 	def __str__(self) -> str:
 		output = f"Node at {hex(id(self))}"
 		output += f"\n    metadata: {self.metadata!r}"
-		output += f"\n    inputs: {type(self.inputs)}, len={len(self.inputs)}, count={count(self.inputs)}"
+		output += f"\n    inputs: {type(self.inputs)}, len={len(self.inputs)}"
 		for index, edge in enumerate(self.inputs):
 			output += f"\n        [index]: {edge!r}"
 		output += f"\n    outputs: {type(self.outputs)}, len={len(self.outputs)}"
@@ -45,6 +44,16 @@ class Edge:
 		self.source: Node = source
 		self.target: Node = target
 		self.metadata: ... = metadata
+
+	def __repr__(self) -> str:
+		return f"<Edge at {hex(id(self))}: {self.source.metadata!r} → {self.target.metadata!r}, metadata={self.metadata!r}>"
+
+	def __str__(self) -> str:
+		output = f"Edge at {hex(id(self))}"
+		output += f"\n    source: {self.source!r}"
+		output += f"\n    target: {self.target!r}"
+		output += f"\n    metadata: {self.metadata!r}"
+		return output
 
 class MultiDAG:
 	'a multi-edged directed acyclic graph. it stores a set of Node and a set of Edge. it does not maintain an adjacency list. the nodes do that themselves'
@@ -170,7 +179,7 @@ class MultiDAG:
 
 		# add edges
 		for edge in self.edges:
-			graph.add_edge(edge.source, edge.target, index=edge.index)
+			graph.add_edge(edge.source, edge.target)
 
 		# positions
 		try:

@@ -9,28 +9,41 @@ from .expression import Expression
 
 class Lambda:
 	'conceptually just a wrapper for an Expression and an order of variables stored together. it enables an Expression to be evaluated not using a substitution dict but by taking substitutions positionally'
-	def __init__(self, expression: Expression, order: Sequence[str]):
-		self.expression: Expression = expression
-		self.order: Sequence[str] = order
+	def __init__(self, expression: str | Expression, *args):
+		if isinstance(expression, str):
+			self.expression: Expression = Expression(expression)
+		elif isinstance(expression, Expression):
+			self.expression: Expression = expression
+		elif callable(expression):
+			self.expression: Callable = expression
+		else:
+			raise ValueError("expression must be str, Expression, or a callable")
+
+		self.order: Sequence[any] = args
 	
-	def evaluate(self, *args) -> any:
+	def evaluate(self, *args, **kwargs) -> any:
 		'evaluate but with positional arguments'
-		if len(args) != len(self.order):
-			raise ValueError(f"length mismatch: {len(self.order)=}, {len(args)=}")
-		new_context = dict(pair for pair in zip(self.order, args))
-		return self.expression(**new_context)
+		if isinstance(self.expression, Expression):
+			if len(args) != len(self.order):
+				raise ValueError(f"length mismatch: {len(self.order)=}, {len(args)=}")
+			new_context = dict(pair for pair in zip(self.order, args))
+			return self.expression(**new_context)
+		elif callable(self.expression):
+			return self.expression(*args, **kwargs)
+		else:
+			raise ValueError("expression must be str, Expression, or a callable")
 	
 	__call__ = evaluate
 	
 class Domain:
 	'represents a mathematical domain, which is stored as either a set, or a Callable[any, bool] which is the indicator function of that set'
 	
-	def __init__(self, determiner: set[any] | Lambda):#[any, bool]):
-		if not hasattr(determiner, '__contains__') or not callable(arg1):
-			raise TypeError("{determiner} must have a __contains__ method, or a callable")
+	def __init__(self, determiner: set[any] | Callable | Lambda):#[any, bool]):
+		if not hasattr(determiner, '__contains__') and not callable(determiner):
+			raise TypeError(f"{determiner} must have a __contains__ method, or be a callable")
 		self.determiner = determiner
 	
-	def has(thing: any) -> bool:
+	def has(self, thing: any) -> bool:
 		if hasattr(self.determiner, '__contains__'):
 			return thing in self.determiner
 		elif callable(self.determiner):
@@ -48,16 +61,17 @@ class Mapping:
 	def __init__(self, mapper:
 				  dict[any, any]
 		        | Lambda#[any, any]
+			    | Callable
 				| Iterable[tuple[any, any]]):
-		if gapprox.debug and not isinstance(mapper, (dict, Lambda, Iterable)):
+		if gapprox.debug and not isinstance(mapper, (dict, Lambda, Callable, Iterable)):
 			raise ValueError("invalid mapper type. see help(gapprox.Mapping) to see allowed types")
 		self.mapper = mapper
 	
 	def maps_to(self, something: any) -> any: 
-		if isinstance(self.mapper, Iterable):	# dict, or some other container of tuples
-			return mapper[something]
+		if isinstance(self.mapper, dict):	# dict, or some other container of tuples
+			return self.mapper[something]
 		elif callable(self.mapper):
-			return mapper(something)
+			return self.mapper(something)
 		else:
 			raise ValueError(f"unsuppored mapper {self.mapper!r} of type {type(self.mapper)}")
 	
@@ -97,7 +111,7 @@ class Function(Relation):
 			forward_mapping: Mapping=None,#[any, any] = None,
 			tuples         : Domain=None,#[tuple[any, any]] = None,
 			reverse_mapping: Mapping=None):#[any, set[any]] = None):
-
+		"""
 		if gapprox.debug:
 			if not isinstance(domain, Domain):
 				raise ValueError("domain must be an instance of Domain")
@@ -128,7 +142,7 @@ class Function(Relation):
 						raise ValueError("forward_mapping and reverse_mapping do not match")
 				else:
 					raise RuntimeError("impossible branch")
-		
+		"""
 		self.domain         : Domain[any]             = domain
 		self.codomain       : Domain[any]             = codomain
 		self.forward_mapping: Mapping[any, any]       = forward_mapping
@@ -220,4 +234,14 @@ class Function(Relation):
 		if isinstance(self.mapping, Iterable) and not callable(self.mapping):
 			output += f", len={len(self.mapping)}"
 		return output
-	
+"""
+the hierarchy is:
+Node, Edge
+Dag
+Expression
+Lambda
+Domain
+Mapping
+Relation
+Function
+"""

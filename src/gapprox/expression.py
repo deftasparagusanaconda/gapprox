@@ -83,7 +83,7 @@ class Expression:
 		return stringify_visitor.visit(next(iter(self.root.inputs)).source)
 
 	def __repr__(self):
-		return f"<Expression at {hex(id(self))}: graph=<{self.graph.__class__.__name__} at {hex(id(self.graph))}>, {self.root.inputs[0].source.payload!r} → root, {len(self.context)} contexts>"
+		return f"<Expression at {hex(id(self))}: graph=<{self.graph.__class__.__name__} at {hex(id(self.graph))}>, {next(iter(self.root.inputs)).source.metadata!r} → root, {len(self.context)} contexts>"
 
 	def __str__(self):
 		output = f"Expression at {hex(id(self))}"

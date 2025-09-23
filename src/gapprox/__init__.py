@@ -12,23 +12,18 @@ from . import operators
 from .parser import parser
 from .sampler import sampler
 #from .approximation.approximation import Approximation
-from .dag import Node, Edge, Dag
+from .graph import Node, Edge, MultiDAG
 from . import errors
 from . import rewarders
 from . import collapsers
 from . import objectives
+from . import domains
 from .expression import Expression
-<<<<<<< HEAD
-from .mapping import Mapping
-from .function import Function
-from .relation import Relation
-=======
->>>>>>> graph
 from .symbol import Variable, Parameter, Constant#, make_variables, make_parameters, make_constants
 from .ast_to_multidag_visitor import AstToMultiDAGVisitor
 from . import misc
 from . import visitors
-from . import thing
+from .relations import Lambda, Domain, Mapping, Relation, Function
 #from .misc import str_to_ast
 
 # to denote the absence of something, instead of using None
@@ -50,13 +45,16 @@ modules[__name__].__dir__ = lambda: [
 		#,'Constant'
 		,'Node'
 		,'Edge'
-		,'Dag'
+		,'MultiDAG'
 		,'Expression'
+		,'Lambda'
+		,'Domain'
 		,'Mapping'
 		,'Relation'
 		,'Function'
 
 		# collections
+		,'domains'
 		,'paramgens'
 		,'structgens'
 		,'outliers'
