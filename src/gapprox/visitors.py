@@ -25,7 +25,7 @@ class NodeVisitor:
 	def visit(self, node) -> any:
 		'the thing to call to start traversal. never start traversal by calling visit_*(mynode). always start traversal by calling visit(mynode)'
 
-		method = 'visit_' + str(node.payload)
+		method = 'visit_' + str(node.metadata)
 		visitor = getattr(self, method, self.generic_visit)
 
 		return visitor(node)
@@ -132,7 +132,7 @@ class AggregateLeavesVisitor(NodeVisitor):
 """
 	
 class StringifyVisitor(NodeVisitor):
-	'turn a mathematical expression DAG into a string. implements special syntax for operators like +, −, ×, ∕'
+	'turn a mathematical expression MultiDAG into a string'
 	def __init__(
 			self, 
 			*, 
@@ -152,9 +152,9 @@ class StringifyVisitor(NodeVisitor):
 		
 		if node.is_branch:
 			args: Iterable[str] = (self.visit(edge.source) for edge in node.inputs) # recursion
-			output = f"{node.payload}({', '.join(args)})"
+			output = f"{node.metadata}({', '.join(args)})"
 		elif node.is_leaf:
-			output = str(node.payload)
+			output = str(node.metadata)
 		else:
 			raise RuntimeError(f"did not expect this branch for {node}: {node.is_branch=}, {node.is_leaf=}")
 		
@@ -163,15 +163,16 @@ class StringifyVisitor(NodeVisitor):
 
 	def generic_visit_binary(self, node: Node) -> str:
 		'binary operations like +, −, ×, ∕'
-		left: str = self.visit(node.inputs[0].source)	# recursion
-		right: str = self.visit(node.inputs[1].source)	# recursion
+		args = [None, None]
+		for edge in node.inputs:
+			args[edge.metadata] = self.visit(edge.source)	# recursion
 
 		if self.pretty:
-			operand: str = self.context[node.payload]['symbols'][0]
+			operand: str = self.context[node.metadata]['symbols'][0]
 		else:
-			operand: str = self.context[node.payload]['python_symbol']
+			operand: str = self.context[node.metadata]['python_symbol']
 
-		return f"{left}{self.spacing}{operand}{self.spacing}{right}"
+		return f"{args[0]}{self.spacing}{operand}{self.spacing}{args[1]}"
 
 	visit_add = generic_visit_binary
 	visit_sub = generic_visit_binary

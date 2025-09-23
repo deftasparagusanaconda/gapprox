@@ -19,7 +19,7 @@ from . import collapsers
 from . import objectives
 from .expression import Expression
 from .symbol import Variable, Parameter, Constant#, make_variables, make_parameters, make_constants
-from .ast_to_dag_visitor import AstToDagVisitor
+from .ast_to_multidag_visitor import AstToMultiDAGVisitor
 from . import misc
 from . import visitors
 from . import thing
@@ -37,7 +37,7 @@ modules[__name__].__dir__ = lambda: [
 		,'OUTPUT_NODE_MARKER'
 
 		# classes
-		,'AstToDagVisitor'
+		,'AstToMultiDAGVisitor'
 		#,'Approximation'
 		#,'Variable'
 		#,'Parameter'

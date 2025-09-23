@@ -1,13 +1,13 @@
-from .dag import Node, Dag
+from .graph import Node, MultiDAG
 from collections import Counter
-from .ast_to_dag_visitor import AstToDagVisitor
+from .ast_to_multidag_visitor import AstToMultiDAGVisitor
 from . import misc
 from . import visitors
 import gapprox
 from typing import Iterable
 
 class Expression:
-	"""represents a mathematical expression. it is evaluable and callable. the canonical storage is as a DAG, because it reveals the most structure about a math expression
+	"""represents a mathematical expression. it is evaluable and callable. the canonical storage is as a MultiDAG, because it reveals the most structure about a math expression
 
 	context given in methods like .evaluate() or .to_str() are only temporary substitutions
 	"""
@@ -17,21 +17,21 @@ class Expression:
 			expr: str | Node, 
 			context: dict[str, dict[str, any]] = gapprox.default_context, 
 			*, 
-			dag: Dag = None,
+			graph: MultiDAG = None,
 			):
-		#'we intentionally do not store a dag, because it muddies up the semantics of an expression. it also causes problems later on in what should own a dag. nothing should own a dag. the user handles their custom dags.'
+		#'we intentionally do not store a graph, because it muddies up the semantics of an expression. it also causes problems later on in what should own a graph. nothing should own a graph. the user handles their custom graphs.'
 		self.context: dict[str, dict[str, any]] = context
-		self.dag: Dag = dag
+		self.graph: MultiDAG = graph
 
-		if self.dag is None:
-			self.dag = Dag()	# create its own Dag
+		if self.graph is None:
+			self.graph = MultiDAG()	# create its own MultiDAG
 
 		if isinstance(expr, str):
-			ast_to_dag_visitor = AstToDagVisitor(self.dag)
+			ast_to_multidag_visitor = AstToMultiDAGVisitor(self.graph)
 			ast_tree = misc.str_to_ast(expr)
-			top_node = ast_to_dag_visitor.visit(ast_tree)
-			self.root = self.dag.new_node(None)
-			edge = self.dag.new_edge(top_node, self.root, 0)
+			top_node = ast_to_multidag_visitor.visit(ast_tree)
+			self.root = self.graph.new_node(None)
+			edge = self.graph.new_edge(top_node, self.root, 0)
 		elif isinstance(expr, Node):
 			if not expr.is_root:
 				raise ValueError(f"expected {expr} to be a root node")
@@ -53,14 +53,16 @@ class Expression:
 				context[key] = {'value': value}
 		
 		def evaluate_node(node: Node) -> any:
-			if len(node.inputs) == 0:
-				return context[node.payload]['value'] if isinstance(node.payload, str) else node.payload
+			if node.is_leaf:
+				return context[node.metadata]['value'] if node.metadata in context else node.metadata
 			else:
-				function = context[node.payload]['callable'] if isinstance(node.payload, str) else node.payload
-				arguments = tuple(evaluate_node(edge.source) for edge in node.inputs)
+				function = context[node.metadata]['callable'] if node.metadata in context else node.metadata
+				arguments = [None] * len(node.inputs)
+				for edge in node.inputs:
+					arguments[edge.metadata] = evaluate_node(edge.source) # recursion
 				return function(*arguments)
 
-		return evaluate_node(self.root.inputs[0].source)
+		return evaluate_node(next(iter(self.root.inputs)).source)
 
 	__call__ = evaluate # makes the expression callable
 
@@ -78,14 +80,14 @@ class Expression:
 
 		stringify_visitor = visitors.StringifyVisitor(context=new_context, **kwargs)
 
-		return stringify_visitor.visit(self.root.inputs[0].source)
+		return stringify_visitor.visit(next(iter(self.root.inputs)).source)
 
 	def __repr__(self):
-		return f"<Expression at {hex(id(self))}: dag=<Dag at {hex(id(self.dag))}>, {self.root.inputs[0].source.payload!r} → root, {len(self.context)} contexts>"
+		return f"<Expression at {hex(id(self))}: graph=<{self.graph.__class__.__name__} at {hex(id(self.graph))}>, {self.root.inputs[0].source.payload!r} → root, {len(self.context)} contexts>"
 
 	def __str__(self):
 		output = f"Expression at {hex(id(self))}"
-		output += f"\n    dag: {self.dag!r}"
+		output += f"\n    graph: {self.graph!r}"
 		output += f"\n    root: {self.root!r}"
 		output += f"\n    context: {type(self.context)}, len={len(self.context)}"
 
