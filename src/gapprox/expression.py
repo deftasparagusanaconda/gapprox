@@ -17,20 +17,21 @@ class Expression:
 			expr: str | Node, 
 			context: dict[str, dict[str, any]] = gapprox.default_context, 
 			*, 
-			dag = None,
+			dag: Dag = None,
 			):
-		'we intentionally do not store a dag, because it muddies up the semantics of an expression. it also causes problems later on in what should own a dag. nothing should own a dag. the user handles their custom dags.'
+		#'we intentionally do not store a dag, because it muddies up the semantics of an expression. it also causes problems later on in what should own a dag. nothing should own a dag. the user handles their custom dags.'
 		self.context: dict[str, dict[str, any]] = context
+		self.dag: Dag = dag
 
-		if dag is None:
-			dag = Dag()	# create its own Dag
+		if self.dag is None:
+			self.dag = Dag()	# create its own Dag
 
 		if isinstance(expr, str):
-			ast_to_dag_visitor = AstToDagVisitor(dag)
+			ast_to_dag_visitor = AstToDagVisitor(self.dag)
 			ast_tree = misc.str_to_ast(expr)
 			top_node = ast_to_dag_visitor.visit(ast_tree)
-			self.root = dag.new_node(None)
-			edge = dag.new_edge(top_node, self.root, 0)
+			self.root = self.dag.new_node(None)
+			edge = self.dag.new_edge(top_node, self.root, 0)
 		elif isinstance(expr, Node):
 			if not expr.is_root:
 				raise ValueError(f"expected {expr} to be a root node")
