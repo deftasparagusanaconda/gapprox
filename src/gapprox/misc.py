@@ -8,6 +8,25 @@ def str_to_ast(expr:str):
 #	#def __repr__():
 #	#	return f"<Null() at {hex(id(self))}>"
 
+# mainly for optimizer
+import queue
+
+class DiscardingQueue(queue.Queue):
+	'subclass of queue.Queue that discards older elements if queue is full'
+	def put(self, item):
+		'very primitive technology, but good enough for our purpose'
+		# PRIMITIVE TECHNOLOGY!!!!!
+		with self.mutex:
+			if self.maxsize > 0 and self._qsize() >= self.maxsize:
+				self._get()
+			self._put(item)
+			self.unfinished_tasks += 1
+			self.not_empty.notify()
+	
+	def see(self) -> tuple[any]:
+		with self.mutex:
+			return tuple(self.queue)
+
 # ast to operator mappings
 import ast
 ast_op_to_op_dict_key = {

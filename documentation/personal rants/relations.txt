@@ -1,0 +1,15 @@
+if gapprox is ultimately trying to find a relation, a relation isnt usually neatly described by an expression. well.. sometimes.. in the case of a function. but in cases like an inequality or an equality or such, we need to find the characteristic function. AKA the indicator function. because a relation is just a subset of the cartesian product of all the domains. and an indicator function basically takes a tuple of elements from each domain and returns a boolean: whether that tuple is valid or not.
+
+but how does one measure a relation? we can measure functions but how for relations? does my objectives.py have to grow?
+
+-----------------
+
+relatins are just a set of tuples. how many ways can we represent them?
+
+equations
+inequations
+geometric shapes
+parametric equations
+bezier curves
+piecewise
+interval

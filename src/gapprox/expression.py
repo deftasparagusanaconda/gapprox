@@ -13,21 +13,25 @@ class Expression:
 	"""
 		
 	def __init__(
-			self, 
-			expr: str | Node, 
-			context: dict[str, dict[str, any]] = gapprox.default_context, 
-			*, 
+			self,
+			expr: str | Node,
+			*,
+			context: dict[str, dict[str, any]] = None,
 			graph: MultiDAG = None,
+			ast_to_multidag_visitor: AstToMultiDAGVisitor = None
 			):
-		#'we intentionally do not store a graph, because it muddies up the semantics of an expression. it also causes problems later on in what should own a graph. nothing should own a graph. the user handles their custom graphs.'
+		'can take a str as input for convenience'
 		self.context: dict[str, dict[str, any]] = context
 		self.graph: MultiDAG = graph
 
+		if self.context is None:
+			self.context = gapprox.default_context.copy()
 		if self.graph is None:
 			self.graph = MultiDAG()	# create its own MultiDAG
 
 		if isinstance(expr, str):
-			ast_to_multidag_visitor = AstToMultiDAGVisitor(self.graph)
+			if ast_to_multidag_visitor is None:
+				ast_to_multidag_visitor = AstToMultiDAGVisitor(self.graph)
 			ast_tree = misc.str_to_ast(expr)
 			top_node = ast_to_multidag_visitor.visit(ast_tree)
 			self.root = self.graph.new_node(None)
@@ -38,7 +42,12 @@ class Expression:
 			self.root = expr
 		else:
 			raise ValueError("first argument must be str or gapprox.Node")
-		
+
+	@property
+	def variables() -> set[str]:
+		raise NotImplementedError
+		# return a set of variables by traversing the graph. implemented as a dynamic property since it is not mathematically intrinsic for an expression to know its variables. also prevents bad method design, especially with .evaluate checking if kwargs satisfies its variables. it should not do that check.
+
 	def evaluate(self, **kwargs):
 		"evaluate the expression using keyword arguments as temporary substitutions, like so: expr(x=2) or expr(**{'x': 2})"
 		
@@ -98,3 +107,37 @@ class Expression:
 		#for key, value in self.context.items():
 		#	output += f"\n        {key!r}: {value!r}"
 		return output
+
+class OrderedExpression:
+	'conceptually just a wrapper for an Expression and an order of variables stored together. it enables an Expression to be evaluated not using a substitution dict but by taking substitutions positionally'
+	def __init__(self, expression: str | Expression, *args):
+		'can create an Expression from a str for convenience'
+
+		self.order: Sequence[any] = args
+
+		if isinstance(expression, Expression):
+			self.expression: Expression = expression
+		if not isinstance(expression, str):
+			raise ValueError("expression must be str, Expression")
+
+		if graph is None:
+			graph: MultiDAG = MultiDAG()	# creates its own MultiDAG
+		if ast_to_multidag_visitor is None:
+			ast_to_multidag_visitor = AstToMultiDAGVisitor()
+		self.expression: Expression = Expression(expression, ast_to_multidag_visitor = ast_to_multidag_visitor)
+
+
+	def evaluate(self, *args, **kwargs) -> any:
+		'evaluate but with positional arguments'
+
+		if gapprox.debug:
+			if not isinstance(self.expression, Expression):
+				raise ValueError("expression must be str, Expression")
+			if len(args) != len(self.order):
+				raise ValueError(f"length mismatch: {len(self.order)=}, {len(args)=}")
+
+		new_context = dict(pair for pair in zip(self.order, args))
+		return self.expression(**new_context)
+
+	__call__ = evaluate
+

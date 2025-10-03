@@ -1,0 +1,11 @@
+if im not mistaken, then predictor that i try to design for the optimizer is basically trying to solve a bayesian optimization problem. i think
+
+i dont even know what a bayesian optimization problem is like, but from the few things i read on wikipedia, this *might* be related..
+
+
+
+update:
+
+it is.. but bayesian optimization is one of many ways to do this. i think.
+
+the general problem im trying to let the predictor solve is basically finding the maximum of a blackbox function. theres two main ways as far as i know: derivative-based, and non-derivative-based. i think BO is a non-derivative-based one. the non-derivative-based ones are good for when the reward function is quite jumpy or finite differences are unpredicable. the derivative-based one is good for when the reward function is smooth or so

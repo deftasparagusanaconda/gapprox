@@ -1,3 +1,5 @@
+from collections.abc import Sequence
+
 """
 from the Dag representation of the expression:
 inputnode count      | how many inputnode
@@ -67,7 +69,7 @@ def tree_node_and_edge_count(node:Node):
 # make a traverser that can return all these in one traversal
 from . import errors, collapsers
 
-def error(original:list[any], approximation:list[any], error:callable=errors.difference_squared, collapser:callable=collapsers.sum):
+def error(approximation: Sequence[any], original: Sequence[any], error: callable=errors.difference_squared, collapser: callable=collapsers.sum):
 	'calculate how much discrepancy is between two arrays of numbers. uses RMSE (root mean squared error) by default'
 	if len(original) != len(approximation):
 		raise ValueError(f"length mismatch: len(original)={len(original)}, len(approximation)={len(approximation)}")

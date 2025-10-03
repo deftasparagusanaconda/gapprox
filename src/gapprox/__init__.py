@@ -23,7 +23,7 @@ from .symbol import Variable, Parameter, Constant#, make_variables, make_paramet
 from .ast_to_multidag_visitor import AstToMultiDAGVisitor
 from . import misc
 from . import visitors
-from .relations import Lambda, Domain, Mapping, Relation, Function
+from .relations import OrderedExpression, Domain, Mapping, Relation, Function
 #from .misc import str_to_ast
 
 # to denote the absence of something, instead of using None
@@ -47,7 +47,7 @@ modules[__name__].__dir__ = lambda: [
 		,'Edge'
 		,'MultiDAG'
 		,'Expression'
-		,'Lambda'
+		,'OrderedExpression'
 		,'Domain'
 		,'Mapping'
 		,'Relation'

@@ -1,0 +1,3 @@
+gapprox seems to be the perfect example for backpropagation, if its careful with caching in the Expression with a MultiDAG.
+
+what even is backpropagation anyway??

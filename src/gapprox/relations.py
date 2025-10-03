@@ -1,44 +1,17 @@
 # TODO:
-# somehow register Lambda as a Callable
+# somehow register OrderedExpression as a Callable
 # thus replace callable(thing) with isinstance(thing, Callable) wherever possible
-# also try to support subscriptable typehinting for Lambda and other classes
+# also try to support subscriptable typehinting for OrderedExpression and other classes
 
 from collections.abc import Callable, Iterable, Sequence
 import gapprox
-from .expression import Expression
+from .ast_to_multidag_visitor import AstToMultiDAGVisitor
+from .expression import Expression, OrderedExpression
 
-class Lambda:
-	'conceptually just a wrapper for an Expression and an order of variables stored together. it enables an Expression to be evaluated not using a substitution dict but by taking substitutions positionally'
-	def __init__(self, expression: str | Expression, *args):
-		if isinstance(expression, str):
-			self.expression: Expression = Expression(expression)
-		elif isinstance(expression, Expression):
-			self.expression: Expression = expression
-		elif callable(expression):
-			self.expression: Callable = expression
-		else:
-			raise ValueError("expression must be str, Expression, or a callable")
-
-		self.order: Sequence[any] = args
-	
-	def evaluate(self, *args, **kwargs) -> any:
-		'evaluate but with positional arguments'
-		if isinstance(self.expression, Expression):
-			if len(args) != len(self.order):
-				raise ValueError(f"length mismatch: {len(self.order)=}, {len(args)=}")
-			new_context = dict(pair for pair in zip(self.order, args))
-			return self.expression(**new_context)
-		elif callable(self.expression):
-			return self.expression(*args, **kwargs)
-		else:
-			raise ValueError("expression must be str, Expression, or a callable")
-	
-	__call__ = evaluate
-	
 class Domain:
 	'represents a mathematical domain, which is stored as either a set, or a Callable[any, bool] which is the indicator function of that set'
 	
-	def __init__(self, determiner: set[any] | Callable | Lambda):#[any, bool]):
+	def __init__(self, determiner: set[any] | Callable | OrderedExpression):#[any, bool]):
 		if not hasattr(determiner, '__contains__') and not callable(determiner):
 			raise TypeError(f"{determiner} must have a __contains__ method, or be a callable")
 		self.determiner = determiner
@@ -60,10 +33,10 @@ class Mapping:
 	"""
 	def __init__(self, mapper:
 				  dict[any, any]
-		        | Lambda#[any, any]
+		        | OrderedExpression#[any, any]
 			    | Callable
 				| Iterable[tuple[any, any]]):
-		if gapprox.debug and not isinstance(mapper, (dict, Lambda, Callable, Iterable)):
+		if gapprox.debug and not isinstance(mapper, (dict, OrderedExpression, Callable, Iterable)):
 			raise ValueError("invalid mapper type. see help(gapprox.Mapping) to see allowed types")
 		self.mapper = mapper
 	
@@ -80,7 +53,7 @@ class Mapping:
 class Relation:
 	"""represents a mathematical relation. it stores a set of tuples in .tuples and also keeps track of a tuple of domains in .domains. it thus generalizes to an n-ary relation. it can also store tuples as a callable, which is the indicator function of the set"""
 
-	def __init__(self, tuples: set[tuple] | Lambda, domains):#[tuple, bool], domains: tuple[Domain]):
+	def __init__(self, tuples: set[tuple] | OrderedExpression, domains):#[tuple, bool], domains: tuple[Domain]):
 		raise NotImplementedError("not fully done yet")
 		self.tuples: set[tuple] | Callable[tuple, bool] = tuples
 		self.domains: tuple[Domain] = domains
@@ -148,6 +121,11 @@ class Function(Relation):
 		self.forward_mapping: Mapping[any, any]       = forward_mapping
 		self.tuples         : Domain[tuple[any, any]] = tuples
 		self.reverse_mapping: Mapping[any, any]       = reverse_mapping
+
+		if isinstance(self.forward_mapping, str):
+			new_expr = Expression(self.forward_mapping)
+			new_lambda = OrderedExpression(new_expr)
+			self.forward_mapping: Mapping = Mapping(new_lambda)
 		
 	@property
 	def is_partial(self) -> bool:
@@ -220,7 +198,7 @@ class Function(Relation):
 	__call__ = get_codomain
 
 	def __repr__(self) -> str:
-		return f"<Function at {hex(id(self))}: domain={self.domain!r}, codomain={self.codomain!r}, mapping={self.mapping!r}>"
+		return f"<Function at {hex(id(self))}: domain={self.domain!r}, codomain={self.codomain!r}, forward_mapping={self.forward_mapping!r}, tuples={self.tuples!r}, reverse_mapping={self.reverse_mapping!r}>"
 
 	def __str__(self) -> str:
 		output = f"Function at {hex(id(self))}"
@@ -230,16 +208,19 @@ class Function(Relation):
 		output += f"\n    codomain: {type(self.codomain)}"
 		if isinstance(self.codomain, Iterable) and not callable(self.codomain):
 			output += f", len={len(self.codomain)}"
-		output += f"\n    mapping: {type(self.mapping)}"
-		if isinstance(self.mapping, Iterable) and not callable(self.mapping):
-			output += f", len={len(self.mapping)}"
+		output += f"\n    forward_mapping: {type(self.forward_mapping)}"
+		if isinstance(self.forward_mapping, Iterable) and not callable(self.forward_mapping):
+			output += f", len={len(self.forward_mapping)}"
+		output += f"\n    reverse_mapping: {type(self.reverse_mapping)}"
+		if isinstance(self.reverse_mapping, Iterable) and not callable(self.reverse_mapping):
+			output += f", len={len(self.reverse_mapping)}"
 		return output
 """
 the hierarchy is:
 Node, Edge
 Dag
 Expression
-Lambda
+OrderedExpression
 Domain
 Mapping
 Relation

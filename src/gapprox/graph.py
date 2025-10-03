@@ -164,12 +164,12 @@ class MultiDAG:
 	def holds_integrity(self) -> bool:
 		return all(all(dictionary.values()) for dictionary in self.get_integrity_dict().values())
 	
-	def visualize(self) -> None:
+	def visualize(self, context:dict[str, dict[str, any]] = gapprox.default_context) -> None:
 		try:
 			import networkx as nx
 			import matplotlib.pyplot as plt
 		except ImportError:
-			print('this method required networkx and matplotlib to be installed')
+			print('this method requires networkx and matplotlib to be installed')
 
 		graph = nx.MultiDiGraph()
 
@@ -189,7 +189,7 @@ class MultiDAG:
 
 		# draw
 		plt.figure(figsize=(12, 8))
-		labels = {node: repr(node.metadata) for node in graph.nodes}
+		labels = {node: context[node.metadata]['symbols'][0] if node.metadata in context and 'symbols' in context[node.metadata] else repr(node.metadata) for node in graph.nodes}
 		nx.draw(graph, pos, with_labels=True, labels=labels, node_size=1200, arrowsize=20)
 
 		plt.show()

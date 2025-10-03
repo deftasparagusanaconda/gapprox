@@ -26,3 +26,5 @@ for i in range(1000000):
 	params_history.append(param_values)
 
 	print(param_values)
+
+
