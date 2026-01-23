@@ -28,7 +28,7 @@ class Node:
 		return f"<Node at {hex(id(self))}: {len(self.inputs)} inputs, {len(self.outputs)} outputs, metadata={self.metadata!r}>"
 
 	def __str__(self) -> str:
-		output = f"Node at {hex(id(self))}"
+		output = f"Node at {hex(id(self))}:"
 		output += f"\n    metadata: {self.metadata!r}"
 		output += f"\n    inputs: {type(self.inputs)}, len={len(self.inputs)}"
 		for index, edge in enumerate(self.inputs):
@@ -49,7 +49,7 @@ class Edge:
 		return f"<Edge at {hex(id(self))}: {self.source.metadata!r} → {self.target.metadata!r}, metadata={self.metadata!r}>"
 
 	def __str__(self) -> str:
-		output = f"Edge at {hex(id(self))}"
+		output = f"Edge at {hex(id(self))}:"
 		output += f"\n    source: {self.source!r}"
 		output += f"\n    target: {self.target!r}"
 		output += f"\n    metadata: {self.metadata!r}"
@@ -146,7 +146,7 @@ class MultiDAG:
 
 		# update nodes set
 		self.nodes.remove(node)
-
+	
 	def get_integrity_dict(self) -> dict[str, dict[Node|Edge, bool]]:
 		'return a dict[str, dict[Node|Edge, bool]] of integrity checks'
 		return {
@@ -198,7 +198,7 @@ class MultiDAG:
 		return f"<MultiDAG at {hex(id(self))}: {len(self.nodes)} nodes, {len(self.edges)} edges>"
 
 	def __str__(self) -> str:
-		output = f"MultiDAG at {hex(id(self))}"
+		output = f"MultiDAG at {hex(id(self))}:"
 		output += f"\n    nodes: {type(self.nodes)}, len={len(self.nodes)}"
 		for node in self.nodes:
 			output += f"\n        {node!r}"
@@ -208,10 +208,11 @@ class MultiDAG:
 		return output
 
 	@staticmethod
-	def print_tree_view(node, prefix :str = '') -> None:
-		print(prefix + repr(node))
+	def tree_view(node, prefix: str = '') -> str:
+		output = f'{prefix}{node!r}\n'
 		for index, edge in enumerate(node.inputs):
-			MultiDAG.print_tree_view(edge.source, prefix + str(index).ljust(4, '-'))
+			output += MultiDAG.tree_view(edge.source, prefix + str(index).ljust(4, '-'))
+		return output
 
 """
 class DiEdge:

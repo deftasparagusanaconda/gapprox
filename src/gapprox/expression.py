@@ -54,7 +54,7 @@ class Expression:
 		context: dict[str, any] = self.context.copy()
 		context.update(kwargs)
 
-		 # normalise kwargs → wrap raw values into {'value': ...}
+		# normalise kwargs → wrap raw values into {'value': ...}
 		for key, value in kwargs.items():
 			if isinstance(value, dict) and 'value' in value:
 				context[key] = value
@@ -71,8 +71,9 @@ class Expression:
 					arguments[edge.metadata] = evaluate_node(edge.source) # recursion
 				return function(*arguments)
 
-		return evaluate_node(next(iter(self.root.inputs)).source)
-
+		root_input = next(iter(self.root.inputs)).source
+		return evaluate_node(root_input)
+		
 	__call__ = evaluate # makes the expression callable
 
 	def to_str(
@@ -89,7 +90,8 @@ class Expression:
 
 		stringify_visitor = visitors.StringifyVisitor(context=new_context, **kwargs)
 
-		return stringify_visitor.visit(next(iter(self.root.inputs)).source)
+		root_input = next(iter(self.root.inputs)).source
+		return stringify_visitor.visit(root_input)
 
 	def __repr__(self):
 		return f"<Expression at {hex(id(self))}: graph=<{self.graph.__class__.__name__} at {hex(id(self.graph))}>, {next(iter(self.root.inputs)).source.metadata!r} → root, {len(self.context)} contexts>"
@@ -118,14 +120,13 @@ class OrderedExpression:
 		if isinstance(expression, Expression):
 			self.expression: Expression = expression
 		if not isinstance(expression, str):
-			raise ValueError("expression must be str, Expression")
+			raise ValueError("expression must be str or Expression")
 
-		if graph is None:
-			graph: MultiDAG = MultiDAG()	# creates its own MultiDAG
+		if self.graph is None:
+			self.graph: MultiDAG = MultiDAG()	# creates its own MultiDAG
 		if ast_to_multidag_visitor is None:
 			ast_to_multidag_visitor = AstToMultiDAGVisitor()
 		self.expression: Expression = Expression(expression, ast_to_multidag_visitor = ast_to_multidag_visitor)
-
 
 	def evaluate(self, *args, **kwargs) -> any:
 		'evaluate but with positional arguments'
@@ -136,7 +137,7 @@ class OrderedExpression:
 			if len(args) != len(self.order):
 				raise ValueError(f"length mismatch: {len(self.order)=}, {len(args)=}")
 
-		new_context = dict(pair for pair in zip(self.order, args))
+		new_context = {key: value for key, value in zip(self.order, args)}
 		return self.expression(**new_context)
 
 	__call__ = evaluate

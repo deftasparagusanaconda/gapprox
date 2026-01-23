@@ -9,7 +9,7 @@ debug: bool = True	# should be False for release versions, but ill probably forg
 #from . import outliers, plotters
 from .default_context import default_context
 from . import operators
-from .parser import parser
+#from .parser import parser
 from .sampler import sampler
 #from .approximation.approximation import Approximation
 from .graph import Node, Edge, MultiDAG
@@ -19,11 +19,12 @@ from . import collapsers
 from . import objectives
 from . import domains
 from .expression import Expression
-from .symbol import Variable, Parameter, Constant#, make_variables, make_parameters, make_constants
+#from .symbol import Variable, Parameter, Constant#, make_variables, make_parameters, make_constants
 from .ast_to_multidag_visitor import AstToMultiDAGVisitor
 from . import misc
 from . import visitors
 from .relations import OrderedExpression, Domain, Mapping, Relation, Function
+from .optimizer import Optimizer
 #from .misc import str_to_ast
 
 # to denote the absence of something, instead of using None

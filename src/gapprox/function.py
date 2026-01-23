@@ -11,13 +11,13 @@ class Function(Relation):
 			mapping: dict[any, any] | Callable[..., bool] | Mapping):
 		self.domain: set  | Callable[..., bool] = domain
 		self.codomain: set  | Callable[..., bool] = codomain
-		self.mapping: dict[any, any] | Callable[..., bool] | Mapping = mapping
+		self.mapping: Mapping = mapping
 
 	def __call__(*args) -> any:
 		if not self.domain_has(args):
 			raise ValueError("Function does not define {args} in its domain")
 
-		codomain = self.mapping.get_codomain(args)
+		codomain = self.mapping.maps_to(args)
 
 		if not self.codomain_has(codomain):
 			raise ValueError("Function does not define {args} in its codomain")
