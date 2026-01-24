@@ -1,3 +1,5 @@
+# NOTE: the optimizer assumes that the objective function has an .output_shape attribute, which is an instance of the Shape class. the output_shape decorator is used to give this attribute to the objective function. this is how optimizer knows the shape of the output, without having to guess whether the objective function is scalar-valued or vector-valued
+
 from abc import ABC as _ABC
 from collections.abc import Callable as _Callable, Sequence as _Sequence
 from collections.abc import MutableSequence as _MutableSequence	# for GreedyLocalSearch.default_state
@@ -103,7 +105,7 @@ class GreedyLocalSearch(ParameterOptimizerStrategy):
 			x_new_args: tuple = (x + _random.uniform(-step, step) for x in x_old.args)
 			x_new_kwargs: dict = {name: x + _random.uniform(-step, step) for name, x in x_old.kwargs.items()}
 			x_new: _BoundArguments = self.parameters.bind(*x_new_args, **x_new_kwargs)
-
+			
 			y_new: _Sequence[float] = self.objective(*x_new.args, **x_new.kwargs)
 			
 			# if a pareto point is found
@@ -111,7 +113,7 @@ class GreedyLocalSearch(ParameterOptimizerStrategy):
 				state = [x_new, y_new]
 				point: tuple = x_new, y_new
 				pareto_front.add(point)
-
+		
 		return pareto_front
 
 class ParameterOptimizer(Optimizer):
@@ -137,9 +139,9 @@ def myfunc(x):
 def is_better(old, new) -> bool:
 	return new < old
 	
-paramoptim = GreedyLocalSearch(myfunc, [is_better])
-state = paramoptim.default_state
-result = paramoptim.optimize(iterations = 1000, step = 0.1, state = state)
+param_optim = GreedyLocalSearch(myfunc, [is_better])
+state = param_optim.default_state
+result = param_optim.optimize(iterations = 1000, step = 0.1, state = state)
 print(result)
 
 # NOTE: using _Sequence[_Callable[[...], bool] for the comparers assumes that the objective function will return the objectives as a tuple. it might not always, so find a cleaner abstraction for this.

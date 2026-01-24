@@ -25,6 +25,7 @@ from . import misc
 from . import visitors
 from .relations import OrderedExpression, Domain, Mapping, Relation, Function
 from .optimizer import Optimizer
+from .shape import Shape, output_shape
 #from .misc import str_to_ast
 
 # to denote the absence of something, instead of using None
