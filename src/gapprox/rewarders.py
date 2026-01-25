@@ -14,6 +14,9 @@
 # a negative reward is a punishment
 # a positive reward is an encouragement
 
+def neutral(score: float, *, constant: float = 0.0) -> float:
+	return constant
+
 def maximize(score: float) -> float:
 	'reward higher scores. more is better'
 	return score

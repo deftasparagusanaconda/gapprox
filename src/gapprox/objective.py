@@ -11,41 +11,20 @@ class Objective:
 	def __init__(
 			self, 
 			function        : _Callable[[...], _Any], 
-			input_rewarders : tuple[Callable[[...], float]] | dict[str, Callable[[...], float]] | _BoundArguments,
-			output_rewarders: tuple[Callable[[...], float]] | dict[str, Callable[[...], float]] | _BoundArguments,
+			input_rewarders : tuple[_Callable[[...], float], ...],
+			output_rewarders: tuple[_Callable[[...], float], ...],
 			):
-		"the shape of input_rewarders and output_rewards implicitly define the shape of the function's input and output"
 		self.function         = function
 		self.input_rewarders  = input_rewarders
 		self.output_rewarders = output_rewarders
 	
 	@staticmethod
-	def evaluate_rewards(
-			values   : tuple[...]                    | dict[str, ...]                    | _BoundArguments, 
-			rewarders: tuple[Callable[[...], float]] | dict[str, Callable[[...], float]] | _BoundArguments,
-			) ->       tuple[float, ...]             | dict[str, float]                  | _BoundArguments:
-		'call the rewarders on the values and return their same type'
-		assert type(values) == type(rewarders)	# yes, an *exact* type equality, not subclassed equality
-
-		match values:
-			case tuple():
-				return tuple(rewarder(value) for rewarder, value in zip(rewarders, values, strict = True))
-
-			case dict():
-				assert len(values) == len(rewarders)
-				return {name: rewarder(values[name]) for name, rewarder in rewarders.items()}
-
-			case _BoundArguments():
-				assert values.signature == rewarders.signature
-				args = (rewarder(value) for rewarder, value in zip(rewarders.args, values.args, strict = True))
-				kwargs = {name: rewarder(values.kwargs[name]) for name, rewarder in rewarders.kwargs.items()}
-				return values.signature.bind(*args, **kwargs)
-
-			case _:
-				raise ValueError('values should be tuple or dict or BoundArguments')
+	def evaluate_rewards(values: tuple[...], rewarders: tuple[_Callable[[...], float]]) -> tuple[float, ...]:
+		'return a tuple of rewards for each value, determined by the rewarders'
+		return tuple(rewarder(value) for rewarder, value in zip(rewarders, values, strict = True))
 	
 	# function() = objective()
-	def __call__(*args, **kwargs) -> _Any:
+	def __call__(self, *args, **kwargs) -> _Any:
 		return self.function(*args, **kwargs)
 
 	def __repr__(self) -> str:

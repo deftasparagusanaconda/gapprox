@@ -24,7 +24,7 @@ from .ast_to_multidag_visitor import AstToMultiDAGVisitor
 from . import misc
 from . import visitors
 from .relations import OrderedExpression, Domain, Mapping, Relation, Function
-from .optimizer import Optimizer
+from .optimizer import Optimizer, ParameterOptimizer, StructureOptimizer
 from .decorators import input_metadata, output_metadata
 from .objective import Objective
 #from .misc import str_to_ast
@@ -56,6 +56,8 @@ modules[__name__].__dir__ = lambda: [
 		,'Relation'
 		,'Function'
 		,'Objective'
+		,'Optimizer'
+		,'ParameterOptimizer'
 
 		# decorators
 		,'input_metadata'
