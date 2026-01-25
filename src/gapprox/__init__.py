@@ -25,7 +25,8 @@ from . import misc
 from . import visitors
 from .relations import OrderedExpression, Domain, Mapping, Relation, Function
 from .optimizer import Optimizer
-from .shape import Shape, output_shape
+from .decorators import input_metadata, output_metadata
+from .objective import Objective
 #from .misc import str_to_ast
 
 # to denote the absence of something, instead of using None
@@ -54,6 +55,11 @@ modules[__name__].__dir__ = lambda: [
 		,'Mapping'
 		,'Relation'
 		,'Function'
+		,'Objective'
+
+		# decorators
+		,'input_metadata'
+		,'output_metadata'
 
 		# collections
 		,'domains'

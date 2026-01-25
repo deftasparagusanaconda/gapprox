@@ -1,12 +1,14 @@
-# NOTE: the optimizer assumes that the objective function has an .output_shape attribute, which is an instance of the Shape class. the output_shape decorator is used to give this attribute to the objective function. this is how optimizer knows the shape of the output, without having to guess whether the objective function is scalar-valued or vector-valued
-
 from abc import ABC as _ABC
 from collections.abc import Callable as _Callable, Sequence as _Sequence
-from collections.abc import MutableSequence as _MutableSequence	# for GreedyLocalSearch.default_state
+from collections.abc import MutableSequence as _MutableSequence	# for GreedyLocalSearch.default_history
 from inspect import Signature as _Signature, BoundArguments as _BoundArguments, Parameter as _Parameter	# for parameters
 from abc import abstractmethod as _abstractmethod
 import random as _random
 from typing import Any as _Any
+from collections import deque as _deque, namedtuple as _namedtuple	# for history objects
+from .objective import Objective
+
+HistoryTuple: _namedtuple = _namedtuple('HistoryTuple', ['inputs', 'input_rewards', 'outputs', 'output_rewards'])
 
 class Optimizer(_ABC):
 	'abstract base class for iterative optimization'
@@ -14,42 +16,7 @@ class Optimizer(_ABC):
 class StructureOptimizer(Optimizer):
 	...
 
-class ParameterOptimizerStrategy:
-	# super cool function that can bind arguments using python's inspect.Signature. really really cool. now we dont have to rely on an odict
-	def __init__(self, 
-			objective: _Callable, 	# the function to optimize parameters for
-			comparers: _Sequence[_Callable[[...], bool]],	# the ordering functions that work on the vector output of the objective
-			parameters: None | _Signature = None	# the parameters that we mutate (yes, its the mutable thing)
-			):
-		'if parameters is not given, it is inferred from the objective callable'
-
-		self.objective: _Callable = objective
-		self.comparers: _Sequence[_Callable[[...], bool]] = comparers
-		self.parameters: None | _Signature = parameters
-
-		if self.parameters is None:
-			# infer signature from the callable objective
-			self.parameters: _Signature = _Signature.from_callable(objective)
-		
-		assert isinstance(self.parameters, _Signature)
-	
-	@property
-	@_abstractmethod
-	def default_state(self) -> _Any:
-		'the state object that the caller should remember so that the optimizer is stateful'
-		...
-	
-	@_abstractmethod
-	def optimize(self,
-			*,
-			state: _Any,
-			pareto_front: None | set[tuple[_BoundArguments, _Sequence[_Any]]] = None,
-			) -> set[tuple[_BoundArguments, _Sequence[_Any]]]:
-		...
-
-	__call__ = optimize
-
-def _bind_all(signature: _Signature, bind_value: _Any, *, use_defaults: bool = True) -> _BoundArguments:
+def _bind_all(signature: _Signature, bind_value: _Any, *, use_defaults: bool) -> _BoundArguments:
 	args: _MutableSequence[_Any] = []
 	kwargs: dict = {}
 	
@@ -76,75 +43,150 @@ def _bind_all(signature: _Signature, bind_value: _Any, *, use_defaults: bool = T
 
 	return bound_arguments
 
-class GreedyLocalSearch(ParameterOptimizerStrategy):
-	'the state object only remembers the last improvement point'
+class ParameterOptimizerStrategy:
+	"the optimizer assumes that any exposed parameter on the objective function is available for optimization, exactly as it should assume. after all, its in the name. 'parameter'"
+	def __init__(self, objective: _Objective):
+		if not isinstance(objective, _Objective):
+			raise TypeError(f'{objective} should be an instance of Objective')
+		self.objective: _Objective = objective
+		
 	@property
-	def default_state(self, *, default_x: _Any = 0.0, default_y: _Any = 0.0, use_signature_defaults: bool = True) -> _MutableSequence[_BoundArguments, _Any]:
-		x: _BoundArguments = _bind_all(self.parameters, default_x, use_defaults = use_signature_defaults)
-		y: _Any = default_y
-		return [x, y]
+	def default_history(
+			self, 
+			maxsize: int,
+			*, 
+			default_input_value         : _Any = 0.0, 
+			default_output_value        : _Any = 0.0, 
+			default_input_rewards_value : _Any = float('-inf'),
+			default_output_rewards_value: _Any = float('-inf'),
+			use_defaults: bool = True
+			) -> _HistoryTuple[
+				_deque[tuple[...] | dict[str, ...] | BoundArguments],
+				_deque[tuple[...] | dict[str, ...] | BoundArguments],
+				_deque[tuple[...] | dict[str, ...] | BoundArguments],
+				_deque[tuple[...] | dict[str, ...] | BoundArguments]]:
+		
+		signature: _Signature = _Signature.from_callable(self.objective)
+		for parameter in _signature.
+
+
+
+
+		_bind_all(self.parameters, default_input, use_defaults = use_defaults)
+
+		old_input_rewards : tuple[...] | dict[str, ...] | BoundArguments = 
+		old_outputs       : tuple | dict | BoundArguments = 
+		old_output_rewards: tuple | dict | BoundArguments = 
+		return HistoryTuple(input)	
 	
+	@_abstractmethod
+	def optimize(self,
+			*,
+			history: _Any,
+			pareto_front: None | set[tuple[_BoundArguments, _Sequence[_Any]]] = None,
+			) -> set[tuple[_BoundArguments, _Sequence[_Any]]]:
+		...
+
+	__call__ = optimize
+
+class GreedyLocalSearch(ParameterOptimizerStrategy):
 	def optimize(self, 
 			iterations: int,
-			step: int,
+			step: float,
 			*, 
-			state: _MutableSequence[_BoundArguments, float],
+			history: HistoryTuple[_deque, _deque, _deque, _deque],
 			pareto_front: None | set[tuple[_BoundArguments, _Sequence[_Any]]] = None
 			) -> set[tuple[_BoundArguments, _Sequence[_Any]]]:
-
-# FIXME: sometimes you assume objective is scalar, sometimes you assume its vector. decide on a proper abstraction
-
+		
+		# the .optimize method will work with the following objects:
+		# objfunc.input_args: tuple[...]        # parameter rewarders
+		# objfunc.input_kwargs: tuple[...]      # parameter rewarders
+		# objfunc.output_args: tuple[...]       # objective rewarders
+		# objfunc.output_kwargs: tuple[...]     # objective rewarders
+		# objfunc.input_args[0].input_args      # parameter rewarder … args
+		# objfunc.input_args[0].input_kwargs    # parameter rewarder … kwargs
+		# objfunc.input_kwargs[0].input_args    # parameter rewarder … args
+		# objfunc.input_kwargs[0].input_kwargs  # parameter rewarder … kwargs
+		# …
+		# objfunc.output_args[0].input_args     # parameter rewarder … args
+		# objfunc.output_args[0].input_kwargs   # parameter rewarder … kwargs
+		# objfunc.output_kwargs[0].input_args   # parameter rewarder … args
+		# objfunc.output_kwargs[0].input_kwargs # parameter rewarder … kwargs
+		# …
+		# for each parameter and objective, it calls its corresponding rewarder.
+		# for each rewarder, it uses its corresponding .input_* to fill in any arguments
+		
 		# initialize pareto_front
-		if pareto_front is None:
-			pareto_front = set()
+		pareto_front: set = set() if pareto_front is None else pareto_front
+		
+		# lets visualize this to create this
+		# 
+		# @input_metadata(None, None, None)
+		# @output_metadata(rewarders.maximize, rewarders.minimize)
+		# def triangle(a, b, c):
+		# 	sum = a + b + c
+		# 	prod = a * b * c
+		# 	
+		# 	return sum, prod
+		
+		# old_inputs        : tuple | dict | BoundArguments = (0.0, 0.0, c = 0.0)
+		# old_input_rewards : tuple | dict | BoundArguments = 
+		# old_outputs       : tuple | dict | BoundArguments = 
+		# old_output_rewards: tuple | dict | BoundArguments = 
 		
 		for _ in range(iterations):
-			x_old, y_old = state
+			old_inputs, old_outputs, old_input_rewards, old_output_rewards = self.history
 			
-			# craft x_new
-			x_new_args: tuple = (x + _random.uniform(-step, step) for x in x_old.args)
-			x_new_kwargs: dict = {name: x + _random.uniform(-step, step) for name, x in x_old.kwargs.items()}
-			x_new: _BoundArguments = self.parameters.bind(*x_new_args, **x_new_kwargs)
+			# create new_input
+			new_input_args: tuple[...] = (old_input + _random.choice((-step, step)) for old_input in old_inputs[0])
+			new_input_kwargs: dict[str, ...] = {name: val_old + _random.choice((-step, step)) for val_old in input_old}
 			
-			y_new: _Sequence[float] = self.objective(*x_new.args, **x_new.kwargs)
+			# create new_output
+			new_output = self.objective(*input_new.args, **input_new.kwargs)
 			
-			# if a pareto point is found
-			if any(comparer(y_old, y_new) for comparer in self.comparers):
-				state = [x_new, y_new]
-				point: tuple = x_new, y_new
-				pareto_front.add(point)
+			# create new_input_rewards
+			new_input_rewards = _Objective.evaluate_rewards(new_input_args, self.objective.input_rewarders)
+
+			# create new_output_rewards
+			new_output_rewards = _Objective.evaluate_rewards(new_output_args, self.objective.output_rewarders)
+			
+			'''
+			# initialize pareto_front
+			if pareto_front is None:
+				pareto_front = set()
+			
+			for _ in range(iterations):
+				x_old, y_old = history
+				
+				# craft x_new
+				x_new_args: tuple = (x + _random.uniform(-step, step) for x in x_old.args)
+				x_new_kwargs: dict = {name: x + _random.uniform(-step, step) for name, x in x_old.kwargs.items()}
+				x_new: _BoundArguments = self.parameters.bind(*x_new_args, **x_new_kwargs)
+				
+				y_new: _Sequence[float] = self.objective(*x_new.args, **x_new.kwargs)
+				
+				# if a pareto point is found
+				if any(comparer(y_old, y_new) for comparer in self.comparers):
+					history = [x_new, y_new]
+					point: tuple = x_new, y_new
+					pareto_front.add(point)
 		
 		return pareto_front
+		'''
 
 class ParameterOptimizer(Optimizer):
 	def __init__(self, strategy: ParameterOptimizerStrategy):
 		self._strategy: ParameterOptimizerStrategy = strategy
 	
-	def default_state(self) -> _Any:
-		return self._strategy.default_state
+	def default_history(self) -> _Any:
+		return self._strategy.default_history
 	
 	def optimize(self, 
 			*args, 
-			state: _Any, 
+			history: _Any, 
 			pareto_front: None | set[tuple[_BoundArguments, _Sequence[_Any]]] = None,
 			**kwargs
 			) -> set[tuple[_BoundArguments, _Sequence[_Any]]]:
-		return self._strategy.optimize(*args, state = state, pareto_front = pareto_front, **kwargs)
+		return self._strategy.optimize(*args, history = history, pareto_front = pareto_front, **kwargs)
 
 	__call__ = optimize
-
-def myfunc(x):
-	return (x - 3) ** 2
-
-def is_better(old, new) -> bool:
-	return new < old
-	
-param_optim = GreedyLocalSearch(myfunc, [is_better])
-state = param_optim.default_state
-result = param_optim.optimize(iterations = 1000, step = 0.1, state = state)
-print(result)
-
-# NOTE: using _Sequence[_Callable[[...], bool] for the comparers assumes that the objective function will return the objectives as a tuple. it might not always, so find a cleaner abstraction for this.
-# NOTE: likewise, using set[tuple[_BoundArgument, _Sequence[_Any]]] for the pareto front also assumes that the objective returns objectives as a tuple
-# stupid. the objectives could even come out as a dict! dont assume. please reabstract this.
-

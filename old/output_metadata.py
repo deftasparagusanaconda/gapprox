@@ -1,3 +1,5 @@
+# NOTE: Shape is annotated under the assumption that python's dict is ordered. this is only true for python ≥3.7. i do not want to clutter my code just to specify OrderedDict instead of dict
+
 class Shape:
 	"""a class to denote the shape of some value. sometimes we want a tuple of coordinates to be treated as a single scalar value, instead of a vector of coordinates. this class solves that problem by allowing you to store metadata about it.
 
@@ -10,8 +12,8 @@ class Shape:
 		# the data structure holding both the names and the values in nested OrderedDict
 		self.tree: dict = tree
 
-		# how many dimensions are described
-		self.dimensions: int = Shape._get_nested_dict_depth(self.tree)
+		# as if it were a tensor
+		self.rank: int = Shape._get_nested_dict_depth(self.tree)
 		
 		# markers of each scalar value, laid out as a regular/ragged tensor of markers, dropping the axis markers
 		#self.value_markers = Shape.	
@@ -76,49 +78,49 @@ class Shape:
 		return all(Shape._check_regular(v) if isinstance(v, dict) else True for v in thing.values())
 	
 	def __repr__(self) -> str:
-		dimensions_str = f"{self.dimensions} dimension{'s' if self.dimensions > 1 else ''}"
+		rank_str = f"{self.rank} rank{'s' if self.rank > 1 else ''}"
 		value_count_str = f"{self.value_count} value{'s' if self.value_count > 1 else ''}"
 		is_regular_str = 'regular' if self.is_regular else 'irregular'
-		return f"<Shape at {hex(id(self))}: {dimensions_str}, {value_count_str}, {is_regular_str}>"
+		return f"<Shape at {hex(id(self))}: {value_count_str}, {rank_str}, {is_regular_str}>"
 
-def output_shape(*args, **kwargs):
-	"""a decorator that sets a .output_shape attribute on the function to denote information about the shape of the return value. the output_shape is an instance of the Shape class, constructed by parameters passed to this decorator.
+def output_metadata(*args, **kwargs):
+	"""a decorator that sets a .output_metadata attribute on the function to denote information about the shape of the return value. the output_metadata is an instance of the Shape class, constructed by parameters passed to this decorator.
 	
 	examples
 	--------
-	@output_shape('thing') 
-		denotes just a scalar value named 'thing'. this is just a 0D vector
+	@output_metadata('thing') 
+		denotes just a scalar value. the metadata here is this is just a 0D vector
 	
-	@output_shape({'thing': Scalar})
-		denotes a 1D vector of just one scalar value named 'thing'
+	@output_metadata({'thing': 'exists'})
+		denotes a 1D vector of just one scalar value named 'thing', and the corresponding metadata being 'exists'
 	
-	@output_shape({'mag': Scalar, 'arg': Scalar})
+	@output_metadata({'mag': 1, 'arg': math.tan})
 		denotes a 1D vector with two scalar values
 	
-	@output_shape({'space': {'length': Scalar, 'breadth': Scalar, 'height': Scalar}, 'time': Scalar})
+	@output_metadata({'space': {'length': Scalar, 'breadth': Scalar, 'height': Scalar}, 'time': Scalar})
 		denotes a 2D vector 
 
-	for more insight, see the Shape class. the arguments passed into output_shape are directly passed into the constructor of Shape. 
+	for more insight, see the Shape class. the arguments passed into output_metadata are directly passed into the constructor of Shape. 
 	
 	returns
 	-------
 	a decorator that simply returns the attributed function
 	
 	explanation: 
-		since a decorator cant take arguments, we instead make output_shape be a decorator that returns an argument-less decorator. that is one reason why you cant use '@output_shape' directly, as it returns a decorator, not the function
+		since a decorator cant take arguments, we instead make output_metadata be a decorator that returns an argument-less decorator. that is why you cant use '@output_metadata' directly, as it returns a decorator, not the function
 	
 	notes
 	-----
-	- the arguments passed into output_shape are directly passed into the constructor of Shape
+	- the arguments passed into output_metadata are directly passed into the constructor of Shape
 	"""
 
 	# if the decorator is used without parentheses, the first argument is itself a function
-	# we use that fact to disallow @output_shape being used directly
+	# we use that fact to disallow @output_metadata being used directly
 	if len(args) == 1 and callable(args[0]):
-		raise ValueError('@output_shape would return the decorator, not the function. use @output_shape(...) instead')
+		raise ValueError('@output_metadata would return the decorator, not the function. use @output_metadata(...) instead')
 
 	def decorator(function):
-		function.output_shape: Shape = Shape(*args, **kwargs)
+		function.output_metadata: Shape = Shape(*args, **kwargs)
 		return function
 	return decorator
 
