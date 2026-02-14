@@ -1,4 +1,5 @@
 # a collapser takes a vector of things and collapses them into one scalar
+# more generally, it reduces the dimension of a tensor by one
 
 from builtins import min
 from builtins import max

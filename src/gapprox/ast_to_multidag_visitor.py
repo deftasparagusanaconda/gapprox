@@ -1,12 +1,13 @@
 import ast
 from .graph import Node, Edge, MultiDAG
-from .misc import ast_op_to_op_dict_key
+from .parse_dict import default_parse_dict
+from .symbol import Symbol
 
 class AstToMultiDAGVisitor(ast.NodeVisitor):
 	'stateful function that adds nodes of an ast to a MultiDAG'
-	def __init__(self, graph: MultiDAG, ast_op_to_op_dict_key: dict[ast.AST, str] = ast_op_to_op_dict_key):
+	def __init__(self, graph: MultiDAG, parse_dict: dict[ast.AST, Symbol] = default_parse_dict):
 		self.graph: MultiDAG = graph
-		self.ast_op_to_op_dict_key: dict[ast.AST, str] = ast_op_to_op_dict_key
+		self.parse_dict: dict[ast.AST, str] = parse_dict
 	
 	def generic_visit(self, node: Node) -> None:
 		raise NotImplementedError(f"critical error! {node!r} of type {type(node)!r} is not recognized. please report this")
@@ -20,10 +21,10 @@ class AstToMultiDAGVisitor(ast.NodeVisitor):
 	def visit_UnaryOp(self, node: Node) -> Node:
 		op = type(node.op)
 
-		if op not in self.ast_op_to_op_dict_key:
+		if op not in self.parse_dict:
 			raise NotImplementedError(f"{node.op} not supported")
 
-		func_node = self.graph.new_node(ast_op_to_op_dict_key[op])
+		func_node = self.graph.new_node(self.parse_dict[op])
 		operand = self.visit(node.operand)	# recursion
 		self.graph.new_edge(operand, func_node, 0)
 		return func_node
@@ -31,10 +32,10 @@ class AstToMultiDAGVisitor(ast.NodeVisitor):
 	def visit_BinOp(self, node: Node) -> Node:
 		op = type(node.op)
 
-		if op not in self.ast_op_to_op_dict_key:
+		if op not in self.parse_dict:
 			raise NotImplementedError(f"{node.op} not supported")
 
-		func_node = self.graph.new_node(ast_op_to_op_dict_key[op])
+		func_node = self.graph.new_node(self.parse_dict[op])
 		left = self.visit(node.left)	# recursion
 		right = self.visit(node.right)	# recursion
 		self.graph.new_edge(left, func_node, 0)
@@ -59,9 +60,9 @@ class AstToMultiDAGVisitor(ast.NodeVisitor):
 		func_nodes: list[Node] = []
 		for index, op in enumerate(node.ops):
 			op_type = type(op)
-			if op_type not in self.ast_op_to_op_dict_key:
+			if op_type not in self.parse_dict:
 				raise NotImplementedError(f"{op} not supported")
-			func_node = self.graph.new_node(self.ast_op_to_op_dict_key[op_type])
+			func_node = self.graph.new_node(self.parse_dict[op_type])
 			self.graph.new_edge(args[index], func_node, 0)
 			self.graph.new_edge(args[index+1], func_node, 1)
 			func_nodes.append(func_node)
@@ -84,11 +85,11 @@ class AstToMultiDAGVisitor(ast.NodeVisitor):
 		'uses AND/OR if binary, ALL/ANY if variadic'
 		op = type(node.op)
 
-		if op not in self.ast_op_to_op_dict_key:
+		if op not in self.parse_dict:
 			raise NotImplementedError(f"{node.op} not supported")
 
 		if len(node.values) == 2:	# binary
-			func_node = self.graph.new_node(ast_op_to_op_dict_key[op])
+			func_node = self.graph.new_node(self.parse_dict[op])
 			in1 = self.visit(node.values[0])	# recursion
 			in2 = self.visit(node.values[1])	# recursion
 			self.graph.new_edge(in1, func_node, 0)
@@ -117,10 +118,10 @@ class AstToMultiDAGVisitor(ast.NodeVisitor):
 		"if else expression. ast formats it like: 'node.body if node.test else node.orelse' and gapprox follows a 'a if b else c' order, instead of a 'if a then b else c' order"
 		op = type(node)
 		
-		if op not in self.ast_op_to_op_dict_key:
+		if op not in self.parse_dict:
 			raise NotImplementedError(f"{node.op} not supported")
 
-		func_node = self.graph.new_node(ast_op_to_op_dict_key[op])
+		func_node = self.graph.new_node(self.parse_dict[op])
 		
 		body_node: Node = self.visit(node.body)	# recursion
 		test_node: Node = self.visit(node.test)	# recursion

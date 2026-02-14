@@ -4,7 +4,11 @@ from .ast_to_multidag_visitor import AstToMultiDAGVisitor
 from . import misc
 from . import visitors
 import gapprox
-from typing import Iterable
+from collections.abc import Iterable
+from typing import Any, Callable
+from .symbol import Symbol
+
+DEFAULT_ROOT_NODE_PAYLOAD = None
 
 class Expression:
 	"""represents a mathematical expression. it is evaluable and callable. the canonical storage is as a MultiDAG, because it reveals the most structure about a math expression
@@ -12,66 +16,51 @@ class Expression:
 	context given in methods like .evaluate() or .to_str() are only temporary substitutions
 	"""
 		
-	def __init__(
-			self,
-			expr: str | Node,
-			*,
-			context: dict[str, dict[str, any]] = None,
-			graph: MultiDAG = None,
-			ast_to_multidag_visitor: AstToMultiDAGVisitor = None
-			):
-		'can take a str as input for convenience'
-		self.context: dict[str, dict[str, any]] = context
+	def __init__(self, root: Node, graph: MultiDAG, *, context: dict[Symbol, Any] = None):
+		self.root: Node = root
 		self.graph: MultiDAG = graph
+		self.context: dict[Symbol, Any] = gapprox.default_context.copy() if context is None else context
+	
+	@classmethod
+	def from_str(cls, string: str, *, graph: MultiDAG = None, context: dict[Symbol, Any] = None, ast_to_multidag_visitor: AstToMultiDAGVisitor = None) -> 'Expression':
+		
+		graph: MultiDAG = MultiDAG() if graph is None else graph	# create its own MultiDAG, if required
+		ast_to_multidag_visitor: AstToMultiDAGVisitor = AstToMultiDAGVisitor(graph) if ast_to_multidag_visitor is None else ast_to_multidag_visitor
 
-		if self.context is None:
-			self.context = gapprox.default_context.copy()
-		if self.graph is None:
-			self.graph = MultiDAG()	# create its own MultiDAG
-
-		if isinstance(expr, str):
-			if ast_to_multidag_visitor is None:
-				ast_to_multidag_visitor = AstToMultiDAGVisitor(self.graph)
-			ast_tree = misc.str_to_ast(expr)
-			top_node = ast_to_multidag_visitor.visit(ast_tree)
-			self.root = self.graph.new_node(None)
-			edge = self.graph.new_edge(top_node, self.root, 0)
-		elif isinstance(expr, Node):
-			if not expr.is_root:
-				raise ValueError(f"expected {expr} to be a root node")
-			self.root = expr
-		else:
-			raise ValueError("first argument must be str or gapprox.Node")
-
+		ast_tree = misc.str_to_ast(string)
+		top_node = ast_to_multidag_visitor.visit(ast_tree)
+		root = graph.new_node(DEFAULT_ROOT_NODE_PAYLOAD)
+		graph.new_edge(top_node, root)
+		
+		expression = cls(root, graph, context = context)
+		return expression
+	
 	@property
 	def variables() -> set[str]:
 		raise NotImplementedError
 		# return a set of variables by traversing the graph. implemented as a dynamic property since it is not mathematically intrinsic for an expression to know its variables. also prevents bad method design, especially with .evaluate checking if kwargs satisfies its variables. it should not do that check.
-
-	def evaluate(self, **kwargs):
-		"evaluate the expression using keyword arguments as temporary substitutions, like so: expr(x=2) or expr(**{'x': 2})"
+	
+	def evaluate(self, substitutions: dict[Any: Any], *, context: dict[Symbol: Any] = None) -> Any:
+		'evaluate the expression'
+		context: dict[Symbol, Any] = self.context.copy() if context is None else context
 		
-		context: dict[str, any] = self.context.copy()
-		context.update(kwargs)
-
-		# normalise kwargs → wrap raw values into {'value': ...}
-		for key, value in kwargs.items():
-			if isinstance(value, dict) and 'value' in value:
-				context[key] = value
-			else:
-				context[key] = {'value': value}
+		substitutions = substitutions.copy()
+		
+		substitutions.update(context)
 		
 		def evaluate_node(node: Node) -> any:
 			if node.is_leaf:
-				return context[node.metadata]['value'] if node.metadata in context else node.metadata
+				return substitutions[node.metadata] if node.metadata in substitutions else node.metadata	# termination
 			else:
-				function = context[node.metadata]['callable'] if node.metadata in context else node.metadata
+				function = substitutions[node.metadata] if node.metadata in substitutions else node.metadata
 				arguments = [None] * len(node.inputs)
 				for edge in node.inputs:
 					arguments[edge.metadata] = evaluate_node(edge.source) # recursion
-				return function(*arguments)
-
+				
+				return function(*arguments)	# termination
+		
 		root_input = next(iter(self.root.inputs)).source
+		
 		return evaluate_node(root_input)
 		
 	__call__ = evaluate # makes the expression callable
@@ -93,6 +82,14 @@ class Expression:
 		root_input = next(iter(self.root.inputs)).source
 		return stringify_visitor.visit(root_input)
 
+	def compile(self, apply_context: bool = True, ) -> Callable[[Any, ...], Any]:
+		string = self.to_str()
+
+		def evaulate_expression(**kwargs):
+			return eval(string)
+			
+		return evaluate_expression
+
 	def __repr__(self):
 		return f"<Expression at {hex(id(self))}: graph=<{self.graph.__class__.__name__} at {hex(id(self.graph))}>, {next(iter(self.root.inputs)).source.metadata!r} → root, {len(self.context)} contexts>"
 
@@ -110,6 +107,8 @@ class Expression:
 		#	output += f"\n        {key!r}: {value!r}"
 		return output
 
+# this orderedexpression seemed like a good idea but anything that is an expression should straight up just not know the order of its variables. whatever uses the expression for something should store its own order of arguments if it needs it. it shouldnt make the expression store the order. its not intrinsic to the expression.
+'''
 class OrderedExpression:
 	'conceptually just a wrapper for an Expression and an order of variables stored together. it enables an Expression to be evaluated not using a substitution dict but by taking substitutions positionally'
 	def __init__(self, expression: str | Expression, *args):
@@ -141,4 +140,4 @@ class OrderedExpression:
 		return self.expression(**new_context)
 
 	__call__ = evaluate
-
+'''

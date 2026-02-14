@@ -1,6 +1,6 @@
 # be *veeery* careful how you define these domains. for example, float('inf') does not belong in reals
 
-from .relations import Domain as _Domain
+from .domain import Domain as _Domain
 import math as _math
 import numbers as _numbers
 

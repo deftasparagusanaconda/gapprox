@@ -1,51 +1,68 @@
-# TODO: update floor and ceil symbols
-
-import math
-import cmath
-import operator
-import numbers
-import builtins
-import statistics
+from . import symbols
 from . import operators as gapprox_operators
+import operator
+import builtins
+from numbers import Number
 
-default_context: dict[str: dict[str: any]] = {
-	# arithmetic
-	'add': {
-		'callable': operator.add,
-		'symbols': ['+'],
-		'python_symbol': '+',
-		'aliases': ['addition', 'sum'],
-		'arity': 2,
-		'commutative': True,
-	},
-	'sub': {
-		'callable': operator.sub,
-		'symbols': ['−', '-'],
-		'python_symbol': '-',
-		'aliases': ['subtraction', 'difference'],
-		'arity': 2,
-		'commutative': False,
-	},
-	'mul': {
-		'callable': operator.mul,
-		'symbols': ['×', '⋅', '*', 'x'],
-		'python_symbol': '*',
-		'aliases': ['multiplication', 'product'],
-		'arity': 2,
-		'commutative': True,
-	},
-	'div': {
-		'callable': operator.truediv,
-		'symbols': ['∕', '÷', '/'],
-		'python_symbol': '/',
-		'aliases': ['division', 'ratio'],
-		'arity': 2,
-		'commutative': False,
-	},
+Truth = bool	# typehinting
+from typing import Callable	# for typehinting
+from .symbol import Symbol	# for typehinting
 
+default_context: dict[Symbol, Callable | Number | Truth] = {
+	# functions
+	 symbols.ADD     : operator.add
+	,symbols.SUB     : operator.sub
+	,symbols.MUL     : operator.mul
+	,symbols.DIV     : operator.truediv
+
+	#,symbols.POS     : 
+	,symbols.NEG     : operator.neg
+	,symbols.NOT     : operator.not_
+
+	,symbols.FLOORDIV: operator.floordiv
+	,symbols.MOD     : operator.mod
+	,symbols.POW     : builtins.pow
+
+	,symbols.LSHIFT  : operator.lshift
+	,symbols.RSHIFT  : operator.rshift
+	,symbols.BITNOT  : operator.not_
+	,symbols.BITOR   : operator.or_
+	,symbols.BITXOR  : operator.xor
+	,symbols.BITAND  : operator.and_
+
+	,symbols.MATMUL  : operator.matmul
+
+	,symbols.AND     : operator.and_
+	,symbols.OR      : operator.or_
+
+	,symbols.EQ      : operator.eq
+	,symbols.NE      : operator.ne
+	,symbols.LT      : operator.lt
+	,symbols.LE      : operator.le
+	,symbols.GT      : operator.gt
+	,symbols.GE      : operator.ge
+	,symbols.IS      : operator.is_
+	,symbols.ISNOT   : operator.is_not
+	#,symbols.IN      : 
+	#,symbols.NOTIN   : 
+
+	,symbols.IFELSE  : gapprox_operators.ifelse
+
+	# nummber constants
+	,symbols.NAN     : float('nan')
+	,symbols.INF     : float('inf')
+	,symbols.I       : 1j
+	,symbols.PHI     : 1.618033988749894848204586834365638117720309179805762862135448622705260462818
+	,symbols.E       : 2.718281828459045235360287471352662497757247093699959574966967627724076630353
+	,symbols.PI      : 3.141592653589793238462643383279502884197169399375105820974944592307816406286
+	,symbols.TAU     : 6.283185307179586476925286766559005768394338798750211641949889184615632812572
+
+	# truth constants
+	,
+}
+'''
 	# numeric
 	'neg': { # unary minus, negative, additive inverse
-		'callable': operator.neg,
 		'symbols': ['−', '-'],
 		'python_symbol': '-',
 		'aliases': ['negation', 'additive inverse'],
@@ -580,56 +597,9 @@ default_context: dict[str: dict[str: any]] = {
 	},
 
 	# constants
-	'nan': {
-		'value': float('nan'),
-		'symbols': ['NaN', '?', '¿', '𝑁𝑎𝑁'],
-		'aliases': ['not a number'],
-		'description': 'something which is not a number'
-	},
-	'inf': {
-		'value': float('inf'),
-		'symbols': ['∞'],
-		'aliases': ['infinity'],
-		'description': 'something which is boundless, limitless, endless'
-	},
-	'i': {
-		'value': 1j,
-		'symbols': ['i', 'j', '𝑖', '𝕚', 'ⅈ', '𝒾'],
-		'aliases': ['imaginary unit'],
-		'description': 'a number i such that i² = −1'
-	},
-	'phi': {
-		'value': 1.618033988749894848204586834365638117720309179805762862135448622705260462818,
-		'symbols': ['φ', 'ϕ'],
-		'aliases': ['golden ratio'],
-		'description': 'a/b such that a+b ∶ a ∷ a ∶ b. algebraically, φ = (1 + √5) ∕ 2'
-	},
-	'e': {
-		'value': 2.718281828459045235360287471352662497757247093699959574966967627724076630353,
-		'symbols': ['e', '𝑒', 'ℯ'],
-		'aliases': ["euler's number"],
-		'description': 'the number e such that d∕dx(eˣ) = eˣ – or – the limit as n → +∞ for (1 + 1∕n)ⁿ'
-	},
-	'pi': {
-		'value': 3.141592653589793238462643383279502884197169399375105820974944592307816406286,
-		'symbols': ['π', '𝜋', 'ℼ'],
-		'aliases': ["archimedes' constant"],
-		'description': "the ratio of an euclidean circle's circumference to its diameter"
-	},
-	'tau': {
-		'value': 6.283185307179586476925286766559005768394338798750211641949889184615632812572,
-		'symbols': ['τ', '𝜏'],
-		'aliases': None,
-		'description': "the ratio of an euclidean circle's circumference to its radius"
-	}
+		aliases     = None,
+		description = "the ratio of an euclidean circle's circumference to its radius",
+	),
 }
 
-# what kind of metadata can we give a number?
-"""
-is_positive
-is_negative
-is_integral
-is_real
-is_imaginary
-is_complex
-"""
+'''

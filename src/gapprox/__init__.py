@@ -7,7 +7,7 @@ debug: bool = True	# should be False for release versions, but ill probably forg
 
 #from . import paramgens, structgens
 #from . import outliers, plotters
-from .default_context import default_context
+from .context import default_context
 from . import operators
 #from .parser import parser
 from .sampler import sampler
@@ -23,18 +23,26 @@ from .expression import Expression
 from .ast_to_multidag_visitor import AstToMultiDAGVisitor
 from . import misc
 from . import visitors
-from .relations import OrderedExpression, Domain, Mapping, Relation, Function
+from . import symbols
+#from .relations import OrderedExpression, Domain, Mapping, Relation, Function
 from .optimizer import Optimizer, ParameterOptimizer, StructureOptimizer
 from .decorators import input_metadata, output_metadata
 from .objective import Objective
+from .symbol import Symbol
 #from .misc import str_to_ast
+
+from .domain import Domain
+from .mapping import Mapping
+from .relation import Relation
+from .function import Function
 
 # to denote the absence of something, instead of using None
 #_NULL = misc.Null()
 
 # monkeypatch the __dir__ to clean up the module's autocomplete
-from sys import modules
-modules[__name__].__dir__ = lambda: [
+#from sys import modules
+#modules[__name__].__dir__ = lambda: [
+__dir__ = lambda: [
 		# module attributes
 		 'debug'
 		,'_NULL'
@@ -58,6 +66,7 @@ modules[__name__].__dir__ = lambda: [
 		,'Objective'
 		,'Optimizer'
 		,'ParameterOptimizer'
+		,'Symbol'
 
 		# decorators
 		,'input_metadata'
@@ -77,6 +86,7 @@ modules[__name__].__dir__ = lambda: [
 		#,'constants'
 		,'operators'
 		,'misc'
+		,'symbols'
 
 		# dict
 		,'default_context'

@@ -1,183 +1,96 @@
-from .mapping import Mapping
-from typing import Callable, Iterable
 from .relation import Relation
+from collections.abc import Container, Sequence
+from typing import Any, Callable
 
 class Function(Relation):
-	'a special case of a relation, where each element in the domain always maps to exactly one codomain. it is stored as a dict[any, any]'
+	"""represents a mathematical function – either a partial or a total one. it is a right-unique binary relation from one domain to another, and is also left-total in the case of a non-partial "total" function. it stores the domains flatly as .domain and .codomain. unlike a Relation, it stores the 2-tuples as a dict or a callable, which is its indicator function of the set of 2-tuples. it also allows Mappings to assist in the lookup of domain or codomain
+	
+	a Function such as f(x, y) = x + y is just a function that takes a set of tuples as domain, instead of two domain sets. thus with conventional notation, functions are inherently positional with their arguments. it remembers this by storing a 
+	"""
+
 	def __init__(
 			self,
-			domain: set  | Callable[..., bool],
-			codomain: set  | Callable[..., bool],
-			mapping: dict[any, any] | Callable[..., bool] | Mapping):
-		self.domain: set  | Callable[..., bool] = domain
-		self.codomain: set  | Callable[..., bool] = codomain
-		self.mapping: Mapping = mapping
+			domain  : Container[Any],
+			codomain: Container[Any],
+			mapping : Callable[[Any], Any],
+			) -> None:
+		class tuples:
+			def __contains__(tuple) -> bool:
+				return mapping(tuple[0]) == tuple[1]
+		
+		self.mapping: Mapping[Any, Any] = mapping
+		self.domains = domain, codomain
+	
+	# you might ask "we subclass Relation, but it doesnt even call the constructor". thats because python wasnt capable enough to communicate what i meant by a Relation. all it has to do is allow __contains__ and store domains. it doesnt actually have to let the tuples be iterable or such. and so we achieved exactly that anyway. Function has a relates(), and the Relation superclass links __contains__() to relates()
+	
+	def relates(self, tuple: Sequence[Any, Any]) -> bool:
+		return self.mapping(tuple[0]) == tuple[1]
 
-	def __call__(*args) -> any:
-		if not self.domain_has(args):
-			raise ValueError("Function does not define {args} in its domain")
+	# Relation defines __contains__ = relates
+		
+	def get_codomain(self, input: Any, check_domains: bool = True) -> Any:
+		'also known as the image'
+		if check_domains and input not in self.domains[0]:
+			raise ValueError(f'{input} is not in {self.domains[0]}')
 
-		codomain = self.mapping.maps_to(args)
+		output = self.mapping(input)
 
-		if not self.codomain_has(codomain):
-			raise ValueError("Function does not define {args} in its codomain")
+		if check_domains and output not in self.domains[1]:
+			raise ValueError(f'{input} is not in {self.domains[0]}')
 
-		return codomain
+		return output
 
-	def domain_has(domain: any) -> bool:
-		raise NotImplementedError("not finished yet")
-
-	def codomain_has(codomain: any) -> bool:
-		raise NotImplementedError("not finished yet")
-
-	def mapping_has(mapping: any) -> bool:
-		raise NotImplementedError("not finished yet")
+	__call__ = get_codomain
 
 	def __repr__(self) -> str:
-		return f"<Function at {hex(id(self))}: domain={self.domain!r}, codomain={self.codomain!r}, mapping={self.mapping!r}>"
+		return f"<Function at {hex(id(self))}: domains = {self.domains!r}, mapping = {self.mapping!r}>"
 
 	def __str__(self) -> str:
-		output = f"Function at {hex(id(self))}"
+		output = f"Function at {hex(id(self))}:"
 		output += f"\n    domain: {type(self.domain)}"
 		if isinstance(self.domain, Iterable) and not callable(self.domain):	# because callables can be iterable, strangely
 			output += f", len={len(self.domain)}"
 		output += f"\n    codomain: {type(self.codomain)}"
 		if isinstance(self.codomain, Iterable) and not callable(self.codomain):
 			output += f", len={len(self.codomain)}"
-		output += f"\n    mapping: {type(self.mapping)}"
-		if isinstance(self.mapping, Iterable) and not callable(self.mapping):
-			output += f", len={len(self.mapping)}"
+		output += f"\n    forward_mapping: {type(self.forward_mapping)}"
+		if isinstance(self.forward_mapping, Iterable) and not callable(self.forward_mapping):
+			output += f", len={len(self.forward_mapping)}"
+		output += f"\n    reverse_mapping: {type(self.reverse_mapping)}"
+		if isinstance(self.reverse_mapping, Iterable) and not callable(self.reverse_mapping):
+			output += f", len={len(self.reverse_mapping)}"
 		return output
 
+		"""
+		if gapprox.debug:
+			if not isinstance(domain, Domain):
+				raise ValueError("domain must be an instance of Domain")
+			if not isinstance(codomain, Domain):
+				raise ValueError("codomain must be an instance of Domain")
+			if forward_mapping is not None and not isinstance(forward_mapping, Mapping):
+				raise ValueError("forward_mapping must be an instance of Mapping")
+			if tuples is not None and not isinstance(tuples, Domain):
+				raise ValueError("tuples must be an instance of Domain")
+			if reverse_mapping is not None and not isinstance(reverse_mapping, Mapping):
+				raise ValueError("reverse_mapping must be an instance of Mapping")
 
-"""
-from .operators_dict import operators_dict as default_operators_dict
-from .dag import InputNode, FunctionNode, OutputNode, Node, Edge, Dag
-from .symbol import Variable, Parameter, Constant
-from .misc import ast_op_to_op_dict_key, str_to_ast
-from .ast_to_dag_visitor import AstToDagVisitor
-from .count import count
-from .visitors import EvaluationVisitor
-import ast
-
-class Function:
-	'represents a mathematical function. it is callable'
-	
-	def __init__(
-			self,
-			expression           : OutputNode|ast.AST|str,
-			*args,
-			dag                  : Dag             = None,
-			operators_dict       : dict            = None,
-			ast_op_to_op_dict_key: dict            = ast_op_to_op_dict_key
-			):		
-		self.variables    : list[Variable]      = list()
-		self.parameters   : set[Parameter]      = set()
-		self.constants    : set[Constant]       = set()
-		self.dag = Dag() if dag is None else dag
-
-		if operators_dict is None:
-			self.operators_dict: dict[str, callable] = default_operators_dict
-		else:
-			self.operators_dict: dict[str, callable] = operators_dict
-
-		# populate collections
-		for arg in args:
-			match arg:
-				case Variable():
-					self.variables.append(arg)
-				case Constant():
-					if arg in self.constants:
-						raise ValueError(f"{arg} may have been given twice")
-					self.constants.add(arg)
-				case Parameter():
-					if arg in self.parameters:
-						raise ValueError(f"{arg} may have been given twice")
-					self.parameters.add(arg)
-				case _:
-					raise TypeError(f"unrecognized argument {arg}: must be Variable, Parameter, or Constant")
-
-		symbols:list[Symbol] = self.variables + list(self.parameters) + list(self.constants)
+			if any(codomain != forward_mapping(domain) for domain, codomain in tuples):
+				raise ValueError("tuples and forward_mapping do not match")
+			if any(domain != reverse_mapping(codomain) for domain, codomain in tuples):
+				raise ValueError("tuples and reverse_mapping do not match")
+			elif forward_mapping is not None and reverse_mapping is not None:
+				if callable(forward_mapping) and callable(reverse_mapping):
+					raise NotImplementedError
+				elif callable(forward_mapping) and not callable(reverse_mapping):
+					raise NotImplementedError
+				elif not callable(forward_mapping) and callable(reverse_mapping):
+					raise NotImplementedError
+				elif not callable(forward_mapping) and not callable(reverse_mapping):
+					if any(reverse_mapping != domain for domain, codomain in forward_mapping.items()):
+						raise ValueError("forward_mapping and reverse_mapping do not match")
+					if any(reverse_mapping != domain for domain, codomain in reverse_mapping.items()):
+						raise ValueError("forward_mapping and reverse_mapping do not match")
+				else:
+					raise RuntimeError("impossible branch")
+		"""
 		
-		# check clashing symbol names
-		names:list[str] = list(symbol.name for symbol in symbols)
-		if len(names) != len(set(names)):
-			from collections import Counter
-			counts = Counter(names)
-			dupes = [(item, count) for item, count in counts.items() if count > 1]
-			raise ValueError(f"detected clashing symbol names: {dupes}")		
-
-		match expression:
-			case OutputNode():
-				self.outputnode = expression
-			case ast.AST():
-				ast_to_dag_visitor = AstToDagVisitor(
-						dag                   = self.dag, 
-						variables             = self.variables,
-						parameters            = self.parameters,
-						constants             = self.constants,
-						ast_op_to_op_dict_key = ast_op_to_op_dict_key
-				)
-				
-				root_node = ast_to_dag_visitor.visit(expression)
-				outputnode = self.dag.new_outputnode()
-				self.dag.new_edge(root_node, outputnode, 0)
-				self.outputnode = outputnode
-			
-			case str():
-				ast_tree = str_to_ast(expression)
-				ast_to_dag_visitor = AstToDagVisitor(
-						dag                   = self.dag, 
-						variables             = self.variables,
-						parameters            = self.parameters,
-						constants             = self.constants,
-						ast_op_to_op_dict_key = ast_op_to_op_dict_key
-				)
-
-				root_node = ast_to_dag_visitor.visit(ast_tree)
-				outputnode = self.dag.new_outputnode()
-				self.dag.new_edge(root_node, outputnode, 0)
-				self.outputnode = outputnode
-
-			case _:
-				raise ValueError(f"unrecognized {expression!r}: must be str, ast.AST, or OutputNode")
-			
-	def evaluate(self, *args) -> any:
-		'perform mathematical evaluation using gapprox.visitors.EvaluationVisitor'
-		if len(args) != len(self.variables):
-			raise ValueError(f"takes exactly {len(self.variables)} arguments")
-
-		inputnode_payload_subs = dict((self.variables[i], args[i]) for i in range(len(self.variables)))
-		evaluation_visitor = EvaluationVisitor(inputnode_payload_subs = inputnode_payload_subs, functionnode_payload_subs = self.operators_dict)
-
-		return evaluation_visitor.visit(self.outputnode)
-		
-	__call__ = evaluate # makes the Function callable (obv lol)
-		
-	def to_callable(self) -> callable:
-		'convert the heavy Function to a fast python function. this method is nowhere near done or made yet'
-		# return compile(self.dag)
-		return self
-
-	def __repr__(self):
-		variables_str = f"{len(self.variables)} Variable"
-		parameters_str = f"{len(self.parameters)} Parameter"
-		constants_str = f"{len(self.constants)} Constant"
-		return f"<Function at {hex(id(self))}: {variables_str}, {parameters_str}, {constants_str}>"
-	
-	def __str__(self):
-		output = f"Function at {hex(id(self))}"
-		output += f"\nvariables    : {type(self.variables)}, count={count(self.variables)}, length={len(self.variables)}"
-		for variable in self.variables:
-			output += f"\n    {variable!r}"
-		output += f"\nparameters   : {type(self.parameters)}, count={count(self.parameters)}, length={len(self.parameters)}"
-		for parameter in self.parameters:
-			output += f"\n    {parameter!r}"
-		output += f"\nconstants    : {type(self.constants)}, count={count(self.constants)}, length={len(self.constants)}"
-		for constant in self.constants:
-			output += f"\n    {constant!r}"
-		output += f"\ndag           : {self.dag!r}"
-		output += f"\noutputnode    : {self.outputnode!r}"
-		output += f"\noperators_dict: {type(self.operators_dict)}, length={len(self.operators_dict)}"
-		return output
-"""
