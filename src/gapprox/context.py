@@ -35,12 +35,14 @@ default_context: dict[Symbol, Callable | Number | Truth] = {
 	,symbols.AND     : operator.and_
 	,symbols.OR      : operator.or_
 
+	# comparison
 	,symbols.EQ      : operator.eq
 	,symbols.NE      : operator.ne
 	,symbols.LT      : operator.lt
 	,symbols.LE      : operator.le
 	,symbols.GT      : operator.gt
 	,symbols.GE      : operator.ge
+
 	,symbols.IS      : operator.is_
 	,symbols.ISNOT   : operator.is_not
 	#,symbols.IN      : 
@@ -48,7 +50,7 @@ default_context: dict[Symbol, Callable | Number | Truth] = {
 
 	,symbols.IFELSE  : gapprox_operators.ifelse
 
-	# nummber constants
+	# number constants
 	,symbols.NAN     : float('nan')
 	,symbols.INF     : float('inf')
 	,symbols.I       : 1j
@@ -56,7 +58,9 @@ default_context: dict[Symbol, Callable | Number | Truth] = {
 	,symbols.E       : 2.718281828459045235360287471352662497757247093699959574966967627724076630353
 	,symbols.PI      : 3.141592653589793238462643383279502884197169399375105820974944592307816406286
 	,symbols.TAU     : 6.283185307179586476925286766559005768394338798750211641949889184615632812572
-
+	
+	
+	
 	# truth constants
 	,
 }

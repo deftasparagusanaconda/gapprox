@@ -12,7 +12,7 @@ from . import operators
 #from .parser import parser
 from .sampler import sampler
 #from .approximation.approximation import Approximation
-from .graph import Node, Edge, MultiDAG
+from .graph import Node, Edge
 from . import errors
 from . import rewarders
 from . import collapsers
@@ -45,8 +45,6 @@ from .function import Function
 __dir__ = lambda: [
 		# module attributes
 		 'debug'
-		,'_NULL'
-		,'OUTPUT_NODE_MARKER'
 
 		# classes
 		,'AstToMultiDAGVisitor'
@@ -56,9 +54,7 @@ __dir__ = lambda: [
 		#,'Constant'
 		,'Node'
 		,'Edge'
-		,'MultiDAG'
 		,'Expression'
-		,'OrderedExpression'
 		,'Domain'
 		,'Mapping'
 		,'Relation'

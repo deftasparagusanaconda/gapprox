@@ -1,62 +1,67 @@
-from .graph import Node, MultiDAG
+from .graph import Node, Edge
 from collections import Counter
 from .ast_to_multidag_visitor import AstToMultiDAGVisitor
 from . import misc
 from . import visitors
 import gapprox
-from collections.abc import Iterable
+from collections.abc import Sequence 
 from typing import Any, Callable
+from .context import default_context
 from .symbol import Symbol
-
-DEFAULT_ROOT_NODE_PAYLOAD = None
 
 class Expression:
 	"""represents a mathematical expression. it is evaluable and callable. the canonical storage is as a MultiDAG, because it reveals the most structure about a math expression
-
+	
 	context given in methods like .evaluate() or .to_str() are only temporary substitutions
 	"""
 		
-	def __init__(self, root: Node, graph: MultiDAG, *, context: dict[Symbol, Any] = None):
+	def __init__(self, root: Node, symbols: Sequence[Symbol], *, symbols_dict: dict[str, Symbol] = None) -> None:
+		if isinstance(root, str):
+			raise TypeError('Expression takes a root node. perhaps you meant Expression.from_str')
 		self.root: Node = root
-		self.graph: MultiDAG = graph
-		self.context: dict[Symbol, Any] = gapprox.default_context.copy() if context is None else context
+		self._symbols: Sequence[Symbol] = symbols
+		self._symbols_dict: dict[str, Symbol] = {symbol.name: symbol for symbol in symbols} if symbols_dict is None else symbols_dict
 	
 	@classmethod
-	def from_str(cls, string: str, *, graph: MultiDAG = None, context: dict[Symbol, Any] = None, ast_to_multidag_visitor: AstToMultiDAGVisitor = None) -> 'Expression':
+	def from_str(cls, string: str, symbols: Sequence[Symbol] = None) -> 'Expression':
+		symbols = [] if symbols is None else symbols
+		symbols_dict: dict[str, Symbol] = {symbol.name: symbol for symbol in symbols}
 		
-		graph: MultiDAG = MultiDAG() if graph is None else graph	# create its own MultiDAG, if required
-		ast_to_multidag_visitor: AstToMultiDAGVisitor = AstToMultiDAGVisitor(graph) if ast_to_multidag_visitor is None else ast_to_multidag_visitor
-
+		ast_to_multidag_visitor = AstToMultiDAGVisitor(symbols_dict)
+		
 		ast_tree = misc.str_to_ast(string)
 		top_node = ast_to_multidag_visitor.visit(ast_tree)
-		root = graph.new_node(DEFAULT_ROOT_NODE_PAYLOAD)
-		graph.new_edge(top_node, root)
+		root_node = Node()	# notice the root node doesnt have any payload
+		Edge(top_node, root_node)
 		
-		expression = cls(root, graph, context = context)
+		expression = cls(root_node, symbols, symbols_dict = symbols_dict)
 		return expression
 	
-	@property
-	def variables() -> set[str]:
-		raise NotImplementedError
-		# return a set of variables by traversing the graph. implemented as a dynamic property since it is not mathematically intrinsic for an expression to know its variables. also prevents bad method design, especially with .evaluate checking if kwargs satisfies its variables. it should not do that check.
-	
-	def evaluate(self, substitutions: dict[Any: Any], *, context: dict[Symbol: Any] = None) -> Any:
+	def evaluate(self, *args, context: dict[Symbol: Any] = None, **kwargs) -> Any:
 		'evaluate the expression'
-		context: dict[Symbol, Any] = self.context.copy() if context is None else context
-		
-		substitutions = substitutions.copy()
-		
-		substitutions.update(context)
+		context: dict[Symbol, Any] = default_context.copy() if context is None else context.copy()
+
+		# kwargs overrides context
+		context.update((self._symbols_dict[key], val) for key, val in kwargs.items())	
+
+		# args overrides context
+		for symbol, arg in zip(self._symbols, args):
+			context[symbol] = arg
 		
 		def evaluate_node(node: Node) -> any:
-			if node.is_leaf:
-				return substitutions[node.metadata] if node.metadata in substitutions else node.metadata	# termination
+			if node.is_leaf():
+				return context.get(node.payload, node.payload)	# termination
 			else:
-				function = substitutions[node.metadata] if node.metadata in substitutions else node.metadata
+				function = context.get(node.payload, node.payload)
+				
+				#arguments = sorted(evaluate_node(edge.source) for edge in node.inputs, key = edge.payload)
 				arguments = [None] * len(node.inputs)
 				for edge in node.inputs:
-					arguments[edge.metadata] = evaluate_node(edge.source) # recursion
+					arguments[edge.payload] = evaluate_node(edge.source) # recursion
 				
+				if not callable(function):
+					raise Exception(f"No callable bound for symbol {symbol}")
+
 				return function(*arguments)	# termination
 		
 		root_input = next(iter(self.root.inputs)).source
@@ -64,7 +69,7 @@ class Expression:
 		return evaluate_node(root_input)
 		
 	__call__ = evaluate # makes the expression callable
-
+	
 	def to_str(
 			self, 
 			*, 
@@ -73,29 +78,28 @@ class Expression:
 			) -> str:
 		'return the expression as a str'
 		new_context = self.context.copy()
-
+		
 		if context is not None:
 			new_context.update(context)
-
+		
 		stringify_visitor = visitors.StringifyVisitor(context=new_context, **kwargs)
-
+		
 		root_input = next(iter(self.root.inputs)).source
 		return stringify_visitor.visit(root_input)
-
-	def compile(self, apply_context: bool = True, ) -> Callable[[Any, ...], Any]:
-		string = self.to_str()
-
-		def evaulate_expression(**kwargs):
-			return eval(string)
-			
-		return evaluate_expression
+	
+	#def compile(self, apply_context: bool = True, ) -> Callable[[Any, ...], Any]:
+	#	string = self.to_str()
+	#
+	#	def evaulate_expression(**kwargs):
+	#		return eval(string)
+	#		
+	#	return evaluate_expression
 
 	def __repr__(self):
-		return f"<Expression at {hex(id(self))}: graph=<{self.graph.__class__.__name__} at {hex(id(self.graph))}>, {next(iter(self.root.inputs)).source.metadata!r} → root, {len(self.context)} contexts>"
+		return f"<Expression at {hex(id(self))}: root = {self.root!r}, {len(self.context)} contexts>"
 
 	def __str__(self):
 		output = f"Expression at {hex(id(self))}"
-		output += f"\n    graph: {self.graph!r}"
 		output += f"\n    root: {self.root!r}"
 		output += f"\n    context: {type(self.context)}, len={len(self.context)}"
 
@@ -106,6 +110,9 @@ class Expression:
 		#for key, value in self.context.items():
 		#	output += f"\n        {key!r}: {value!r}"
 		return output
+	
+	def __add__(self, value: Any) -> 'Expression':
+		return Expression
 
 # this orderedexpression seemed like a good idea but anything that is an expression should straight up just not know the order of its variables. whatever uses the expression for something should store its own order of arguments if it needs it. it shouldnt make the expression store the order. its not intrinsic to the expression.
 '''

@@ -1,60 +1,84 @@
-from collections.abc import Sequence
-import gapprox
-from typing import TypeVar, Generic	# to enable subscripting in typehinting
+from typing import TypeVar, Generic	# to enable subscripting payload in typehints. pretty cool huh??
 
-class Node(Generic[TypeVar('T')]):
-	'a node of a MultiDAG. can hold metadata like metadata, weight, et cetera. also keeps track of adjacent edges on it directly, instead of putting that responsibillity to an adjacency list in MultiDiGraph'
-	def __init__(self, metadata: ... = None, inputs: set['Edge'] = None, outputs: set['Edge'] = None):
-		self.metadata: ... = metadata
-		self.inputs: set['Edge'] = set() if inputs is None else inputs
-		self.outputs: set['Edge'] = set() if outputs is None else outputs
+T = TypeVar('T')
 
-	@property
+class Node(Generic[T]):
+	'a node of a multi-edged directed graph'
+	def __init__(self, payload: T = None):
+		self.payload: T = payload
+		self.inputs: set['Edge'] = set()
+		self.outputs: set['Edge'] = set()
+
+	def disconnect(self) -> None:
+		while self.inputs:
+			edge = self.inputs.pop()
+			edge.source.outputs.remove(edge)
+
+		while self.outputs:
+			edge = self.outputs.pop()
+			edge.target.inputs.remove(edge)
+		# we use .remove instead of .discard because we want to be strict. if your edge isnt properly embedded in the graph, then you cant properly remove it. and so you catch errors earlier. defensive programming.. i suppose
+	
+	# these four check methods assume an inverted tree structure, where the root is at the top, and edges point upwards.
 	def is_root(self) -> bool:
 		return len(self.outputs) == 0 and len(self.inputs) != 0
 
-	@property
 	def is_branch(self) -> bool:
 		return len(self.outputs) != 0 and len(self.inputs) != 0
 
-	@property
 	def is_leaf(self) -> bool:
 		return len(self.outputs) != 0 and len(self.inputs) == 0
 
-	@property
-	def is_orphan(self) -> bool:
+	def is_orphan(self) -> bool:	# poor node :(
 		return len(self.outputs) == 0 and len(self.inputs) == 0
+	
+	def tree_view(self, prefix: str = '') -> str:
+		output = f'{prefix}{self!r}\n'
+		for edge in self.inputs:
+			output += edge.source.tree_view(prefix + '|---')
+		return output
 
 	def __repr__(self) -> str:
-		return f"<Node at {hex(id(self))}: {len(self.inputs)} inputs, {len(self.outputs)} outputs, metadata={self.metadata!r}>"
+		return f"<Node at {hex(id(self))}: {len(self.inputs)} inputs, {len(self.outputs)} outputs, payload = {self.payload!r}>"
 
 	def __str__(self) -> str:
 		output = f"Node at {hex(id(self))}:"
-		output += f"\n    metadata: {self.metadata!r}"
-		output += f"\n    inputs: {type(self.inputs)}, len={len(self.inputs)}"
-		for index, edge in enumerate(self.inputs):
-			output += f"\n        [index]: {edge!r}"
-		output += f"\n    outputs: {type(self.outputs)}, len={len(self.outputs)}"
+		output += f"\n    payload: {self.payload!r}"
+		output += f"\n    inputs: {type(self.inputs)}, len = {len(self.inputs)}"
+		for edge in self.inputs:
+			output += f"\n        {edge!r}"
+		output += f"\n    outputs: {type(self.outputs)}, len = {len(self.outputs)}"
 		for edge in self.outputs:
 			output += f"\n        {edge!r}"
 		return output
 
-class Edge(Generic[TypeVar('T')]):
-	'a directed edge of a MultiDiGraph. can hold metadata'
-	def __init__(self, source: Node, target: Node, metadata: ... = None):
+class Edge(Generic[T]):
+	'an edge of a multi-edged directed graph'
+	def __init__(self, source: Node, target: Node, payload: T = None):
 		self.source: Node = source
 		self.target: Node = target
-		self.metadata: ... = metadata
+		self.payload: T = payload
+
+		self.target.inputs.add(self)
+		self.source.outputs.add(self)
+		
+	def disconnect(self) -> None:
+		self.source.outputs.remove(self)
+		self.target.inputs.remove(self)
+		# we use .remove instead of .discard because we want to be strict. if your edge isnt properly embedded in the graph, then you cant properly remove it. and so you catch errors earlier. defensive programming.. i suppose
 
 	def __repr__(self) -> str:
-		return f"<Edge at {hex(id(self))}: {self.source.metadata!r} → {self.target.metadata!r}, metadata={self.metadata!r}>"
+		return f"<Edge at {hex(id(self))}: {self.source.payload!r} → {self.target.payload!r}, payload = {self.payload!r}>"
 
 	def __str__(self) -> str:
 		output = f"Edge at {hex(id(self))}:"
 		output += f"\n    source: {self.source!r}"
 		output += f"\n    target: {self.target!r}"
-		output += f"\n    metadata: {self.metadata!r}"
+		output += f"\n    payload: {self.payload!r}"
 		return output
+
+'''
+import gapprox
 
 class MultiDAG:
 	'a multi-edged directed acyclic graph. it stores a set of Node and a set of Edge. it does not maintain an adjacency list. the nodes do that themselves'
@@ -96,12 +120,6 @@ class MultiDAG:
 		# update set of edges
 		self.edges.add(edge)
 
-		# set target's input
-		edge.target.inputs.add(edge)
-
-		# set source's output
-		edge.source.outputs.add(edge)
-	
 	def remove_edge(self, edge: Edge) -> None:
 		"""remove an edge. if gapprox.debug is True, it performs local structural integrity checks"""
 
@@ -214,8 +232,10 @@ class MultiDAG:
 		for index, edge in enumerate(node.inputs):
 			output += MultiDAG.tree_view(edge.source, prefix + str(index).ljust(4, '-'))
 		return output
+'''
 
 """
+from collections.abc import Sequence
 class DiEdge:
 	'a directed edge of a graph. can hold metadata'
 	def __init__(self, source, target, metadata: ... = None):

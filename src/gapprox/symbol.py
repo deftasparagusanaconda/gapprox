@@ -4,20 +4,17 @@
 # the context simply provides a pragmatic value to the meaning we have defined in Symbol
 
 from typing import Any
-from .expression import Expression
 
-# you might ask me: "why on earth is Symbol subclassing Expression?"
-# because mathematically, a symbol by itself already qualifies as an expression. '2+x' is just as valid of an expression as '2' or 'x'. so! i did that. but then i realized it should be named "Atom", not "Symbol". so thats what i did again. *hghh...*
-
-class Atom(Expression):
-	'an atomic Expression. a Symbol encodes meaning, like encoding the meaning of pi, instead of just the value'
-
-class Symbol(Atom):
+class Symbol:
 	'a Symbol encodes meaning, like encoding the meaning of pi, instead of just the value'
 	
 	def __init__(self, name: str):
 		# we INTENTIONALLY leave out value, because, mathematically, when we mean pi, we dont mean 'oh! pi! you mean python's math.pi!'. we mean 'ah, pi. the transcendental number, not the pragmatic float value we use in computers'
 		self.name: str = name
+
+	def __repr__(self) -> str:
+		return f"<Symbol at {hex(id(self))}: name = {self.name}>"
+
 
 class FunctionSymbol(Symbol):
 	def __init__(self, name: str, arity: int):

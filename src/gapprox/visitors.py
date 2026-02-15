@@ -1,7 +1,7 @@
 # we kinda *want* something that can update the inputs list for the operators because inputs lists are being dynamically grown which can get pretty expensive, i think. dynamic allocation is always slower than static allocation
 
 import gapprox
-from .graph import Node, MultiDAG
+from .graph import Node
 
 class NodeVisitor:
 	"""inspired by python's ast.NodeVisitor. see https://docs.python.org/3/library/ast.html#ast.NodeVisitor
@@ -72,12 +72,7 @@ class NodeVisitor:
 
 class SimplifyVisitor(NodeVisitor):
 	'perform mathematical simplification'
-	def __init__(self, graph: MultiDAG):
-		self.graph = graph
 
-#	def generic_visit(self):
-#		'we want to simplify '
-	
 	def visit_add(self, node) -> Node:
 		"simplify chained binary 'add' nodes to a single variadic 'sum' node. uses post-order scorched-earth recursion"
 		if all(edge.source.metadata != 'add' for edge in iter(node.inputs)):
@@ -139,12 +134,12 @@ class StringifyVisitor(NodeVisitor):
 			pretty: bool = False, 
 			spacing: str = ' ',
 			cache: dict[Node, str] = None, 
-			context: dict[str, dict] = gapprox.default_context):
+			context: dict = gapprox.default_context):
 		self.pretty: bool = pretty
 		self.spacing: str = spacing
 		self.cache: dict[Node, str] = dict() if cache is None else cache
 		self.context: dict[str, dict] = context
-
+	
 	def generic_visit(self, node: Node) -> str:
 		'any generic function node, like sin(x) that doesnt have any special operator syntax'
 		if node in self.cache:

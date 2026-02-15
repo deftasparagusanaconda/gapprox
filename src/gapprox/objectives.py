@@ -46,7 +46,7 @@ max nesting depth   | how deeply a part of it is embedded within parentheses
 zero crossing count | how much it crosses zero
 """
 
-from .graph import Node, Edge, MultiDAG
+from .graph import Node, Edge
 
 def tree_inputnode_count(node:Node):
     'how many InputNode in the spanning tree, starting from the given node'
