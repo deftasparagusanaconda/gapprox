@@ -77,6 +77,8 @@ class Edge(Generic[T]):
 		output += f"\n    payload: {self.payload!r}"
 		return output
 
+__dir__ = lambda: ['Node', 'Edge']
+
 '''
 import gapprox
 

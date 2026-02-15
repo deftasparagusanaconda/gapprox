@@ -1,8 +1,3 @@
-from ast import parse 
-def str_to_ast(expr:str):
-	'parse a str expression to an ast tree'
-	return parse(expr, mode='eval').body
-
 #class Null:
 #    'to denote the absence of something, like a placeholder; for when None is not considered as the absence of something'
 #	#def __repr__():

@@ -15,6 +15,8 @@ class Symbol:
 	def __repr__(self) -> str:
 		return f"<Symbol at {hex(id(self))}: name = {self.name}>"
 
+	#def __add__(self, value, /):
+	
 
 class FunctionSymbol(Symbol):
 	def __init__(self, name: str, arity: int):
@@ -24,4 +26,3 @@ class FunctionSymbol(Symbol):
 class ConstantSymbol(Symbol):
 	...
 
-# do you know why we can do Symbol('x') + Symbol('y')? because Expression implements __add__, and other related algebraic operators. pretty cool huh? we didnt have to define it here because we inherited classes so neatly, and mathematically. always mathematical, if you can!

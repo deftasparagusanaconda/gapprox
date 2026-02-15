@@ -1,7 +1,7 @@
 # we kinda *want* something that can update the inputs list for the operators because inputs lists are being dynamically grown which can get pretty expensive, i think. dynamic allocation is always slower than static allocation
 
 import gapprox
-from .graph import Node
+from ..graph import Node
 
 class NodeVisitor:
 	"""inspired by python's ast.NodeVisitor. see https://docs.python.org/3/library/ast.html#ast.NodeVisitor
@@ -133,12 +133,10 @@ class StringifyVisitor(NodeVisitor):
 			*, 
 			pretty: bool = False, 
 			spacing: str = ' ',
-			cache: dict[Node, str] = None, 
-			context: dict = gapprox.default_context):
+			cache: dict[Node, str] = None):
 		self.pretty: bool = pretty
 		self.spacing: str = spacing
 		self.cache: dict[Node, str] = dict() if cache is None else cache
-		self.context: dict[str, dict] = context
 	
 	def generic_visit(self, node: Node) -> str:
 		'any generic function node, like sin(x) that doesnt have any special operator syntax'
@@ -162,10 +160,7 @@ class StringifyVisitor(NodeVisitor):
 		for edge in node.inputs:
 			args[edge.metadata] = self.visit(edge.source)	# recursion
 
-		if self.pretty:
-			operand: str = self.context[node.metadata]['symbols'][0]
-		else:
-			operand: str = self.context[node.metadata]['python_symbol']
+		operand: str = node.payload.name
 
 		return f"{args[0]}{self.spacing}{operand}{self.spacing}{args[1]}"
 

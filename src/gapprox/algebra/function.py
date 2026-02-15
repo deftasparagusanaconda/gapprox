@@ -1,6 +1,7 @@
 from .relation import Relation
 from collections.abc import Container, Sequence
 from typing import Any, Callable
+from .symbol import Symbol
 
 class Function(Relation):
 	"""represents a mathematical function – either a partial or a total one. it is a right-unique binary relation from one domain to another, and is also left-total in the case of a non-partial "total" function. it stores the domains flatly as .domain and .codomain. unlike a Relation, it stores the 2-tuples as a dict or a callable, which is its indicator function of the set of 2-tuples. it also allows Mappings to assist in the lookup of domain or codomain
@@ -10,7 +11,7 @@ class Function(Relation):
 
 	def __init__(
 			self,
-			domain  : Container[Any],
+			domain  : dict[Symbol, Container[Any]],
 			codomain: Container[Any],
 			mapping : Callable[[Any], Any],
 			) -> None:
@@ -28,12 +29,17 @@ class Function(Relation):
 
 	# Relation defines __contains__ = relates
 		
-	def get_codomain(self, input: Any, check_domains: bool = True) -> Any:
+	def get_codomain(self, inputs: dict[Symbol, Any], check_domains: bool = True) -> Any:
 		'also known as the image'
-		if check_domains and input not in self.domains[0]:
-			raise ValueError(f'{input} is not in {self.domains[0]}')
+		if check_domains:
+			input_domains = self.domains[0]
+			if inputs.keys() != input_domains.keys():
+				raise ValueError('inputs not matching input domain')
+			for key in inputs.keys():
+				if inputs[key] not in input_domains[key]:
+					raise ValueError(f'{input} is not in {self.domains[0]}')
 
-		output = self.mapping(input)
+		output = self.mapping(inputs)
 
 		if check_domains and output not in self.domains[1]:
 			raise ValueError(f'{input} is not in {self.domains[0]}')

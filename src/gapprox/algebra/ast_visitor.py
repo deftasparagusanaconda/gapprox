@@ -1,20 +1,17 @@
 import ast
-from .graph import Node, Edge
-from .parse_dict import default_parse_dict
-from .symbol import Symbol
+from ..graph import Node, Edge
 from numbers import Number
 from collections.abc import Iterable
 from typing import Any
-from .context import default_context
+from .dicts import default_parse_dict, default_translate_dict
+from .symbol import Symbol
 
-DEFAULT_FUNCTION_PARSE_DICT: dict[str, Symbol] = {key.name: key for key in default_context.keys()}
-
-class AstToMultiDAGVisitor(ast.NodeVisitor):
+class AstVisitor(ast.NodeVisitor):
 	'stateful function that adds nodes of an ast to a MultiDAG'
-	def __init__(self, symbols_dict: dict[str: Symbol], function_parse_dict: dict[str, Symbol] = DEFAULT_FUNCTION_PARSE_DICT, parse_dict: dict[ast.AST, Symbol] = default_parse_dict):
-		self.symbols_dict: dict[str, Symbol] = function_parse_dict.copy()
-		self.symbols_dict.update(symbols_dict)	# symbols_dict overrides function_parse_dict
-		self.parse_dict: dict[ast.AST, str] = parse_dict
+	def __init__(self, symbols_dict: dict[str, Symbol], parse_dict: dict[str, Symbol] = default_parse_dict, translate_dict: dict[ast.AST, Symbol] = default_translate_dict):
+		self.symbols_dict: dict[str, Symbol] = symbols_dict
+		self.parse_dict: dict[str, Symbol] = parse_dict
+		self.translate_dict: dict[ast.AST, str] = translate_dict
 
 	def generic_visit(self, node: Node) -> None:
 		raise NotImplementedError(f"critical error! {node!r} of type {type(node)!r} is not recognized. please report this")
@@ -30,10 +27,10 @@ class AstToMultiDAGVisitor(ast.NodeVisitor):
 	def visit_UnaryOp(self, node: Node) -> Node[Symbol]:
 		op = type(node.op)
 		
-		if op not in self.parse_dict:
+		if op not in self.translate_dict:
 			raise NotImplementedError(f"{node.op} not supported")
 		
-		func_node = Node(self.parse_dict[op])
+		func_node = Node(self.translate_dict[op])
 		operand = self.visit(node.operand)	# recursion
 		Edge(operand, func_node, 0)
 		return func_node
@@ -41,10 +38,10 @@ class AstToMultiDAGVisitor(ast.NodeVisitor):
 	def visit_BinOp(self, node: Node) -> Node:
 		op = type(node.op)
 		
-		if op not in self.parse_dict:
+		if op not in self.translate_dict:
 			raise NotImplementedError(f"{node.op} not supported")
 		
-		func_node = Node(self.parse_dict[op])
+		func_node = Node(self.translate_dict[op])
 		left = self.visit(node.left)	# recursion
 		right = self.visit(node.right)	# recursion
 		Edge(left, func_node, 0)
@@ -52,7 +49,12 @@ class AstToMultiDAGVisitor(ast.NodeVisitor):
 		return func_node
 	
 	def visit_Call(self, node) -> Node:
-		op: Symbol = self.symbols_dict[node.func.id]
+		name = node.func.id
+
+		if name not in self.parse_dict:
+			raise KeyError(f'{name!r} isnt recognized. check parse_dict')
+			
+		op: Symbol = self.parse_dict[name]
 		args: list[Node] = [self.visit(arg) for arg in node.args]	# recursion
 		
 		# connect args as inputs to op
@@ -69,9 +71,9 @@ class AstToMultiDAGVisitor(ast.NodeVisitor):
 		func_nodes: list[Node] = []
 		for index, op in enumerate(node.ops):
 			op_type = type(op)
-			if op_type not in self.parse_dict:
+			if op_type not in self.translate_dict:
 				raise NotImplementedError(f"{op} not supported")
-			func_node = Node(self.parse_dict[op_type])
+			func_node = Node(self.translate_dict[op_type])
 			Edge(args[index], func_node, 0)
 			Edge(args[index+1], func_node, 1)
 			func_nodes.append(func_node)
@@ -94,11 +96,11 @@ class AstToMultiDAGVisitor(ast.NodeVisitor):
 		'uses AND/OR if binary, ALL/ANY if variadic'
 		op = type(node.op)
 
-		if op not in self.parse_dict:
+		if op not in self.translate_dict:
 			raise NotImplementedError(f"{node.op} not supported")
 
 		if len(node.values) == 2:	# binary
-			func_node = Node(self.parse_dict[op])
+			func_node = Node(self.translate_dict[op])
 			in1 = self.visit(node.values[0])	# recursion
 			in2 = self.visit(node.values[1])	# recursion
 			Edge(in1, func_node, 0)
@@ -126,10 +128,10 @@ class AstToMultiDAGVisitor(ast.NodeVisitor):
 		"if else expression. ast formats it like: 'node.body if node.test else node.orelse' and gapprox follows a 'a if b else c' order, instead of a 'if a then b else c' order"
 		op = type(node)
 		
-		if op not in self.parse_dict:
+		if op not in self.translate_dict:
 			raise NotImplementedError(f"{node.op} not supported")
 
-		func_node = Node(self.parse_dict[op])
+		func_node = Node(self.translate_dict[op])
 		
 		body_node: Node = self.visit(node.body)	# recursion
 		test_node: Node = self.visit(node.test)	# recursion

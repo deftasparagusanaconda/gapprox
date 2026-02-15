@@ -1,101 +1,68 @@
-from .symbol import FunctionSymbol as _FunctionSymbol, ConstantSymbol as _ConstantSymbol
+from .symbol import Symbol, FunctionSymbol, ConstantSymbol
+from . import operators as gapprox_operators
+import operator
+import builtins
+from numbers import Number
+from typing import Any
 
-# functions
-POS      = _FunctionSymbol('pos'     , arity = 1,)
-NEG      = _FunctionSymbol('neg'     , arity = 1,)
-NOT      = _FunctionSymbol('not'     , arity = 1,)
+import math
 
-ADD      = _FunctionSymbol('add'     , arity = 2,)
-SUB      = _FunctionSymbol('sub'     , arity = 2,)
-MUL      = _FunctionSymbol('mul'     , arity = 2,)
-DIV      = _FunctionSymbol('div'     , arity = 2,)
-FLOORDIV = _FunctionSymbol('floordiv', arity = 2,)
-MOD      = _FunctionSymbol('mod'     , arity = 2,)
-POW      = _FunctionSymbol('pow'     , arity = 2,)
-
-INV      = _FunctionSymbol('inverse' , arity = 1,)
-
-LSHIFT   = _FunctionSymbol('lshift'  , arity = 2,)
-RSHIFT   = _FunctionSymbol('rshift'  , arity = 2,)
-BITNOT   = _FunctionSymbol('bitnot'  , arity = 1,)
-BITOR    = _FunctionSymbol('bitor'   , arity = 2,)
-BITXOR   = _FunctionSymbol('bitxor'  , arity = 2,)
-BITAND   = _FunctionSymbol('bitand'  , arity = 2,)
-MATMUL   = _FunctionSymbol('matmul'  , arity = 2,)
-
-AND      = _FunctionSymbol('and'     , arity = 2,)
-OR       = _FunctionSymbol('or'      , arity = 2,)
-
-EQ       = _FunctionSymbol('eq'      , arity = 2,)
-NE       = _FunctionSymbol('ne'      , arity = 2,)
-LT       = _FunctionSymbol('lt'      , arity = 2,)
-LE       = _FunctionSymbol('le'      , arity = 2,)
-GT       = _FunctionSymbol('gt'      , arity = 2,)
-GE       = _FunctionSymbol('ge'      , arity = 2,)
-IS       = _FunctionSymbol('is'      , arity = 2,)
-ISNOT    = _FunctionSymbol('isnot'   , arity = 2,)
-IN       = _FunctionSymbol('in'      , arity = 2,)
-NOTIN    = _FunctionSymbol('notin'   , arity = 2,)
-
-IFELSE   = _FunctionSymbol('ifelse'  , arity = 3,)
+# this is the boss
+default_evaluate_dict: dict[Symbol, Any] = {
+	# functions
+	 FunctionSymbol('pos'     , arity = 1,): gapprox_operators.pos
+	,FunctionSymbol('neg'     , arity = 1,): operator.neg
+	,FunctionSymbol('not'     , arity = 1,): operator.not_
 	
-# constants
-NAN      = _ConstantSymbol('nan',)
-INF      = _ConstantSymbol('inf',)
-I        = _ConstantSymbol('i'  ,)
-PHI      = _ConstantSymbol('phi',)
-E        = _ConstantSymbol('e'  ,)
-PI       = _ConstantSymbol('pi' ,)
-TAU      = _ConstantSymbol('tau',)
+	,FunctionSymbol('add'     , arity = 2,): operator.add
+	,FunctionSymbol('sub'     , arity = 2,): operator.sub
+	,FunctionSymbol('mul'     , arity = 2,): operator.mul
+	,FunctionSymbol('div'     , arity = 2,): operator.truediv
+	
+	,FunctionSymbol('and'     , arity = 2,): operator.and_
+	,FunctionSymbol('or'      , arity = 2,): operator.or_
+	
+	,FunctionSymbol('eq'      , arity = 2,): operator.eq
+	,FunctionSymbol('ne'      , arity = 2,): operator.ne
+	,FunctionSymbol('lt'      , arity = 2,): operator.lt
+	,FunctionSymbol('le'      , arity = 2,): operator.le
+	,FunctionSymbol('gt'      , arity = 2,): operator.gt
+	,FunctionSymbol('ge'      , arity = 2,): operator.ge
+	,FunctionSymbol('is'      , arity = 2,): operator.is_
+	,FunctionSymbol('isnot'   , arity = 2,): operator.is_not
+	,FunctionSymbol('in'      , arity = 2,): gapprox_operators.in_
+	,FunctionSymbol('notin'   , arity = 2,): gapprox_operators.notin
+	
+	,FunctionSymbol('ifelse'  , arity = 3,): gapprox_operators.ifelse
+		
+	,FunctionSymbol('floordiv', arity = 2,): operator.floordiv
+	,FunctionSymbol('mod'     , arity = 2,): operator.mod
+	,FunctionSymbol('pow'     , arity = 2,): operator.pow
+	
+	,FunctionSymbol('lshift'  , arity = 2,): operator.lshift
+	,FunctionSymbol('rshift'  , arity = 2,): operator.rshift
+	,FunctionSymbol('bitnot'  , arity = 2,): operator.not_
+	,FunctionSymbol('bitor'   , arity = 2,): operator.or_
+	,FunctionSymbol('bitxor'  , arity = 2,): operator.xor
+	,FunctionSymbol('bitand'  , arity = 2,): operator.and_
+	
+	,FunctionSymbol('matmul'  , arity = 2,): operator.matmul
 
+	,FunctionSymbol('sin'     , arity = 1,): math.sin
+	,FunctionSymbol('cos'     , arity = 1,): math.cos
+	,FunctionSymbol('tan'     , arity = 1,): math.tan
+
+	,ConstantSymbol('nan'                 ): math.nan
+	,ConstantSymbol('inf'                 ): math.inf
+	,ConstantSymbol('e'                   ): math.e
+	,ConstantSymbol('pi'                  ): math.pi
+	,ConstantSymbol('tau'                 ): math.tau
+}
+
+default_parse_dict: dict[str, Symbol] = {symbol.name: symbol for symbol in default_evaluate_dict.keys()}
 '''
-default_context: dict[str: dict[str: any]] = {
-	# arithmetic
-	'add': {
-		'callable': operator.add,
-		'symbols': ['+'],
-		'python_symbol': '+',
-		'aliases': ['addition', 'sum'],
-		'arity': 2,
-		'commutative': True,
-	},
-	'sub': {
-		'callable': operator.sub,
-		'symbols': ['−', '-'],
-		'python_symbol': '-',
-		'aliases': ['subtraction', 'difference'],
-		'arity': 2,
-		'commutative': False,
-	},
-	#'sub': FunctionSymbol(
-	#	value   = operator.sub
-	#	name    = 'sub'
-	#	glyph_ascii   = '-'
-	#	glyph_unicode = '−'
-	#	glyph_python  = '-'
-	#	
-	#	
-	#	
-	'mul': {
-		'callable': operator.mul,
-		'symbols': ['×', '⋅', '*', 'x'],
-		'python_symbol': '*',
-		'aliases': ['multiplication', 'product'],
-		'arity': 2,
-		'commutative': True,
-	},
-	'div': {
-		'callable': operator.truediv,
-		'symbols': ['∕', '÷', '/'],
-		'python_symbol': '/',
-		'aliases': ['division', 'ratio'],
-		'arity': 2,
-		'commutative': False,
-	},
-
 	# numeric
 	'neg': { # unary minus, negative, additive inverse
-		'callable': operator.neg,
 		'symbols': ['−', '-'],
 		'python_symbol': '-',
 		'aliases': ['negation', 'additive inverse'],
@@ -630,54 +597,54 @@ default_context: dict[str: dict[str: any]] = {
 	},
 
 	# constants
-	'nan': ConstantSymbol(
-		name        = 'nan',
-		value       = float('nan'),
-		symbols     = ['NaN', '?', '¿', '𝑁𝑎𝑁'],
-		aliases     = ['not a number'],
-		description = 'something which is not a number',
-	),
-	'inf': ConstantSymbol(
-		name        = 'inf',
-		value       = float('inf'),
-		symbols     = ['∞'],
-		aliases     = ['infinity'],
-		description = 'something which is boundless, limitless, endless',
-	),
-	'i': ConstantSymbol(
-		name        = 'i',
-		value       = 1j,
-		symbols     = ['i', 'j', '𝑖', '𝕚', 'ⅈ', '𝒾'],
-		aliases     = ['imaginary unit'],
-		description = 'a number i such that i² = −1',
-	),
-	'phi': ConstantSymbol(
-		name        = 'phi',
-		value       = 1.618033988749894848204586834365638117720309179805762862135448622705260462818,
-		symbols     = ['φ', 'ϕ'],
-		aliases     = ['golden ratio'],
-		description = 'a/b such that a+b ∶ a ∷ a ∶ b. algebraically, φ = (1 + √5) ∕ 2',
-	),
-	'e': ConstantSymbol(
-		name        = 'e',
-		value       = 2.718281828459045235360287471352662497757247093699959574966967627724076630353,
-		symbols     = ['e', '𝑒', 'ℯ'],
-		aliases     = ["euler's number"],
-		description = 'the number e such that d∕dx(eˣ) = eˣ – or – the limit as n → +∞ for (1 + 1∕n)ⁿ',
-	),
-	'pi': ConstantSymbol(
-		name        = 'pi',
-		value       = 3.141592653589793238462643383279502884197169399375105820974944592307816406286,
-		symbols     = ['π', '𝜋', 'ℼ'],
-		aliases     = ["archimedes' constant"],
-		description = "the ratio of an euclidean circle's circumference to its diameter",
-	),
-	'tau': ConstantSymbol(
-		name        = 'tau',
-		value       = 6.283185307179586476925286766559005768394338798750211641949889184615632812572,
-		symbols     = ['τ', '𝜏'],
 		aliases     = None,
 		description = "the ratio of an euclidean circle's circumference to its radius",
 	),
 }
-'''	
+
+'''
+
+import ast
+
+default_translate_dict = {
+		 ast.UAdd    : default_parse_dict['pos']
+		,ast.USub    : default_parse_dict['neg']
+		,ast.Not     : default_parse_dict['not']
+		,ast.Invert  : default_parse_dict['bitnot']
+
+		,ast.Add     : default_parse_dict['add']
+		,ast.Sub     : default_parse_dict['sub']
+		,ast.Mult    : default_parse_dict['mul']
+		,ast.Div     : default_parse_dict['div']
+		,ast.FloorDiv: default_parse_dict['floordiv']
+		,ast.Mod     : default_parse_dict['mod']
+		,ast.Pow     : default_parse_dict['pow']
+		,ast.LShift  : default_parse_dict['lshift']
+		,ast.RShift  : default_parse_dict['rshift']
+		,ast.BitOr   : default_parse_dict['bitor']
+		,ast.BitXor  : default_parse_dict['bitxor']
+		,ast.BitAnd  : default_parse_dict['bitand']
+		,ast.MatMult : default_parse_dict['matmul']
+		
+		,ast.And     : default_parse_dict['and']
+		,ast.Or      : default_parse_dict['or']
+		
+		,ast.Eq      : default_parse_dict['eq']
+		,ast.NotEq   : default_parse_dict['ne']
+		,ast.Lt      : default_parse_dict['lt']
+		,ast.LtE     : default_parse_dict['le']
+		,ast.Gt      : default_parse_dict['gt']
+		,ast.GtE     : default_parse_dict['ge']
+		,ast.Is      : default_parse_dict['is']
+		,ast.IsNot   : default_parse_dict['isnot']
+		,ast.In      : default_parse_dict['in']
+		,ast.NotIn   : default_parse_dict['notin']
+		
+		,ast.IfExp   : default_parse_dict['ifelse']
+}
+
+__dir__ = lambda: [
+		 'default_evaluate_dict'	# dict[Symbol, Any]
+		,'default_parse_dict'	# dict[str, Symbol]
+		,'default_translate_dict'	# dict[ast.AST, Symbol]
+		]

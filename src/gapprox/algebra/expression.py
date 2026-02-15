@@ -1,58 +1,62 @@
-from .graph import Node, Edge
+from ..graph import Node, Edge
 from collections import Counter
-from .ast_to_multidag_visitor import AstToMultiDAGVisitor
-from . import misc
+from .ast_visitor import AstVisitor
 from . import visitors
 import gapprox
-from collections.abc import Sequence 
+from collections.abc import Iterable
 from typing import Any, Callable
-from .context import default_context
+from .dicts import default_evaluate_dict, default_parse_dict, default_translate_dict
+import ast
 from .symbol import Symbol
 
 class Expression:
-	"""represents a mathematical expression. it is evaluable and callable. the canonical storage is as a MultiDAG, because it reveals the most structure about a math expression
-	
-	context given in methods like .evaluate() or .to_str() are only temporary substitutions
-	"""
+	'represents a mathematical expression. it is evaluable and callable. the canonical storage is as a MultiDAG, because it reveals the most structure about a math expression'
 		
-	def __init__(self, root: Node, symbols: Sequence[Symbol], *, symbols_dict: dict[str, Symbol] = None) -> None:
-		if isinstance(root, str):
-			raise TypeError('Expression takes a root node. perhaps you meant Expression.from_str')
-		self.root: Node = root
-		self._symbols: Sequence[Symbol] = symbols
-		self._symbols_dict: dict[str, Symbol] = {symbol.name: symbol for symbol in symbols} if symbols_dict is None else symbols_dict
+	def __init__(self, root: Node[None]) -> None:
+		if not isinstance(root, Node):
+			raise TypeError('Expression() takes a Node. perhaps you meant Expression.from_str()')
+		self.root: Node[None] = root
 	
 	@classmethod
-	def from_str(cls, string: str, symbols: Sequence[Symbol] = None) -> 'Expression':
-		symbols = [] if symbols is None else symbols
+	def from_str(
+			cls,
+			string: str,
+			symbols: Iterable[Symbol] = set(),
+			parse_dict: dict[str, Symbol] = default_parse_dict,
+			translate_dict: dict[ast.AST, Symbol] = default_translate_dict,
+			) -> 'Expression':
 		symbols_dict: dict[str, Symbol] = {symbol.name: symbol for symbol in symbols}
 		
-		ast_to_multidag_visitor = AstToMultiDAGVisitor(symbols_dict)
+
+		ast_visitor:AstVisitor = AstVisitor(symbols_dict = symbols_dict, parse_dict = parse_dict, translate_dict = translate_dict)
 		
-		ast_tree = misc.str_to_ast(string)
-		top_node = ast_to_multidag_visitor.visit(ast_tree)
-		root_node = Node()	# notice the root node doesnt have any payload
-		Edge(top_node, root_node)
+		ast_tree: ast.AST = parse(expr, mode='eval').body
+		top_node: Node[Any] = ast_visitor.visit(ast_tree)
+		root: Node[None] = Node()	# notice the root node doesnt have any payload
+		Edge(top_node, root)
 		
-		expression = cls(root_node, symbols, symbols_dict = symbols_dict)
-		return expression
+		return cls(root)
 	
-	def evaluate(self, *args, context: dict[Symbol: Any] = None, **kwargs) -> Any:
+	def evaluate(self, substitutions: dict[Symbol: Any] = None, default_substitutions: dict[Symbol: Any] = None) -> Any:
 		'evaluate the expression'
-		context: dict[Symbol, Any] = default_context.copy() if context is None else context.copy()
+		# we could rely on kwargs as the dict. but we dont. do you know why?
+		# because kwargs: dict[str, Any] requires us to decode the str to a Symbol. this is bad. this means the str is the marker. this is wrong
+		# instead we pass substitutions: dict[Symbol, Any], implying that Symbol is the marker.
 
-		# kwargs overrides context
-		context.update((self._symbols_dict[key], val) for key, val in kwargs.items())	
+		substitutions = dict() if substitutions is None else substitutions
+		default_substitutions = default_evaluate_dict if default_substitutions is None else default_substitutions
 
-		# args overrides context
-		for symbol, arg in zip(self._symbols, args):
-			context[symbol] = arg
+		# substitutions overrides default_substitutions
+		subs = default_substitutions.copy()
+		for key, val in substitutions.items():
+			subs[key] = val
+		#subs.update(substitutions)
 		
 		def evaluate_node(node: Node) -> any:
 			if node.is_leaf():
-				return context.get(node.payload, node.payload)	# termination
+				return subs.get(node.payload, node.payload)	# termination
 			else:
-				function = context.get(node.payload, node.payload)
+				function = subs.get(node.payload, node.payload)
 				
 				#arguments = sorted(evaluate_node(edge.source) for edge in node.inputs, key = edge.payload)
 				arguments = [None] * len(node.inputs)
@@ -111,8 +115,8 @@ class Expression:
 		#	output += f"\n        {key!r}: {value!r}"
 		return output
 	
-	def __add__(self, value: Any) -> 'Expression':
-		return Expression
+	#def __add__(self, value: Any) -> 'Expression':
+	#	return Expression
 
 # this orderedexpression seemed like a good idea but anything that is an expression should straight up just not know the order of its variables. whatever uses the expression for something should store its own order of arguments if it needs it. it shouldnt make the expression store the order. its not intrinsic to the expression.
 '''
@@ -148,3 +152,4 @@ class OrderedExpression:
 
 	__call__ = evaluate
 '''
+
