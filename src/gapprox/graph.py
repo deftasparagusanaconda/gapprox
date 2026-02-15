@@ -1,7 +1,8 @@
 from collections.abc import Sequence
 import gapprox
+from typing import TypeVar, Generic	# to enable subscripting in typehinting
 
-class Node:
+class Node(Generic[TypeVar('T')]):
 	'a node of a MultiDAG. can hold metadata like metadata, weight, et cetera. also keeps track of adjacent edges on it directly, instead of putting that responsibillity to an adjacency list in MultiDiGraph'
 	def __init__(self, metadata: ... = None, inputs: set['Edge'] = None, outputs: set['Edge'] = None):
 		self.metadata: ... = metadata
@@ -38,7 +39,7 @@ class Node:
 			output += f"\n        {edge!r}"
 		return output
 
-class Edge:
+class Edge(Generic[TypeVar('T')]):
 	'a directed edge of a MultiDiGraph. can hold metadata'
 	def __init__(self, source: Node, target: Node, metadata: ... = None):
 		self.source: Node = source

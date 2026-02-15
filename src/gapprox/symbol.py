@@ -4,8 +4,15 @@
 # the context simply provides a pragmatic value to the meaning we have defined in Symbol
 
 from typing import Any
+from .expression import Expression
 
-class Symbol:
+# you might ask me: "why on earth is Symbol subclassing Expression?"
+# because mathematically, a symbol by itself already qualifies as an expression. '2+x' is just as valid of an expression as '2' or 'x'. so! i did that. but then i realized it should be named "Atom", not "Symbol". so thats what i did again. *hghh...*
+
+class Atom(Expression):
+	'an atomic Expression. a Symbol encodes meaning, like encoding the meaning of pi, instead of just the value'
+
+class Symbol(Atom):
 	'a Symbol encodes meaning, like encoding the meaning of pi, instead of just the value'
 	
 	def __init__(self, name: str):
@@ -19,3 +26,5 @@ class FunctionSymbol(Symbol):
 
 class ConstantSymbol(Symbol):
 	...
+
+# do you know why we can do Symbol('x') + Symbol('y')? because Expression implements __add__, and other related algebraic operators. pretty cool huh? we didnt have to define it here because we inherited classes so neatly, and mathematically. always mathematical, if you can!

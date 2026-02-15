@@ -11,9 +11,11 @@ class Domain:
 		self.determiner = determiner
 	
 	def has(self, thing: any) -> bool:
-		match self.determiner:
-			case Container(): return thing in self.determiner
-			case Callable(): return self.determiner(thing)	
-			case _:	raise AttributeError("unrecognized determiner")
+		if isinstance(self.determiner, Container):
+			return thing in self.determiner
+		elif isinstance(self.determiner, Callable):
+			return self.determiner(thing)	
+		else:
+			raise AttributeError("unrecognized determiner")
 
 	__contains__ = has

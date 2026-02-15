@@ -1,47 +1,45 @@
 # be *veeery* careful how you define these domains. for example, float('inf') does not belong in reals
 
-from .domain import Domain as _Domain
-import math as _math
-import numbers as _numbers
+from .domain import Domain
+import math
+import numbers
 
-def _is_in_numbers(number) -> bool:
-	return isinstance(number, _numbers.Number)
+def is_Truth(thing) -> bool:
+	return isinstance(thing, bool)
 
-def _is_in_complexes(number) -> bool:
-	return isinstance(number, _numbers.Complex)
+def is_Number(number) -> bool:
+	return isinstance(number, numbers.Number)
 
-def _is_in_extended_reals(number) -> bool:
-	return isinstance(number, _numbers.Real) and not _math.isnan(number)
+def is_Complex(number) -> bool:
+	return isinstance(number, numbers.Complex)
 
-def _is_in_reals(number) -> bool:
-	return isinstance(number, _numbers.Real) and _math.isfinite(number)
+#def is_Real_and_not_nan(number) -> bool:
+#	return isinstance(number, numbers.Real) and not _math.isnan(number)
 
-def _is_in_rationals(number) -> bool:
-	return isinstance(number, _numbers.Rational)
+#def is_Real_and_finite(number) -> bool:
+#	return isinstance(number, numbers.Real) and _math.isfinite(number)
 
-def _is_in_integers(number) -> bool:
-	return isinstance(number, _numbers.Integral)
+def is_Real(number) -> bool:
+	return isinstance(number, numbers.Real)
 
-def _is_in_evens(number) -> bool:
-	return number % 2 == 0
+def is_Rational(number) -> bool:
+	return isinstance(number, numbers.Rational)
 
-def _is_in_odds(number) -> bool:
-	return number % 2 == 1
+def is_Integral(number) -> bool:
+	return isinstance(number, numbers.Integral)
 
-def _is_in_primes(number) -> bool:
-	raise NotImplementedError
+truth    = Domain(is_Truth)
+number   = Domain(is_Number)
+complex  = Domain(is_Complex)
+real     = Domain(is_Real)
+rational = Domain(is_Rational)
+integral = Domain(is_Integral)
 
-def _is_in_composites(number) -> bool:
-	raise NotImplementedError
-
-numbers        = _Domain(_is_in_numbers)
-complexes      = _Domain(_is_in_complexes)
-extended_reals = _Domain(_is_in_extended_reals)
-reals          = _Domain(_is_in_reals)
-rationals      = _Domain(_is_in_rationals)
-integers       = _Domain(_is_in_integers)
-evens          = _Domain(_is_in_evens)
-odds           = _Domain(_is_in_odds)
-primes         = _Domain(_is_in_primes)
-composites     = _Domain(_is_in_composites)
-
+__dir__ = lambda: [
+		 'truth'
+		,'number'
+		,'complex'
+		,'real'
+		,'rational'
+		,'integral'
+		]

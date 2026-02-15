@@ -15,8 +15,8 @@ class AstToMultiDAGVisitor(ast.NodeVisitor):
 	def visit_Constant(self, node: Node) -> Node:	# a number, like 2 in '2+x'
 		return self.graph.new_node(node.value)
 	
-	def visit_Name(self, node: Node) -> Node:
-		return self.graph.new_node(node.id)
+	def visit_Name(self, node: Node) -> Node[Symbol]:
+		return self.graph.new_node(Symbol(node.id))
 
 	def visit_UnaryOp(self, node: Node) -> Node:
 		op = type(node.op)
