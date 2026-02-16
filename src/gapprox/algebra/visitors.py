@@ -1,74 +1,7 @@
 # we kinda *want* something that can update the inputs list for the operators because inputs lists are being dynamically grown which can get pretty expensive, i think. dynamic allocation is always slower than static allocation
 
 import gapprox
-from ..graph import Node
-
-class NodeVisitor:
-	"""inspired by python's ast.NodeVisitor. see https://docs.python.org/3/library/ast.html#ast.NodeVisitor
-
-	base class for any node visitor
-	"""
-#	"""inspired by python's ast.NodeVisitor. see https://docs.python.org/3/library/ast.html#ast.NodeVisitor
-
-#	this class is really just a stateful function that traverses through nodes in a DAG. the difference is that it will have different logic for different kinds of nodes. you make a subclass of it, and there you define visit_* methods, where * is your node's class name. say you have ParameterNode. then you would define something like visit_ParameterNode and you would call MyNodeVisitorSubclass().visit(ParameterNode)
-
-#	like ast.NodeVisitor, it defines visit and generic_visit, and subclasses are supposed to define visit_* (* meaning YourClassName)
-#	unlike ast.NodeVisitor, it does not define generic_visit or visit_Constant, is not specific to a tree structure, and is not specific to ast nodes. it supports a directed acyclic graph data structure, and is generic to *any* kind of DAG node (i think). it also is not limited to root-to-leaf traversal, and can be bi-directional or such
-
-#	for a tree structure, a node is visited once. for a DAG structure, a node may be visited multiple times. implement your own memoization if you do not want this repeated traversal.
-
-#	to mutate nodes during traversal, use gapprox.NodeTransformer instead. NodeVisitor is only meant for read-only traversal
-
-#	it is generally recommended to name any subclasses of NodeVisitor as *Visitor such as SubstitutionVisitor, StringifyVisitor, …
-#	"""
-
-	def visit(self, node) -> any:
-		'the thing to call to start traversal. never start traversal by calling visit_*(mynode). always start traversal by calling visit(mynode)'
-
-		method = 'visit_' + str(node.metadata)
-		visitor = getattr(self, method, self.generic_visit)
-
-		return visitor(node)
-
-	def generic_visit(self, node) -> any:
-		'generic_visit generally defines the method (pre-order or post-order) and the direction (towards root or toward leaves) of recursion'
-		raise ValueError("this {self.__class__.__name__} got {node=}, {type(node)=} and no corresponding visit_* was defined")
-
-	def __repr__(self):
-		# all names in the instance
-		all_names = dir(self)
-
-		# filter out attributes and methods
-		attributes = [name for name in all_names if not callable(getattr(self, name)) and not name.startswith("__")]
-		methods	= [name for name in all_names if callable(getattr(self, name)) and not name.startswith("__")]
-
-		name_str = self.__class__.__name__	# in case derived classes dont implement their own __repr__ which they probably wont
-		attributes_str = f"{len(attributes)} attributes"
-		methods_str = f"{len(methods)} methods"
-		return f"<{name_str} at {hex(id(self))}: {attributes_str}, {methods_str}>"
-
-	def __str__(self):
-		from collections.abc import Iterable
-
-		# all names in the instance
-		all_names = dir(self)
-
-		# filter out attributes and methods
-		attributes = [name for name in all_names if not callable(getattr(self, name)) and not name.startswith("__")]
-		methods	= [name for name in all_names if callable(getattr(self, name)) and not name.startswith("__")]
-
-		output = f"{self.__class__.__name__} (ID={hex(id(self))})"
-		output += f"\nattributes: {len(attributes)} defined"
-		for name in attributes:
-			value = getattr(self, name)
-			if isinstance(value, Iterable) and not isinstance(value, (str, bytes)):
-				output += f"\n	{name} = {type(value)}, len={len(value)}"
-			else:
-				output += f"\n	{name} = {value}"
-		output += f"\nmethods: {len(methods)} defined"
-		for method in methods:
-			output += f"\n	{method}()"
-		return output
+from ..graph import NodeVisitor
 
 class SimplifyVisitor(NodeVisitor):
 	'perform mathematical simplification'

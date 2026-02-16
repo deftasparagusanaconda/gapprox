@@ -9,14 +9,9 @@ from .dicts import default_evaluate_dict, default_parse_dict, default_translate_
 import ast
 from .symbol import Symbol
 
-class Expression:
+class Expression(Node):
 	'represents a mathematical expression. it is evaluable and callable. the canonical storage is as a MultiDAG, because it reveals the most structure about a math expression'
 		
-	def __init__(self, root: Node[None]) -> None:
-		if not isinstance(root, Node):
-			raise TypeError('Expression() takes a Node. perhaps you meant Expression.from_str()')
-		self.root: Node[None] = root
-	
 	@classmethod
 	def from_str(
 			cls,
@@ -27,25 +22,20 @@ class Expression:
 			) -> 'Expression':
 		symbols_dict: dict[str, Symbol] = {symbol.name: symbol for symbol in symbols}
 		
-
 		ast_visitor:AstVisitor = AstVisitor(symbols_dict = symbols_dict, parse_dict = parse_dict, translate_dict = translate_dict)
 		
 		ast_tree: ast.AST = parse(expr, mode='eval').body
-		top_node: Node[Any] = ast_visitor.visit(ast_tree)
-		root: Node[None] = Node()	# notice the root node doesnt have any payload
-		Edge(top_node, root)
-		
-		return cls(root)
+		return ast_visitor.visit(ast_tree)
 	
 	def evaluate(self, substitutions: dict[Symbol: Any] = None, default_substitutions: dict[Symbol: Any] = None) -> Any:
 		'evaluate the expression'
 		# we could rely on kwargs as the dict. but we dont. do you know why?
 		# because kwargs: dict[str, Any] requires us to decode the str to a Symbol. this is bad. this means the str is the marker. this is wrong
 		# instead we pass substitutions: dict[Symbol, Any], implying that Symbol is the marker.
-
+		
 		substitutions = dict() if substitutions is None else substitutions
 		default_substitutions = default_evaluate_dict if default_substitutions is None else default_substitutions
-
+		
 		# substitutions overrides default_substitutions
 		subs = default_substitutions.copy()
 		for key, val in substitutions.items():
@@ -100,21 +90,8 @@ class Expression:
 	#	return evaluate_expression
 
 	def __repr__(self):
-		return f"<Expression at {hex(id(self))}: root = {self.root!r}, {len(self.context)} contexts>"
+		return f"<Expression at {hex(id(self))}: payload = {self.payload!r}>"
 
-	def __str__(self):
-		output = f"Expression at {hex(id(self))}"
-		output += f"\n    root: {self.root!r}"
-		output += f"\n    context: {type(self.context)}, len={len(self.context)}"
-
-		#type_counts = Counter((type(k), type(v)) for k, v in self.context.items())
-		#for (ktype, vtype), count in type_counts.items():
-		#	output += f"\n        {count} pairs of ({ktype.__name__}: {vtype.__name__})"
-
-		#for key, value in self.context.items():
-		#	output += f"\n        {key!r}: {value!r}"
-		return output
-	
 	#def __add__(self, value: Any) -> 'Expression':
 	#	return Expression
 
