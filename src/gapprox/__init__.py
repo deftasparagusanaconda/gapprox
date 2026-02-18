@@ -2,4 +2,6 @@
 
 __version__ = "0.6.0"
 
-from . import algebra, optimization, graph
+from .algebra import Domain, Mapping, Function, Relation, ExprNode, ExprEdge, Symbol
+from .optimization import *
+from .evalgraph import EvalNode, EvalEdge

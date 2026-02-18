@@ -1,4 +1,4 @@
-from .symbol import Symbol, FunctionSymbol, ConstantSymbol
+from .symbol import Symbol
 from . import operators as gapprox_operators
 import operator
 import builtins
@@ -10,53 +10,53 @@ import math
 # this is the boss
 default_evaluate_dict: dict[Symbol, Any] = {
 	# functions
-	 FunctionSymbol('pos'     , arity = 1,): gapprox_operators.pos
-	,FunctionSymbol('neg'     , arity = 1,): operator.neg
-	,FunctionSymbol('not'     , arity = 1,): operator.not_
+	 Symbol('pos'     ): gapprox_operators.pos
+	,Symbol('neg'     ): operator.neg
+	,Symbol('not'     ): operator.not_
 	
-	,FunctionSymbol('add'     , arity = 2,): operator.add
-	,FunctionSymbol('sub'     , arity = 2,): operator.sub
-	,FunctionSymbol('mul'     , arity = 2,): operator.mul
-	,FunctionSymbol('div'     , arity = 2,): operator.truediv
+	,Symbol('add'     ): operator.add
+	,Symbol('sub'     ): operator.sub
+	,Symbol('mul'     ): operator.mul
+	,Symbol('div'     ): operator.truediv
 	
-	,FunctionSymbol('and'     , arity = 2,): operator.and_
-	,FunctionSymbol('or'      , arity = 2,): operator.or_
+	,Symbol('and'     ): operator.and_
+	,Symbol('or'      ): operator.or_
 	
-	,FunctionSymbol('eq'      , arity = 2,): operator.eq
-	,FunctionSymbol('ne'      , arity = 2,): operator.ne
-	,FunctionSymbol('lt'      , arity = 2,): operator.lt
-	,FunctionSymbol('le'      , arity = 2,): operator.le
-	,FunctionSymbol('gt'      , arity = 2,): operator.gt
-	,FunctionSymbol('ge'      , arity = 2,): operator.ge
-	,FunctionSymbol('is'      , arity = 2,): operator.is_
-	,FunctionSymbol('isnot'   , arity = 2,): operator.is_not
-	,FunctionSymbol('in'      , arity = 2,): gapprox_operators.in_
-	,FunctionSymbol('notin'   , arity = 2,): gapprox_operators.notin
+	,Symbol('eq'      ): operator.eq
+	,Symbol('ne'      ): operator.ne
+	,Symbol('lt'      ): operator.lt
+	,Symbol('le'      ): operator.le
+	,Symbol('gt'      ): operator.gt
+	,Symbol('ge'      ): operator.ge
+	,Symbol('is'      ): operator.is_
+	,Symbol('isnot'   ): operator.is_not
+	,Symbol('in'      ): gapprox_operators.in_
+	,Symbol('notin'   ): gapprox_operators.notin
 	
-	,FunctionSymbol('ifelse'  , arity = 3,): gapprox_operators.ifelse
+	,Symbol('ifelse'  ): gapprox_operators.ifelse
 		
-	,FunctionSymbol('floordiv', arity = 2,): operator.floordiv
-	,FunctionSymbol('mod'     , arity = 2,): operator.mod
-	,FunctionSymbol('pow'     , arity = 2,): operator.pow
+	,Symbol('floordiv'): operator.floordiv
+	,Symbol('mod'     ): operator.mod
+	,Symbol('pow'     ): operator.pow
 	
-	,FunctionSymbol('lshift'  , arity = 2,): operator.lshift
-	,FunctionSymbol('rshift'  , arity = 2,): operator.rshift
-	,FunctionSymbol('bitnot'  , arity = 2,): operator.not_
-	,FunctionSymbol('bitor'   , arity = 2,): operator.or_
-	,FunctionSymbol('bitxor'  , arity = 2,): operator.xor
-	,FunctionSymbol('bitand'  , arity = 2,): operator.and_
+	,Symbol('lshift'  ): operator.lshift
+	,Symbol('rshift'  ): operator.rshift
+	,Symbol('bitnot'  ): operator.not_
+	,Symbol('bitor'   ): operator.or_
+	,Symbol('bitxor'  ): operator.xor
+	,Symbol('bitand'  ): operator.and_
 	
-	,FunctionSymbol('matmul'  , arity = 2,): operator.matmul
+	,Symbol('matmul'  ): operator.matmul
 
-	,FunctionSymbol('sin'     , arity = 1,): math.sin
-	,FunctionSymbol('cos'     , arity = 1,): math.cos
-	,FunctionSymbol('tan'     , arity = 1,): math.tan
+	,Symbol('sin'     ): math.sin
+	,Symbol('cos'     ): math.cos
+	,Symbol('tan'     ): math.tan
 
-	,ConstantSymbol('nan'                 ): math.nan
-	,ConstantSymbol('inf'                 ): math.inf
-	,ConstantSymbol('e'                   ): math.e
-	,ConstantSymbol('pi'                  ): math.pi
-	,ConstantSymbol('tau'                 ): math.tau
+	,Symbol('nan'     ): math.nan
+	,Symbol('inf'     ): math.inf
+	,Symbol('e'       ): math.e
+	,Symbol('pi'      ): math.pi
+	,Symbol('tau'     ): math.tau
 }
 
 default_parse_dict: dict[str, Symbol] = {symbol.name: symbol for symbol in default_evaluate_dict.keys()}

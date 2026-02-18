@@ -16,13 +16,3 @@ class Symbol:
 		return f"<Symbol at {hex(id(self))}: name = {self.name}>"
 
 	#def __add__(self, value, /):
-	
-
-class FunctionSymbol(Symbol):
-	def __init__(self, name: str, arity: int):
-		super().__init__(name)
-		self.arity = arity
-
-class ConstantSymbol(Symbol):
-	...
-

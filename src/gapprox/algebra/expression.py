@@ -27,20 +27,17 @@ class Expression(Node):
 		ast_tree: ast.AST = parse(expr, mode='eval').body
 		return ast_visitor.visit(ast_tree)
 	
-	def evaluate(self, substitutions: dict[Symbol: Any] = None, default_substitutions: dict[Symbol: Any] = None) -> Any:
+	def evaluate(self, substitutions: Mapping[Symbol: Any] = None, default_substitutions: Mapping[Symbol: Any] = None) -> Any:
 		'evaluate the expression'
 		# we could rely on kwargs as the dict. but we dont. do you know why?
 		# because kwargs: dict[str, Any] requires us to decode the str to a Symbol. this is bad. this means the str is the marker. this is wrong
 		# instead we pass substitutions: dict[Symbol, Any], implying that Symbol is the marker.
 		
-		substitutions = dict() if substitutions is None else substitutions
-		default_substitutions = default_evaluate_dict if default_substitutions is None else default_substitutions
+		substitutions: Mapping[Symbol, Any] = dict() if substitutions is None else substitutions
+		default_substitutions: Mapping[Symbol, Any] = default_evaluate_dict if default_substitutions is None else default_substitutions
 		
 		# substitutions overrides default_substitutions
-		subs = default_substitutions.copy()
-		for key, val in substitutions.items():
-			subs[key] = val
-		#subs.update(substitutions)
+		subs: Mapping[Symbol: Any] = default_substitutions | substitutions
 		
 		def evaluate_node(node: Node) -> any:
 			if node.is_leaf():

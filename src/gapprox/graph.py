@@ -1,36 +1,13 @@
-from typing import TypeVar, Generic	# to enable subscripting payload in typehints. pretty cool huh??
-
-T = TypeVar('T')
-
-class Node(Generic[T]):
+class Node:
 	'a node of a multi-edged directed graph'
-	def __init__(self, payload: T = None):
-		self.payload: T = payload
+	def __init__(self):
 		self.inputs: set['Edge'] = set()
-		self.outputs: set['Edge'] = set()
-
+	
 	def disconnect(self) -> None:
 		while self.inputs:
 			edge = self.inputs.pop()
 			edge.source.outputs.remove(edge)
-
-		while self.outputs:
-			edge = self.outputs.pop()
-			edge.target.inputs.remove(edge)
 		# we use .remove instead of .discard because we want to be strict. if your edge isnt properly embedded in the graph, then you cant properly remove it. and so you catch errors earlier. defensive programming.. i suppose
-	
-	# these four check methods assume an inverted tree structure, where the root is at the top, and edges point upwards.
-	def is_root(self) -> bool:
-		return len(self.outputs) == 0 and len(self.inputs) != 0
-
-	def is_branch(self) -> bool:
-		return len(self.outputs) != 0 and len(self.inputs) != 0
-
-	def is_leaf(self) -> bool:
-		return len(self.outputs) != 0 and len(self.inputs) == 0
-
-	def is_orphan(self) -> bool:	# poor node :(
-		return len(self.outputs) == 0 and len(self.inputs) == 0
 	
 	def tree_view(self, prefix: str = '') -> str:
 		output = f'{prefix}{self!r}\n'
@@ -39,45 +16,32 @@ class Node(Generic[T]):
 		return output
 
 	def __repr__(self) -> str:
-		return f"<Node at {hex(id(self))}: {len(self.inputs)} inputs, {len(self.outputs)} outputs, payload = {self.payload!r}>"
+		return f"<Node at {hex(id(self))}: {len(self.inputs)} inputs>"
 
-	def __str__(self) -> str:
-		output = f"Node at {hex(id(self))}:"
-		output += f"\n    payload: {self.payload!r}"
-		output += f"\n    inputs: {type(self.inputs)}, len = {len(self.inputs)}"
-		for edge in self.inputs:
-			output += f"\n        {edge!r}"
-		output += f"\n    outputs: {type(self.outputs)}, len = {len(self.outputs)}"
-		for edge in self.outputs:
-			output += f"\n        {edge!r}"
-		return output
-
-class Edge(Generic[T]):
+class Edge:
 	'an edge of a multi-edged directed graph'
-	def __init__(self, source: Node, target: Node, payload: T = None):
+	def __init__(self, source: Node, target: Node):
+		self._target = target
+
 		self.source: Node = source
 		self.target: Node = target
-		self.payload: T = payload
-
-		self.target.inputs.add(self)
-		self.source.outputs.add(self)
+	
+	@property
+	def target(self) -> Node:
+		return self._target
+	
+	@target.setter
+	def target(self, node) -> None:
+		self._target.inputs.remove(self)
+		self._target = node
+		node.inputs.add(self)
 		
 	def disconnect(self) -> None:
-		self.source.outputs.remove(self)
 		self.target.inputs.remove(self)
 		# we use .remove instead of .discard because we want to be strict. if your edge isnt properly embedded in the graph, then you cant properly remove it. and so you catch errors earlier. defensive programming.. i suppose
 
 	def __repr__(self) -> str:
-		return f"<Edge at {hex(id(self))}: {self.source.payload!r} → {self.target.payload!r}, payload = {self.payload!r}>"
-
-	def __str__(self) -> str:
-		output = f"Edge at {hex(id(self))}:"
-		output += f"\n    source: {self.source!r}"
-		output += f"\n    target: {self.target!r}"
-		output += f"\n    payload: {self.payload!r}"
-		return output
-
-__dir__ = lambda: ['Node', 'Edge']
+		return f"<Edge at {hex(id(self))}: {self.source!r} → {self.target!r}, payload = {self.payload!r}>"
 
 '''
 import gapprox
@@ -329,20 +293,20 @@ class NodeVisitor:
 	def generic_visit(self, node) -> any:
 		'generic_visit generally defines the method (pre-order or post-order) and the direction (towards root or toward leaves) of recursion'
 		raise ValueError("this {self.__class__.__name__} got {node=}, {type(node)=} and no corresponding visit_* was defined")
-
+	
 	def __repr__(self):
 		# all names in the instance
 		all_names = dir(self)
-
+		
 		# filter out attributes and methods
 		attributes = [name for name in all_names if not callable(getattr(self, name)) and not name.startswith("__")]
 		methods	= [name for name in all_names if callable(getattr(self, name)) and not name.startswith("__")]
-
+		
 		name_str = self.__class__.__name__	# in case derived classes dont implement their own __repr__ which they probably wont
 		attributes_str = f"{len(attributes)} attributes"
 		methods_str = f"{len(methods)} methods"
 		return f"<{name_str} at {hex(id(self))}: {attributes_str}, {methods_str}>"
-
+		
 	def __str__(self):
 		from collections.abc import Iterable
 
