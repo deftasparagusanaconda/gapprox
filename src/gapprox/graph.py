@@ -22,6 +22,7 @@ class Edge:
 	'an edge of a multi-edged directed graph'
 	def __init__(self, source: Node, target: Node):
 		self._target = target
+		self._target.inputs.add(self)
 
 		self.source: Node = source
 		self.target: Node = target

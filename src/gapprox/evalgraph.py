@@ -7,7 +7,10 @@ import ast	# for ast.NodeVisitor
 from numbers import Number	# for typehinting
 from collections.abc import Mapping
 
+import operator, math, builtins	# for dunders
+
 class EvalNode(Node):
+
 	def __init__(self, payload: Any) -> None:
 		self.payload: Any = payload
 		super().__init__()
@@ -50,7 +53,7 @@ class EvalNode(Node):
 				target = EvalNode(val)	# instantiation
 				break
 		
-		if not target.inputs:
+		if not self.inputs:
 			return target	# termination
 		
 		# create a handy dandy dict of {old_edge: new_payload}
@@ -86,7 +89,7 @@ class EvalNode(Node):
 			elif second_key in edge_substitutions:
 				new_edges[edge] = edge_substitutions[second_key]
 			else:
-				new_edges[edge] = None
+				new_edges[edge] = edge.payload
 		
 		# new_edges now looks like {e1: None, e2: 2, e3: my_edge, …}
 		
@@ -104,8 +107,10 @@ class EvalNode(Node):
 				raise TypeError('edge_substitutions values can only be int or str')
 			source = edge.source.substitute(node_substitutions,edge_substitutions, payload_first = payload_first)	# recursion
 			EvalEdge(source, target, new_payload)	# instantiation
-
-	def evaluate(self, *, memo: None | dict['EvalNode', Any] = None) -> Any:
+		
+		return target
+		
+	def _evaluate_without_arguments(self, *, memo: None | dict['EvalNode', Any] = None) -> Any:
 		memo: dict['EvalNode', Any] = {} if memo is None else memo
 		
 		if self in memo:
@@ -114,38 +119,39 @@ class EvalNode(Node):
 		if not self.inputs:
 			result = self.payload
 		else:
-			args: dict[int, Any] = {}
+			args_dict: dict[int, Any] = {}
 			kwargs: dict[str, Any] = {}
 			
 			for edge in self.inputs:
-				position = edge.position
+				payload = edge.payload
 				value = edge.source.evaluate(memo = memo)	# recursion
 			
-				match position:
+				match payload:
 					case int(): 
-						if position in args:
-							raise ValueError(f'duplicate position [{position}]')
-						args[position] = value
+						if payload in args_dict:
+							raise ValueError(f'duplicate payload [{payload}]')
+						args_dict[payload] = value
 					case str(): 
-						if position in kwargs:
-							raise ValueError(f'duplicate position {position!r}')
-						kwargs[position] = value
+						if payload in kwargs:
+							raise ValueError(f'duplicate payload {payload!r}')
+						kwargs[payload] = value
 					case _: 
-						raise TypeError(f'{position} is not int or str')
+						raise TypeError(f'{payload} is not int or str')
+			
+			arg_count = len(args_dict)
+				# check args_dict continuity
+			if not all(index in args_dict for index in range(arg_count)):
+				raise ValueError('int payload must be contiguous starting from 0')
 		
-			arg_count = len(args)
-				# check args continuity
-			if not all(index in args for index in range(arg_count)):
-				raise ValueError('int position must be contiguous starting from 0')
-		
-			args: Generator[Any, None, None] = (args[index] for index in range(arg_count))
+			args: Generator[Any, None, None] = (args_dict[index] for index in range(arg_count))
 		
 			result = self.payload(*args, **kwargs)
 		
 		memo[self] = result
 		return result
 	
-	__call__ = evaluate
+	def evaluate(self, node_substitutions = None, edge_substitutions = None, *, payload_first = False, memo = None) -> Any:
+		return self.substitute(node_substitutions, edge_substitutions, payload_first = payload_first)._evaluate_without_arguments(memo = memo)
 
 	def compile() -> Callable:
 		...
@@ -156,18 +162,120 @@ class EvalNode(Node):
 		ast_tree: ast.AST = parse(expr, mode='eval').body
 		
 		return ast_visitor.visit(ast_tree)
+		
+	@staticmethod
+	def _dunder_factory(operator: Callable, *, reverse_args: bool = False) -> Callable:
+		
+		def dunder(*args, **kwargs) -> EvalNode:
+			if not (all(isinstance(arg, EvalNode) for arg in args) and all(isinstance(kwarg, EvalNode) for kwarg in kwargs)):
+				raise TypeError('only compatible with EvalNode')
+			top_node = EvalNode(operator)
+			for index, arg in enumerate(reversed(args) if reverse_args else args):
+				EvalEdge(arg, top_node, index)
+			for key, kwarg in kwargs.items():
+				EvalEdge(kwarg, top_node, key)
+			return top_node
+
+		return dunder
+		
+	__lt__        = _dunder_factory(operator.lt                         )	# x < y
+	__le__        = _dunder_factory(operator.le                         )	# x <= y
+	__eq__        = _dunder_factory(operator.eq                         )	# x == y
+	__ne__        = _dunder_factory(operator.ne                         )	# x != y
+	__ge__        = _dunder_factory(operator.ge                         )	# x >= y
+	__gt__        = _dunder_factory(operator.gt                         )	# x > y
+
+	__abs__       = _dunder_factory(operator.abs                        )	# abs(x)
+	__pos__       = _dunder_factory(operator.pos                        )	# +x
+	__neg__       = _dunder_factory(operator.neg                        )	# -x
+	__add__       = _dunder_factory(operator.add                        )	# x + y
+	__radd__      = _dunder_factory(operator.add     , reverse_args=True)	# y + x
+	__sub__       = _dunder_factory(operator.sub                        )	# x - y
+	__rsub__      = _dunder_factory(operator.sub     , reverse_args=True)	# y - x
+	__mul__       = _dunder_factory(operator.mul                        )	# x * y
+	__rmul__      = _dunder_factory(operator.mul     , reverse_args=True)	# y * x
+	__truediv__   = _dunder_factory(operator.truediv                    )	# x / y
+	__rtruediv__  = _dunder_factory(operator.truediv , reverse_args=True)	# y / x
+	__pow__       = _dunder_factory(operator.pow                        )	# x ** y
+	__rpow__      = _dunder_factory(operator.pow     , reverse_args=True)	# y ** x
 	
+	__floordiv__  = _dunder_factory(operator.floordiv                   )	# x // y
+	__rfloordiv__ = _dunder_factory(operator.floordiv, reverse_args=True)	# x // y
+	__mod__       = _dunder_factory(operator.mod                        )	# x % y
+	__rmod__      = _dunder_factory(operator.mod     , reverse_args=True)	# y % x
+	__divmod__    = _dunder_factory(builtins.divmod                     )	# divmod(x, y)
+	__rdivmod__   = _dunder_factory(builtins.divmod  , reverse_args=True)	# divmod(y, x)
+	
+	__matmul__    = _dunder_factory(operator.matmul                     )	# x @ y
+	
+	__invert__    = _dunder_factory(operator.invert                     )	# ~x
+	__and__       = _dunder_factory(operator.and_                       )	# x & y	
+	__rand__      = _dunder_factory(operator.and_    , reverse_args=True)	# y & x
+	__or__        = _dunder_factory(operator.or_                        )	# x | y
+	__ror__       = _dunder_factory(operator.or_     , reverse_args=True)	# y | x
+	__xor__       = _dunder_factory(operator.xor                        )	# x ^ y
+	__rxor__      = _dunder_factory(operator.xor     , reverse_args=True)	# y ^ x
+	__lshift__    = _dunder_factory(operator.lshift                     )	# x << y
+	__rlshift__   = _dunder_factory(operator.lshift  , reverse_args=True)	# y << x
+	__rshift__    = _dunder_factory(operator.rshift                     )	# x >> y
+	__rrshift__   = _dunder_factory(operator.rshift  , reverse_args=True)	# y >> x
+
+	__round__     = _dunder_factory(builtins.round                      )	# round(x, [y])
+	__trunc__     = _dunder_factory(math.trunc                          )	# trunc(x)
+	__floor__     = _dunder_factory(math.floor                          )	# floor(x)
+	__ceil__      = _dunder_factory(math.ceil                           )	# ceil(x)
+
+	__call__      = _dunder_factory(operator.call                       )	# x(…)
+	__getitem__   = _dunder_factory(operator.getitem                    )	# x[y][…]…
+	__setitem__   = _dunder_factory(operator.setitem                    )	# x[y][…]… = z
+	__delitem__   = _dunder_factory(operator.delitem                    )	# del x[y][…][…]… 
+
+	__enter__      = _dunder_factory(operator.call                       )	# x(…)
+	__enter__      = _dunder_factory(operator.call                       )	# x(…)
+
+	# do NOT define these because the corresponding dunder expects the corresponding type to be returned, not EvalNode
+	#__bool__      = _dunder_factory(bool                                )	# bool(x)
+	#__int__       = _dunder_factory(int                                 )	# int(x)
+	#__float__     = _dunder_factory(float                               )	# float(x)
+	#__complex__   = _dunder_factory(complex                             )	# complex(x)
+	#__str__       = _dunder_factory(str                                 )	# str(x)
+
+	# NOTE: why dont we implicitly wrap non-EvalNode operands to EvalNode? because:
+	# 
+	# imagine this scenario. you have `x = EvalNode('x')`. if we allowed implicit wrapping:
+	# 2 + 4 + x would create this tree:
+	#
+	#   + 
+	#  / \
+	# 6   x
+	#
+	# this is because the other parts of the expression that are not EvalNode will evaluate to a single value. if we disallow implicit wrapping, we are forced to do:
+	# EvalNode(2) + EvalNode(4) + x which would correctly create the tree:
+	#
+	#     +    
+	#    / \      
+	#   +   x 
+	#  / \       
+	# 2   4    
+	# 
+	# thus we protect the user from any unexpected behaviour. it is less convenient but it is more important to be correct, in our case. gapprox is not mainly a convenience tool. robustness first. in fact, if you want such convenience, youre probably better off using ExprNode.from_str
+	
+	# because we defined __eq__, __hash__ needs to be set manually
+	#def __hash__(self):
+	#	return id(self)
+	__hash__ = object.__hash__
+
 	def __repr__(self) -> str:
 		return f'<{self.__class__.__name__} at {hex(id(self))}: {len(self.inputs)} inputs, payload={self.payload!r}>'
 
 class EvalEdge(Edge):
-	def __init__(self, source: EvalNode, target: EvalNode, position: int | str) -> None:
-		if isinstance(position, int) and position < 0:
-			raise ValueError('int position must be ≥ 0')
-		if not isinstance(position, (int, str)):
-			raise TypeError('position must be int or str')
+	def __init__(self, source: EvalNode, target: EvalNode, payload: int | str) -> None:
+		if isinstance(payload, int) and payload < 0:
+			raise ValueError('int payload must be ≥ 0')
+		if not isinstance(payload, (int, str)):
+			raise TypeError('payload must be int or str')
 		
-		self.position: int | str = position
+		self.payload: int | str = payload
 		super().__init__(source, target)
 
 default_translate_dict: dict[ast.AST, Any]
