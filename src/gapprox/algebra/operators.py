@@ -5,9 +5,6 @@ import math as _math
 #import builtins as _builtins
 #import statistics as _statistics
 
-def pos(whatever):
-	return +whatever
-
 def in_(a, b):
 	return a in b
 

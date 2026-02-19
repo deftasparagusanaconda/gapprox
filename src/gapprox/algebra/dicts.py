@@ -10,7 +10,7 @@ import math
 # this is the boss
 default_evaluate_dict: dict[Symbol, Any] = {
 	# functions
-	 Symbol('pos'     ): gapprox_operators.pos
+	 Symbol('pos'     ): operator.pos
 	,Symbol('neg'     ): operator.neg
 	,Symbol('not'     ): operator.not_
 	

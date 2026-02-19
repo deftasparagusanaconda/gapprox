@@ -1,4 +1,4 @@
-from .domain import Domain
+from .domain import *
 from .mapping import Mapping
 from .function import Function
 from .relation import Relation
