@@ -31,9 +31,12 @@ Issues = "https://github.com/deftasparagusanaconda/gapprox/issues"
 Documentation = "https://github.com/deftasparagusanaconda/gapprox/documentation"
 Repository = "https://github.com/deftasparagusanaconda/gapprox"
 
+[tool.setuptools]
+package-dir = {"" = "src"}
+
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["gapprox"]
+
 
 [tool.setuptools.dynamic]
 version.attr = "gapprox.__version__"
