@@ -1,7 +1,9 @@
 from .domain import Domain
 from typing import Any
 from collections.abc import Container, Sequence
+from ..misc import custom_repr
 
+@custom_repr
 class Relation:
 	"""represents a mathematical relation. it stores a set of tuples in .tuples and also keeps track of a tuple of domains in .domains. it thus generalizes to an n-ary relation. it can also store tuples as a callable, which is the indicator function of the set"""
 

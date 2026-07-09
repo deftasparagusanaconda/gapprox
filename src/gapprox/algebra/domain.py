@@ -3,7 +3,9 @@ from collections.abc import Container	# anything that has __contains__
 from typing import Callable	# anything that has __call__
 import inspect
 import numbers
+from ..misc import custom_repr
 
+@custom_repr
 class Domain:
 	'represents a mathematical domain, which is stored as either a Container[Any] (like a set or a list or a tuple. anything with __contains__ defined), or a Callable[[Any, ...], bool] (like a function or Expression. anything with __call__ defined) which is the indicator function of that set'
 	

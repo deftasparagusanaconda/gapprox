@@ -7,32 +7,43 @@ from .dicts import default_evaluate_dict, default_parse_dict, default_translate_
 from .symbol import Symbol
 import ast
 from collections.abc import Iterable
-from typing import Any
+from typing import Any, Callable
 import operator
+from ..misc import custom_repr
 
-#default_parse_dict: Mapping[str, Symbol] = {dunder.strip('_'): default_parse_dict[dunder.strip('_')] for dunder in (operator.__dir__())}
-
+@custom_repr
 class Symbol:
 	'a Symbol encodes meaning, like encoding the meaning of pi, instead of just the value'
 	
 	def __init__(self, *args, **kwargs):
 		self.args: tuple[Any, ...] = args
 		self.kwargs: dict[str, Any] = kwargs 
-
-	def __repr__(self) -> str:
-		return f"<Symbol at {hex(id(self))}: args={self.args}, kwargs={self.kwargs}>"
 	
-	def __add__(self, other) -> ExprNode:
-		top_node = ExprNode('__add__')
-		ExprEdge(self, top_node, 0)
-		ExprEdge(other, top_node, 1)
-		return top_node
+	def _dunder_factory(symbol: Symbol, *, reverse_args: bool = False) -> Callable[[...], ExprNode]:
+		
+		def dunder(*args, **kwargs):
+			new_args = []
+			new_kwargs = {}
 
+			for arg in args:
+				match arg:
+					case Symbol(): new_args.append(ExprNode(arg))
+					case ExprNode(): new_args.append(arg)
+					case _: return NotImplemented
+				
+			for key, kwarg in kwargs.items():
+				match kwarg:
+					case Symbol(): new_kwargs[key] = ExprNode(kwarg)
+					case ExprNode(): new_kwargs[key] = kwarg
+					case _: return NotImplemented
+			
+			return ExprNode(symbol, reversed(new_args) if reverse_args else new_args, new_kwargs)
+		
+		return dunder
+
+@custom_repr
 class ExprNode(EvalNode):
 	'a node of an expression tree/DAG (directed acyclic graph). it holds an instance of a Symbol as payload'
-	
-
-
 	"""
 	_dunder_mapping: Mapping[str, Symbol] = {
 		# '__abs__'      : default_parse_dict['abs'     ]
@@ -140,11 +151,6 @@ class ExprNode(EvalNode):
 	def evaluate(*args, **kwargs) -> Any:
 		return self.to_EvalNode.evaluate(*args, **kwargs)
 	
-	def __add__(self, other) -> ExprNode:
-		if not isinstance(other, ExprNode):
-			raise TypeError('can only add ExprNode and ExprNode')
-		payload: Callable[[Any, Any], Any] = type(self)._parse_dict['__add__']
-
 class ExprEdge(EvalEdge):
 	def __init__(self, source: ExprNode, target: ExprNode, position: int):
 		if not isinstance(position, int):

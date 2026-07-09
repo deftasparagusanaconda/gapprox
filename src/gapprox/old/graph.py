@@ -1,49 +1,34 @@
+# edges are known implicitly from nodes
+
+from dataclasses import dataclass, field
+from .frozendict import frozendict
+
+@dataclass(frozen=True, slots=True)
 class Node:
-	'a node of a multi-edged directed graph'
-	def __init__(self):
-		self.inputs: set['Edge'] = set()
+	'an immutable node of a multi-edged directed graph'
 	
-	def disconnect(self) -> None:
-		while self.inputs:
-			edge = self.inputs.pop()
-			edge.source.outputs.remove(edge)
-		# we use .remove instead of .discard because we want to be strict. if your edge isnt properly embedded in the graph, then you cant properly remove it. and so you catch errors earlier. defensive programming.. i suppose
+	payload: Any
+	args: tuple[Node, ...]
+	kwargs: frozendict[str, Node]
 	
-	def tree_view(self, prefix: str = '') -> str:
-		output = f'{prefix}{self!r}\n'
-		for edge in self.inputs:
-			output += edge.source.tree_view(prefix + '|---')
-		return output
+
+	# since dataclass overrides __hash__ to be based on attributes,
+	# two nodes will always hash the same if they have the same 
+	# we set it to object-based ID instead
+	__hash__ = object.__hash__
 
 	def __repr__(self) -> str:
 		return f"<Node at {hex(id(self))}: {len(self.inputs)} inputs>"
-
+'''
 class Edge:
 	'an edge of a multi-edged directed graph'
-	def __init__(self, source: Node, target: Node):
-		self._target = target
-		self._target.inputs.add(self)
 
-		self.source: Node = source
-		self.target: Node = target
-	
-	@property
-	def target(self) -> Node:
-		return self._target
-	
-	@target.setter
-	def target(self, node) -> None:
-		self._target.inputs.remove(self)
-		self._target = node
-		node.inputs.add(self)
-		
-	def disconnect(self) -> None:
-		self.target.inputs.remove(self)
-		# we use .remove instead of .discard because we want to be strict. if your edge isnt properly embedded in the graph, then you cant properly remove it. and so you catch errors earlier. defensive programming.. i suppose
+	source: Node
+	target: Node
 
 	def __repr__(self) -> str:
-		return f"<Edge at {hex(id(self))}: {self.source!r} → {self.target!r}, payload = {self.payload!r}>"
-
+		return f"<Edge at {hex(id(self))}: {self.source!r} → {self.target!r}>"
+'''
 '''
 import gapprox
 

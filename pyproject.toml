@@ -11,7 +11,7 @@ readme = "README.md"
 requires-python = ">=3.11.0"
 license = "GPL-3.0-or-later"
 #package-dir = {"" = "."}
-dependencies = ["numpy", "matplotlib", "networkx"]
+#dependencies = ["numpy", "matplotlib", "networkx"]
 authors = [
 	{ name="deftasparagusanaconda", email="deftasparagusanaconda@gmail.com" },
 	{ name="Jeffrin Santon", email="jeffrinsanton0909@gmail.com"}
@@ -22,8 +22,8 @@ classifiers = ["Programming Language :: Python :: 3.13"]
 #[project.scripts]
 #ga = "gapprox.__main__:main"
 
-#[project.optional-dependencies]
-#fft = ["scipy"]
+[project.optional-dependencies]
+all = ["frozendict"]
 
 [project.urls]
 Homepage = "https://github.com/deftasparagusanaconda/gapprox"

@@ -1,6 +1,8 @@
 from collections.abc import Callable
 from typing import Any
+from ..misc import custom_repr
 
+@custom_repr
 class Mapping:
 	"represents a unidirectional mapping from a domain to a codomain. mathematically, a mapping is an looser term than a function because it doesnt need to know the domain or codomain. here it is simply anything that can map a value to another (implements __getitem__) or a function that can return a value given some value (implements __call__)"
 

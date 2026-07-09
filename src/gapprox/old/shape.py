@@ -140,17 +140,8 @@ def output_shape(*args, **kwargs):
 		return function
 	return decorator
 
-'''
-def attributes(**kwargs):
-	"""a decorator that assigns its keyword arguments as attributes to a function"""
 
-	def decorator(function):
-		for key, value in kwargs.items():
-			#function.key = value
-			setattr(function, key, value)
-		return function
-	return decorator
-'''
+
 
 # ------------------------------------------------------------------------------
 # huge rant i had while trying to figure out how to store return value information
